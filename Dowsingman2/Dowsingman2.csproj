@@ -33,6 +33,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>resource\icon_G.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Dowsingman2.App</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="HtmlAgilityPack, Version=1.7.2.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
       <HintPath>..\packages\HtmlAgilityPack.1.7.2\lib\Net45\HtmlAgilityPack.dll</HintPath>
