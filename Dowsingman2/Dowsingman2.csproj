@@ -69,7 +69,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ComRelease.cs" />
-    <Compile Include="GetLinks.cs" />
+    <Compile Include="ValueOrDefault.cs" />
+    <Compile Include="StreamList.cs" />
     <Compile Include="RootObject.cs" />
     <Compile Include="StaticClass.cs" />
     <Compile Include="StreamClass.cs" />
