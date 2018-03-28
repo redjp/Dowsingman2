@@ -24,118 +24,16 @@ namespace Dowsingman2
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
-            StaticClass.kukuluList = new List<StreamClass>();
-            StaticClass.kukuluAll = new List<StreamClass>();
-            StaticClass.fc2List = new List<StreamClass>();
-            StaticClass.fc2All = new List<StreamClass>();
-            StaticClass.twitchList = new List<StreamClass>();
-            StaticClass.twitchAll = new List<StreamClass>();
-
-            StaticClass.logList = new List<StreamClass>();
-
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             this.notifyIcon = new NotifyIconWrapper();
 
-            #region XMLファイル読み込み
             //起動時にXMLファイルから読み込み
-            string filePath = System.IO.Path.GetFullPath(@".\favorite\kukulu.xml");
-            if (File.Exists(filePath))
-            {
-                //https://dobon.net/vb/dotnet/file/xmlserializer.html
-                XmlSerializer serializer = new XmlSerializer(typeof(List<string>));
-                using (System.IO.StreamReader sr = new System.IO.StreamReader(filePath, new UTF8Encoding(false)))
-                {
-                    try
-                    {
-                        List<string> loadList = new List<string>();
-                        loadList = (List<string>)serializer.Deserialize(sr);
-
-                        foreach (string str in loadList)
-                        {
-                            StaticClass.kukuluList.Add(new StreamClass(str));
-                        }
-                    }
-                    catch
-                    {
-                        StaticClass.fc2List = new List<StreamClass>();
-                    }
-            }
-            }
-
-            //起動時にXMLファイルから読み込みその2
-            filePath = System.IO.Path.GetFullPath(@".\favorite\twitch.xml");
-            if (File.Exists(filePath))
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(List<string>));
-                using (System.IO.StreamReader sr = new System.IO.StreamReader(filePath, new UTF8Encoding(false)))
-                {
-                    try
-                    {
-                        List<string> loadList = new List<string>();
-                        loadList = (List<string>)serializer.Deserialize(sr);
-
-                        foreach (string str in loadList)
-                        {
-                            StaticClass.twitchList.Add(new StreamClass(str));
-                        }
-                    }
-                    catch
-                    {
-                        StaticClass.fc2List = new List<StreamClass>();
-                    }
-                }
-            }
-
-            //起動時にXMLファイルから読み込みその3
-            filePath = System.IO.Path.GetFullPath(@".\favorite\fc2.xml");
-            if (File.Exists(filePath))
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(List<string>));
-                using (System.IO.StreamReader sr = new System.IO.StreamReader(filePath, new UTF8Encoding(false)))
-                {
-                    try
-                    {
-                        List<string> loadList = new List<string>();
-                        loadList = (List<string>)serializer.Deserialize(sr);
-
-                        foreach (string str in loadList)
-                        {
-                            StaticClass.fc2List.Add(new StreamClass(str));
-                        }
-                    }
-                    catch
-                    {
-                        StaticClass.fc2List = new List<StreamClass>();
-                    }
-                }
-            }
-
+            StaticClass.kukuluList = FileToListString(System.IO.Path.GetFullPath(@".\favorite\kukulu.xml"));
+            StaticClass.twitchList = FileToListString(System.IO.Path.GetFullPath(@".\favorite\twitch.xml"));
+            StaticClass.fc2List = FileToListString(System.IO.Path.GetFullPath(@".\favorite\fc2.xml"));
+            
             //起動時にXMLファイルから読み込み（履歴）
-            filePath = System.IO.Path.GetFullPath(@".\favorite\log.xml");
-            if (File.Exists(filePath))
-            {
-                //https://dobon.net/vb/dotnet/file/xmlserializer.html
-                XmlSerializer serializer = new XmlSerializer(typeof(List<StreamClass>));
-                using (System.IO.StreamReader sr = new System.IO.StreamReader(filePath, new UTF8Encoding(false)))
-                {
-                    try
-                    {
-                        List<StreamClass> loadList = new List<StreamClass>();
-                        loadList = (List<StreamClass>)serializer.Deserialize(sr);
-
-                        foreach (StreamClass st in loadList)
-                        {
-                            StaticClass.logList.Add(st);
-                        }
-                    }
-                    catch
-                    {
-                        StaticClass.logList = new List<StreamClass>();
-                    }
-                }
-            }
-            #endregion
+            StaticClass.logList = FileToList(System.IO.Path.GetFullPath(@".\favorite\log.xml"));
 
             //起動時に配信をチェック
             notifyIcon.checkStreamIcon();
@@ -151,63 +49,132 @@ namespace Dowsingman2
             Com.ComRelease.FinalReleaseComObjects(notifyIcon);
             this.notifyIcon.Dispose();
 
-            #region XMLファイル書き込み
             //終了時にXMLファイルへ保存
-            List<string> favoriteList = new List<string>();
-            string filePath = System.IO.Path.GetFullPath(@".\favorite\kukulu.xml");
-            foreach (StreamClass st in StaticClass.kukuluList)
+            ListToFileString(StaticClass.kukuluList, System.IO.Path.GetFullPath(@".\favorite\kukulu.xml"));
+            ListToFileString(StaticClass.twitchList, System.IO.Path.GetFullPath(@".\favorite\twitch.xml"));
+            ListToFileString(StaticClass.fc2List, System.IO.Path.GetFullPath(@".\favorite\fc2.xml"));
+
+            //終了時にXMLファイルへ保存（履歴）
+            ListToFile(StaticClass.logList, System.IO.Path.GetFullPath(@".\favorite\log.xml"));
+        }
+
+        /// <summary>
+        /// XMLファイルからリストを読み込み
+        /// </summary>
+        /// <param name="filePath">XMLファイルのフルパス</param>
+        /// <returns>読み込まれたリスト</returns>
+        private List<StreamClass> FileToList(string filePath)
+        {
+            //戻り値
+            var list = new List<StreamClass>();
+
+            if (File.Exists(filePath))
             {
-                favoriteList.Add(st.Owner);
+                //https://dobon.net/vb/dotnet/file/xmlserializer.html
+                XmlSerializer serializer = new XmlSerializer(typeof(List<string>));
+                using (System.IO.StreamReader sr = new System.IO.StreamReader(filePath, new UTF8Encoding(false)))
+                {
+                    try
+                    {
+                        List<string> loadList = new List<string>();
+                        loadList = (List<string>)serializer.Deserialize(sr);
+
+                        foreach (string str in loadList)
+                        {
+                            list.Add(new StreamClass(str));
+                        }
+                    }
+                    catch
+                    {
+                        list = new List<StreamClass>();
+                    }
+                }
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// XMLファイルからリストを読み込み
+        /// </summary>
+        /// <param name="filePath">XMLファイルのフルパス</param>
+        /// <returns>読み込まれたリスト</returns>
+        private List<StreamClass> FileToListString(string filePath)
+        {
+            //戻り値
+            var list = new List<StreamClass>();
+
+            if (File.Exists(filePath))
+            {
+                //https://dobon.net/vb/dotnet/file/xmlserializer.html
+                XmlSerializer serializer = new XmlSerializer(typeof(List<string>));
+                using (System.IO.StreamReader sr = new System.IO.StreamReader(filePath, new UTF8Encoding(false)))
+                {
+                    try
+                    {
+                        List<string> loadList = new List<string>();
+                        loadList = (List<string>)serializer.Deserialize(sr);
+
+                        foreach (string str in loadList)
+                        {
+                            list.Add(new StreamClass(str));
+                        }
+                    }
+                    catch
+                    {
+                        list = new List<StreamClass>();
+                    }
+                }
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// リストをXMLファイルへ保存
+        /// </summary>
+        /// <param name="saveList">保存するリスト</param>
+        /// <param name="filePath">XMLファイルのフルパス</param>
+        private void ListToFile(List<StreamClass> saveList, string filePath)
+        {
+            //https://dobon.net/vb/dotnet/file/xmlserializer.html
+            XmlSerializer serializer = new XmlSerializer(typeof(List<StreamClass>));
+            using (StreamWriter sw = new StreamWriter(filePath, false, new UTF8Encoding(false)))
+            {
+                try
+                {
+                    serializer.Serialize(sw, saveList);
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        /// <summary>
+        /// リストをXMLファイルへ保存
+        /// </summary>
+        /// <param name="saveList">保存するリスト</param>
+        /// <param name="filePath">XMLファイルのフルパス</param>
+        private void ListToFileString(List<StreamClass> saveList, string filePath)
+        {
+            List<string> saveOwnerList = new List<string>();
+            foreach (StreamClass st in saveList)
+            {
+                saveOwnerList.Add(st.Owner);
             }
             //https://dobon.net/vb/dotnet/file/xmlserializer.html
             XmlSerializer serializer = new XmlSerializer(typeof(List<string>));
             using (StreamWriter sw = new StreamWriter(filePath, false, new UTF8Encoding(false)))
             {
-                serializer.Serialize(sw, favoriteList);
+                try
+                {
+                    serializer.Serialize(sw, saveOwnerList);
+                }
+                catch
+                {
+                }
             }
-
-            //終了時にXMLファイルへ保存その2
-            favoriteList = new List<string>();
-            filePath = System.IO.Path.GetFullPath(@".\favorite\twitch.xml");
-            foreach (StreamClass st in StaticClass.twitchList)
-            {
-                favoriteList.Add(st.Owner);
-            }
-            //https://dobon.net/vb/dotnet/file/xmlserializer.html
-            serializer = new XmlSerializer(typeof(List<string>));
-            using (StreamWriter sw = new StreamWriter(filePath, false, new UTF8Encoding(false)))
-            {
-                serializer.Serialize(sw, favoriteList);
-            }
-
-            //終了時にXMLファイルへ保存その3
-            favoriteList = new List<string>();
-            filePath = System.IO.Path.GetFullPath(@".\favorite\fc2.xml");
-            foreach (StreamClass st in StaticClass.fc2List)
-            {
-                favoriteList.Add(st.Owner);
-            }
-            //https://dobon.net/vb/dotnet/file/xmlserializer.html
-            serializer = new XmlSerializer(typeof(List<string>));
-            using (StreamWriter sw = new StreamWriter(filePath, false, new UTF8Encoding(false)))
-            {
-                serializer.Serialize(sw, favoriteList);
-            }
-
-            //終了時にXMLファイルへ保存（履歴）
-            List<StreamClass> logList = new List<StreamClass>();
-            filePath = System.IO.Path.GetFullPath(@".\favorite\log.xml");
-            foreach (StreamClass st in StaticClass.logList)
-            {
-                favoriteList.Add(st.Owner);
-            }
-            //https://dobon.net/vb/dotnet/file/xmlserializer.html
-            serializer = new XmlSerializer(typeof(List<StreamClass>));
-            using (StreamWriter sw = new StreamWriter(filePath, false, new UTF8Encoding(false)))
-            {
-                serializer.Serialize(sw, logList);
-            }
-            #endregion
         }
     }
 }

@@ -158,17 +158,11 @@ namespace Dowsingman2
 
         public void checkStreamIcon()
         {
-            Boolean flag1, flag2, flag3;
-
             //配信があればアイコンの色を変える
-            flag1 = CheckkukuluList();
-            flag2 = ChecktwitchList();
-            flag3 = Checkfc2List();
-            if (flag1 || flag2 || flag3)
-                notifyIcon1.Icon = new System.Drawing.Icon(IconPFile);
-            else
-                notifyIcon1.Icon = new System.Drawing.Icon(IconGFile);
-
+            CheckkukuluList();
+            ChecktwitchList();
+            Checkfc2List();
+            
             //ウィンドウが開いていれば更新
             if (wnd != null && Application.Current.Windows.OfType<Window>().FirstOrDefault() != null)
                 wnd.UpdateDispList();
@@ -215,6 +209,29 @@ namespace Dowsingman2
         }
 
         /// <summary>
+        /// 配信中の配信をListからContextMenuに追加
+        /// </summary>
+        /// <param name="list">登録チャンネルリスト</param>
+        private void ListToMenu(List<StreamClass> list)
+        {
+            foreach (StreamClass st in list)
+            {
+                if (st.StreamStatus)
+                {
+                    //配信を初めて追加するとき
+                    if (this.contextMenuStrip1.Items.Count < 3)
+                        //セパレータを追加
+                        this.contextMenuStrip1.Items.Insert(0, new System.Windows.Forms.ToolStripSeparator());
+
+                    //メニューの先頭に配信を追加
+                    System.Windows.Forms.ToolStripMenuItem tsi = new System.Windows.Forms.ToolStripMenuItem(st.Owner, null, ContextMenu_Clicked);
+                    this.contextMenuStrip1.Items.Insert(0, tsi);
+                }
+
+            }
+        }
+
+        /// <summary>
         /// コンテキストメニューの再描画
         /// </summary>
         public void contextMenuUpdate()
@@ -226,50 +243,17 @@ namespace Dowsingman2
             }
 
             //配信中の配信を探すkukulu
-            foreach (StreamClass st in StaticClass.kukuluList)
-            {
-                if (st.StreamStatus)
-                {
-                    //配信を初めて追加するとき
-                    if(this.contextMenuStrip1.Items.Count < 3)
-                        //セパレータを追加
-                        this.contextMenuStrip1.Items.Insert(0, new System.Windows.Forms.ToolStripSeparator());
-
-                    //メニューの先頭に配信を追加
-                    System.Windows.Forms.ToolStripMenuItem tsi = new System.Windows.Forms.ToolStripMenuItem(st.Owner,null, ContextMenu_Clicked);
-                    this.contextMenuStrip1.Items.Insert(0,tsi);
-                }
-            }
+            ListToMenu(StaticClass.kukuluList);
             //配信中の配信を探すfc2
-            foreach (StreamClass st in StaticClass.fc2List)
-            {
-                if (st.StreamStatus)
-                {
-                    //配信を初めて追加するとき
-                    if (this.contextMenuStrip1.Items.Count < 3)
-                        //セパレータを追加
-                        this.contextMenuStrip1.Items.Insert(0, new System.Windows.Forms.ToolStripSeparator());
-
-                    //メニューの先頭に配信を追加
-                    System.Windows.Forms.ToolStripMenuItem tsi = new System.Windows.Forms.ToolStripMenuItem(st.Owner, null, ContextMenu_Clicked);
-                    this.contextMenuStrip1.Items.Insert(0, tsi);
-                }
-            }
+            ListToMenu(StaticClass.fc2List);
             //配信中の配信を探すtwitch
-            foreach (StreamClass st in StaticClass.twitchList)
-            {
-                if (st.StreamStatus)
-                {
-                    //配信を初めて追加するとき
-                    if (this.contextMenuStrip1.Items.Count < 3)
-                        //セパレータを追加
-                        this.contextMenuStrip1.Items.Insert(0, new System.Windows.Forms.ToolStripSeparator());
+            ListToMenu(StaticClass.twitchList);
 
-                    //メニューの先頭に配信を追加
-                    System.Windows.Forms.ToolStripMenuItem tsi = new System.Windows.Forms.ToolStripMenuItem(st.Owner, null, ContextMenu_Clicked);
-                    this.contextMenuStrip1.Items.Insert(0, tsi);
-                }
-            }
+            //コンテキストメニューが3つ以上あるならアイコンの色を変える
+            if (this.contextMenuStrip1.Items.Count > 2)
+                notifyIcon1.Icon = new System.Drawing.Icon(IconPFile);
+            else
+                notifyIcon1.Icon = new System.Drawing.Icon(IconGFile);
         }
 
         //追加コンテキストメニューがクリックされたとき処理
@@ -372,11 +356,8 @@ namespace Dowsingman2
         /// <summary>
         /// くくる配信一覧とお気に入りを比較する
         /// </summary>
-        public Boolean CheckkukuluList()
+        public void CheckkukuluList()
         {
-            //配信中のお気に入り配信があるか
-            Boolean flag = false;
-
             List<Boolean> statusList = new List<Boolean>();
             List<string> loadList = new List<string>();
 
@@ -406,8 +387,6 @@ namespace Dowsingman2
                 int index = StaticClass.kukuluList.FindIndex(item => item.Owner == st.Owner);
                 if (index != -1)
                 {
-                    flag = true;
-
                     //配信情報を上書き
                     StaticClass.kukuluList[index] = st;
 
@@ -418,7 +397,6 @@ namespace Dowsingman2
                     }
                 }
             }
-            return flag;
         }
 
         /// <summary>
@@ -476,11 +454,8 @@ namespace Dowsingman2
         /// <summary>
         /// twitchのお気に入り配信があるか調べる
         /// </summary>
-        public Boolean ChecktwitchList()
+        public void ChecktwitchList()
         {
-            //お気に入り配信があるか
-            Boolean flag = false;
-
             List<Boolean> statusList = new List<Boolean>();
             List<string> loadList = new List<string>();
             StaticClass.twitchAll = new List<StreamClass>();
@@ -511,8 +486,6 @@ namespace Dowsingman2
                 int index = StaticClass.twitchList.FindIndex(item => item.Owner == st.Owner);
                 if (index != -1)
                 {
-                    flag = true;
-
                     //配信情報を上書き
                     StaticClass.twitchList[index] = st;
 
@@ -523,8 +496,6 @@ namespace Dowsingman2
                     }
                 }
             }
-
-            return flag;
         }
 
         /// <summary>
@@ -575,11 +546,8 @@ namespace Dowsingman2
         /// <summary>
         /// FC2配信一覧とお気に入りを比較する
         /// </summary>
-        public Boolean Checkfc2List()
+        public void Checkfc2List()
         {
-            //配信中のお気に入り配信があるか
-            Boolean flag = false;
-
             List<Boolean> statusList = new List<Boolean>();
             List<string> loadList = new List<string>();
 
@@ -609,8 +577,6 @@ namespace Dowsingman2
                 int index = StaticClass.fc2List.FindIndex(item => item.Owner == st.Owner);
                 if (index != -1)
                 {
-                    flag = true;
-
                     //配信情報を上書き
                     StaticClass.fc2List[index] = st;
 
@@ -621,8 +587,6 @@ namespace Dowsingman2
                     }
                 }
             }
-
-            return flag;
         }
     }
 }

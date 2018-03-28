@@ -8,16 +8,16 @@ namespace Dowsingman2
         /// List : お気に入り配信一覧
         /// All : 配信一覧
         /// </summary>
-        public static List<StreamClass> kukuluList { get; set; }
-        public static List<StreamClass> kukuluAll { get; set; }
-        public static List<StreamClass> fc2List { get; set; }
-        public static List<StreamClass> fc2All { get; set; }
-        public static List<StreamClass> twitchList { get; set; }
-        public static List<StreamClass> twitchAll { get; set; }
+        public static List<StreamClass> kukuluList { get; set; } = new List<StreamClass>();
+        public static List<StreamClass> kukuluAll { get; set; } = new List<StreamClass>();
+        public static List<StreamClass> fc2List { get; set; } = new List<StreamClass>();
+        public static List<StreamClass> fc2All { get; set; } = new List<StreamClass>();
+        public static List<StreamClass> twitchList { get; set; } = new List<StreamClass>();
+        public static List<StreamClass> twitchAll { get; set; } = new List<StreamClass>();
 
         /// <summary>
         /// 履歴
         /// </summary>
-        public static List<StreamClass> logList{ get; set; }
+        public static List<StreamClass> logList{ get; set; } = new List<StreamClass>();
     }
 }
