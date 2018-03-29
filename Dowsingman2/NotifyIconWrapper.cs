@@ -153,18 +153,20 @@ namespace Dowsingman2
         /// <param name="e"></param>
         private void timer1_Tick(object sender, EventArgs e)
         {
-            checkStreamIcon();
+            UpdateListAndMenu();
         }
 
-        public void checkStreamIcon()
+        /// <summary>
+        /// 
+        /// </summary>
+        public void UpdateListAndMenu()
         {
-            //配信があればアイコンの色を変える
             CheckkukuluList();
             ChecktwitchList();
             Checkfc2List();
             
             //ウィンドウが開いていれば更新
-            if (wnd != null && Application.Current.Windows.OfType<Window>().FirstOrDefault() != null)
+            if (Application.Current.Windows.OfType<Window>().FirstOrDefault() != null)
                 wnd.UpdateDispList();
 
             //通知スタック1つ目を即座に処理
@@ -174,7 +176,7 @@ namespace Dowsingman2
             if (stackStreamNote.Count > 0)
                 timer2.Enabled = true;
 
-            contextMenuUpdate();
+            ContextMenuUpdate();
         }
 
         /// <summary>
@@ -192,7 +194,7 @@ namespace Dowsingman2
         /// </summary>
         private void PlaySound()
         {
-            player = new System.Media.SoundPlayer(SoundFile);
+            var player = new System.Media.SoundPlayer(SoundFile);
             player.Play();
         }
 
@@ -212,7 +214,7 @@ namespace Dowsingman2
         /// 配信中の配信をListからContextMenuに追加
         /// </summary>
         /// <param name="list">登録チャンネルリスト</param>
-        private void ListToMenu(List<StreamClass> list)
+        private void ListToContextMenu(List<StreamClass> list)
         {
             foreach (StreamClass st in list)
             {
@@ -234,7 +236,7 @@ namespace Dowsingman2
         /// <summary>
         /// コンテキストメニューの再描画
         /// </summary>
-        public void contextMenuUpdate()
+        public void ContextMenuUpdate()
         {
             //コンテキストメニューの3項目目以降を削除
             while (this.contextMenuStrip1.Items.Count > 2)
@@ -243,11 +245,11 @@ namespace Dowsingman2
             }
 
             //配信中の配信を探すkukulu
-            ListToMenu(StaticClass.kukuluList);
+            ListToContextMenu(StaticClass.kukuluList);
             //配信中の配信を探すfc2
-            ListToMenu(StaticClass.fc2List);
+            ListToContextMenu(StaticClass.fc2List);
             //配信中の配信を探すtwitch
-            ListToMenu(StaticClass.twitchList);
+            ListToContextMenu(StaticClass.twitchList);
 
             //コンテキストメニューが3つ以上あるならアイコンの色を変える
             if (this.contextMenuStrip1.Items.Count > 2)

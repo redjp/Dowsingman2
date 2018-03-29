@@ -36,7 +36,7 @@ namespace Dowsingman2
             StaticClass.logList = FileToList(System.IO.Path.GetFullPath(@".\favorite\log.xml"));
 
             //起動時に配信をチェック
-            notifyIcon.checkStreamIcon();
+            notifyIcon.UpdateListAndMenu();
         }
 
         /// <summary>
