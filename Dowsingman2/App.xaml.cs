@@ -79,12 +79,12 @@ namespace Dowsingman2
                 {
                     try
                     {
-                        List<string> loadList = new List<string>();
-                        loadList = (List<string>)serializer.Deserialize(sr);
+                        List<StreamClass> loadList = new List<StreamClass>();
+                        loadList = (List<StreamClass>)serializer.Deserialize(sr);
 
-                        foreach (string str in loadList)
+                        foreach (StreamClass sc in loadList)
                         {
-                            list.Add(new StreamClass(str));
+                            list.Add(sc);
                         }
                     }
                     catch
