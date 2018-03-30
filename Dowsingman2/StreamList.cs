@@ -201,45 +201,47 @@ namespace Dowsingman2
             //戻り値用
             List<StreamClass> twitchall = new List<StreamClass>();
 
-            var rootlist = new List<TwitchRootObject.RootObject>();
             using (WebClient client = new WebClient())
             {
-                //エンコード設定（UTF8）
-                client.Encoding = System.Text.Encoding.UTF8;
-                //1ページ目のURL
-                string url = @"https://api.twitch.tv/kraken/streams?broadcaster_language=ja&limit=100&offset=0&stream_type=live";
-                const string cid = @"&client_id=snk7w6raevojktexzkvf2ixy66gxtn";
+                string json = "";
+                const int OFFSET = 90;
+                const int RATE_LIMIT = 25;
 
-                //配信がなくなるまで100配信ずつ読み込む
-                //参考URL
-                //https://discuss.dev.twitch.tv/t/language-and-offset/5751
-                while (url != null)
+                for (int i = 0; i < RATE_LIMIT; i++)
                 {
-                    string json = "";
-
                     try
                     {
-                        json = await client.DownloadStringTaskAsync(url + cid);
+                        //エンコード設定（UTF8）
+                        client.Encoding = System.Text.Encoding.UTF8;
+
+                        //参考URL
+                        //https://stackoverflow.com/questions/45622188/get-value-from-twitch-api
+                        //日本語の配信を100配信ずつ（仕様上最大）取得
+                        string url = @"https://api.twitch.tv/kraken/streams/?limit=100&broadcaster_language=ja&client_id=snk7w6raevojktexzkvf2ixy66gxtn&offset=" + i * OFFSET;
+                        json = await client.DownloadStringTaskAsync(url);
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
-                        json = "";
+                        json = null;
                     }
 
                     //ちゃんと取得出来ているか
-                    if (json != "")
+                    if (json != null)
                     {
                         //jsonをパースしてRootObjectに変換
                         var r = JsonConvert.DeserializeObject<TwitchRootObject.RootObject>(json);
 
-                        rootlist.Add(r);
-                        url = r._links.next;
+                        //一覧を収納
+                        foreach (var s in r.streams)
+                        {
+                            if (!twitchall.Exists(item => item.Owner == s.channel.name))
+                                twitchall.Add(new StreamClass(s.channel.status, "https://www.twitch.tv/" + s.channel.name + '/', s.channel.name));
+                        }
 
-                        //100配信なければそこで終わり
-                        if (r.streams.Count < 100)
-                            url = null;
-
+                        //配信がなくなったらループを抜ける
+                        if (r.streams.Count < OFFSET)
+                            i = RATE_LIMIT;
                     }
                     else
                     {
@@ -248,18 +250,8 @@ namespace Dowsingman2
                 }
             }
 
-            foreach (var r in rootlist)
-            {
-                //一覧を収納
-                foreach (var s in r.streams)
-                {
-                    if(!twitchall.Exists(item => item.Owner == s.channel.name))
-                        twitchall.Add(new StreamClass(s.channel.status, "https://www.twitch.tv/" + s.channel.name + '/', s.channel.name));
-                }
-            }
-
-            //配信一覧を返す
-            return twitchall;
+                //配信一覧を返す
+                return twitchall;
         }
 
         /// <summary>
