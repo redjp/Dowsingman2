@@ -74,7 +74,7 @@ namespace Dowsingman2
             if (File.Exists(filePath))
             {
                 //https://dobon.net/vb/dotnet/file/xmlserializer.html
-                XmlSerializer serializer = new XmlSerializer(typeof(List<string>));
+                XmlSerializer serializer = new XmlSerializer(typeof(List<StreamClass>));
                 using (System.IO.StreamReader sr = new System.IO.StreamReader(filePath, new UTF8Encoding(false)))
                 {
                     try
