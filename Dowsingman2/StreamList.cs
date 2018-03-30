@@ -140,6 +140,7 @@ namespace Dowsingman2
                             if (!statusList[index])
                             {
                                 stackStreamNote.Add(st);
+                                statusList[index] = true;
                             }
                         }
                     }
@@ -262,7 +263,7 @@ namespace Dowsingman2
             var streamAll = new List<StreamClass>();
             try
             {
-                //くくる配信一覧を取得（別スレッドで実行）
+                //配信一覧を取得（別スレッドで実行）
                 streamAll = await GetAllAsync();
             }
             catch (Exception ex)
@@ -285,7 +286,7 @@ namespace Dowsingman2
                     var statusList = new List<Boolean>();
                     var loadList = new List<string>();
 
-                    //kukuluタブの情報を保存
+                    //更新前の情報を保存
                     foreach (StreamClass st in streamList)
                     {
                         statusList.Add(st.StreamStatus);
@@ -312,6 +313,7 @@ namespace Dowsingman2
                             if (!statusList[index])
                             {
                                 stackStreamNote.Add(st);
+                                statusList[index] = true;
                             }
                         }
                     }
@@ -474,6 +476,7 @@ namespace Dowsingman2
                             if (!statusList[index])
                             {
                                 stackStreamNote.Add(st);
+                                statusList[index] = true;
                             }
                         }
                     }
