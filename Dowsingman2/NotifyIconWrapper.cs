@@ -183,6 +183,16 @@ namespace Dowsingman2
             {
                 Console.WriteLine(ex.Message);
             }
+
+            try
+            {
+                stackStreamNote.AddRange(await Cavetube.UpdateListAsync());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
             try
             {
                 stackStreamNote.AddRange(await Fc2.UpdateListAsync());
@@ -191,6 +201,7 @@ namespace Dowsingman2
             {
                 Console.WriteLine(ex.Message);
             }
+
             try
             {
                 stackStreamNote.AddRange(await Twitch.UpdateListAsync());
