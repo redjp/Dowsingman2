@@ -201,48 +201,60 @@ namespace Dowsingman2
             //戻り値用
             List<StreamClass> twitchall = new List<StreamClass>();
 
-            //配信数をとりあえず100に設定
-            int total = 100;
-            for (int i = 0; i * 100 < total; i++)
+            var rootlist = new List<TwitchRootObject.RootObject>();
+            using (WebClient client = new WebClient())
             {
-                string json = "";
-                using (WebClient client = new WebClient())
+                //エンコード設定（UTF8）
+                client.Encoding = System.Text.Encoding.UTF8;
+                //1ページ目のURL
+                string url = @"https://api.twitch.tv/kraken/streams?broadcaster_language=ja&limit=100&offset=0&stream_type=live";
+                const string cid = @"&client_id=snk7w6raevojktexzkvf2ixy66gxtn";
+
+                //配信がなくなるまで100配信ずつ読み込む
+                //参考URL
+                //https://discuss.dev.twitch.tv/t/language-and-offset/5751
+                while (url != null)
                 {
+                    string json = "";
+
                     try
                     {
-                        //エンコード設定（UTF8）
-                        client.Encoding = System.Text.Encoding.UTF8;
-
-                        //参考URL
-                        //https://stackoverflow.com/questions/45622188/get-value-from-twitch-api
-                        //日本語の配信を100配信ずつ（仕様上最大）取得
-                        string url = @"https://api.twitch.tv/kraken/streams/?limit=100&broadcaster_language=ja&client_id=snk7w6raevojktexzkvf2ixy66gxtn&offset=" + i * 100;
-                        json = await client.DownloadStringTaskAsync(url);
+                        json = await client.DownloadStringTaskAsync(url + cid);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
-                        json = null;
+                        json = "";
                     }
-                }
 
-                //ちゃんと取得出来ているか
-                if (json != null)
-                {
-                    //jsonをパースしてRootObjectに変換
-                    var r = JsonConvert.DeserializeObject<TwitchRootObject.RootObject>(json);
-                    //配信数を入れる
-                    total = r._total;
-
-                    //一覧を収納
-                    foreach (var s in r.streams)
+                    //ちゃんと取得出来ているか
+                    if (json != "")
                     {
-                        twitchall.Add(new StreamClass(s.channel.status, "https://www.twitch.tv/" + s.channel.name + '/', s.channel.name));
+                        //jsonをパースしてRootObjectに変換
+                        var r = JsonConvert.DeserializeObject<TwitchRootObject.RootObject>(json);
+
+                        rootlist.Add(r);
+                        url = r._links.next;
+
+                        //100配信なければそこで終わり
+                        if (r.streams.Count < 100)
+                            url = null;
+
+                    }
+                    else
+                    {
+                        return new List<StreamClass>();
                     }
                 }
-                else
+            }
+
+            foreach (var r in rootlist)
+            {
+                //一覧を収納
+                foreach (var s in r.streams)
                 {
-                    return new List<StreamClass>();
+                    if(!twitchall.Exists(item => item.Owner == s.channel.name))
+                        twitchall.Add(new StreamClass(s.channel.status, "https://www.twitch.tv/" + s.channel.name + '/', s.channel.name));
                 }
             }
 
@@ -386,12 +398,12 @@ namespace Dowsingman2
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    json = null;
+                    json = "";
                 }
             }
 
             //ちゃんと取得出来ているか
-            if (json != null)
+            if (json != "")
             {
                 //jsonをパースしてRootObjectに変換
                 var r = JsonConvert.DeserializeObject<Fc2RootObject.RootObject>(json);

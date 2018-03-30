@@ -2,7 +2,7 @@
 
 namespace Dowsingman2
 {
-    public static class StaticClass
+    public class StaticClass
     {
         /// <summary>
         /// 履歴

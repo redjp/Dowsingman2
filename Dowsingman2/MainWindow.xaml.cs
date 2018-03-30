@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -141,9 +142,16 @@ namespace Dowsingman2
                 //選択されている項目があるか
                 if (logGrid.SelectedIndex != -1)
                 {
-                    //選択されている項目を削除
-                    StaticClass.logList.RemoveAt(logGrid.SelectedIndex);
-                    UpdateDispList();
+                    try
+                    {
+                        //選択されている項目を削除
+                        StaticClass.logList.RemoveAt(logGrid.SelectedIndex);
+                        UpdateDispList();
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
                 }
         }
 

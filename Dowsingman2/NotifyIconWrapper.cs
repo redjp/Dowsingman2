@@ -141,10 +141,17 @@ namespace Dowsingman2
             //通知スタックがあるか
             if (stackStreamNote.Count > 0)
             {
-                //ついでに履歴に追加
-                StaticClass.logList.Add(stackStreamNote[0]);
-                if (StaticClass.logList.Count > MAX_LOG)
-                    StaticClass.logList.RemoveAt(0);
+                try
+                {
+                    //ついでに履歴に追加
+                    StaticClass.logList.Insert(0, stackStreamNote[0]);
+                    if (StaticClass.logList.Count > MAX_LOG)
+                        StaticClass.logList.RemoveAt(MAX_LOG);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
 
                 //スタックがあるなら1つ目を処理
                 balloonNotifyIcon(stackStreamNote[0], balloontime);
@@ -183,7 +190,7 @@ namespace Dowsingman2
             {
                 Console.WriteLine(ex.Message);
             }
-
+            /*
             try
             {
                 stackStreamNote.AddRange(await Cavetube.UpdateListAsync());
@@ -192,7 +199,7 @@ namespace Dowsingman2
             {
                 Console.WriteLine(ex.Message);
             }
-
+            */
             try
             {
                 stackStreamNote.AddRange(await Fc2.UpdateListAsync());
