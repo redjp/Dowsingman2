@@ -1,16 +1,16 @@
-﻿/// <summary>
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
+
+/// <summary>
 /// 非同期処理に書き換え＆StaticClassを統合
 /// 課題1：配信サイトごとのクラスを1つのコレクションで管理してforeachを使えるようにしたい
-/// 課題2：UpdateListAsync()が完全に同じものなので継承かなにかでまとめたい
+/// 課題2：List,All,UpdateListAsync()が完全に同じものなので継承かなにかでまとめたい
 /// </summary>
 namespace Dowsingman2
 {
-    using Newtonsoft.Json;
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Threading.Tasks;
-
     /// <summary>
     /// List:登録チャンネルリスト
     /// All:配信一覧

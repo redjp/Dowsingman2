@@ -21,22 +21,22 @@ namespace Dowsingman2
         /// System.Windows.Application.Startup イベント を発生させます。
         /// </summary>
         /// <param name="e">イベントデータ を格納している StartupEventArgs</param>
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             this.notifyIcon = new NotifyIconWrapper();
 
             //起動時にXMLファイルから読み込み
-            StaticClass.kukuluList = FileToListString(System.IO.Path.GetFullPath(@".\favorite\kukulu.xml"));
-            StaticClass.twitchList = FileToListString(System.IO.Path.GetFullPath(@".\favorite\twitch.xml"));
-            StaticClass.fc2List = FileToListString(System.IO.Path.GetFullPath(@".\favorite\fc2.xml"));
+            Kukulu.List = FileToListString(System.IO.Path.GetFullPath(@".\favorite\kukulu.xml"));
+            Twitch.List = FileToListString(System.IO.Path.GetFullPath(@".\favorite\twitch.xml"));
+            Fc2.List = FileToListString(System.IO.Path.GetFullPath(@".\favorite\fc2.xml"));
             
             //起動時にXMLファイルから読み込み（履歴）
             StaticClass.logList = FileToList(System.IO.Path.GetFullPath(@".\favorite\log.xml"));
 
             //起動時に配信をチェック
-            notifyIcon.UpdateListAndMenu();
+            await notifyIcon.UpdateListAndMenu();
         }
 
         /// <summary>
@@ -46,13 +46,16 @@ namespace Dowsingman2
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
-            Com.ComRelease.FinalReleaseComObjects(notifyIcon);
             this.notifyIcon.Dispose();
 
+            //フォルダがなければ作成
+            if (!Directory.Exists(@".\favorite"))
+                Directory.CreateDirectory(@".\favorite");
+
             //終了時にXMLファイルへ保存
-            ListToFileString(StaticClass.kukuluList, System.IO.Path.GetFullPath(@".\favorite\kukulu.xml"));
-            ListToFileString(StaticClass.twitchList, System.IO.Path.GetFullPath(@".\favorite\twitch.xml"));
-            ListToFileString(StaticClass.fc2List, System.IO.Path.GetFullPath(@".\favorite\fc2.xml"));
+            ListToFileString(Kukulu.List, System.IO.Path.GetFullPath(@".\favorite\kukulu.xml"));
+            ListToFileString(Twitch.List, System.IO.Path.GetFullPath(@".\favorite\twitch.xml"));
+            ListToFileString(Fc2.List, System.IO.Path.GetFullPath(@".\favorite\fc2.xml"));
 
             //終了時にXMLファイルへ保存（履歴）
             ListToFile(StaticClass.logList, System.IO.Path.GetFullPath(@".\favorite\log.xml"));

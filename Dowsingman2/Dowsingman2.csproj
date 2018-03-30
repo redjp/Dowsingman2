@@ -68,7 +68,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ComRelease.cs" />
+    <None Include="ComRelease.cs" />
     <Compile Include="ValueOrDefault.cs" />
     <Compile Include="StreamList.cs" />
     <Compile Include="RootObject.cs" />
