@@ -53,12 +53,12 @@ namespace Dowsingman2
                 Directory.CreateDirectory(@".\favorite");
 
             //終了時にXMLファイルへ保存
-            ListToFileString(Kukulu.List, System.IO.Path.GetFullPath(@".\favorite\kukulu.xml"));
-            ListToFileString(Twitch.List, System.IO.Path.GetFullPath(@".\favorite\twitch.xml"));
-            ListToFileString(Fc2.List, System.IO.Path.GetFullPath(@".\favorite\fc2.xml"));
+            ListToFileString(new List<StreamClass>(Kukulu.List), System.IO.Path.GetFullPath(@".\favorite\kukulu.xml"));
+            ListToFileString(new List<StreamClass>(Twitch.List), System.IO.Path.GetFullPath(@".\favorite\twitch.xml"));
+            ListToFileString(new List<StreamClass>(Fc2.List), System.IO.Path.GetFullPath(@".\favorite\fc2.xml"));
 
             //終了時にXMLファイルへ保存（履歴）
-            ListToFile(StaticClass.logList, System.IO.Path.GetFullPath(@".\favorite\log.xml"));
+            ListToFile(new List<StreamClass>(StaticClass.logList), System.IO.Path.GetFullPath(@".\favorite\log.xml"));
         }
 
         /// <summary>
