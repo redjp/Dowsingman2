@@ -28,7 +28,7 @@ namespace Dowsingman2
         const string SoundFile = "./resource/favorite.wav";
         const string IconPFile = "./resource/icon_P.ico";
         const string IconGFile = "./resource/icon_G.ico";
-        const int balloontime = 3500;
+        const int balloontime = 3200;
         const int MAX_LOG = 100;
 
         /// <summary>
@@ -144,9 +144,12 @@ namespace Dowsingman2
                 try
                 {
                     //ついでに履歴に追加
-                    StaticClass.logList.Insert(0, stackStreamNote[0]);
-                    if (StaticClass.logList.Count > MAX_LOG)
-                        StaticClass.logList.RemoveAt(MAX_LOG);
+                    if (!StaticClass.logList.Exists(item => item.Start_Time - stackStreamNote[0].Start_Time < new TimeSpan(0,1,0) && item.Owner == stackStreamNote[0].Owner))
+                    {
+                        StaticClass.logList.Insert(0, stackStreamNote[0]);
+                        if (StaticClass.logList.Count > MAX_LOG)
+                            StaticClass.logList.RemoveAt(MAX_LOG);
+                    }
                 }
                 catch (Exception ex)
                 {

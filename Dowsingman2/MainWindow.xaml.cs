@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -19,6 +21,45 @@ namespace Dowsingman2
         }
 
         /// <summary>
+        /// 選択中のタブ名を取得する
+        /// </summary>
+        /// <returns></returns>
+        private string GetSelectedTab()
+        {
+            if (TabControl1.SelectedIndex == 0)
+                return "kukuluGrid";
+            if (TabControl1.SelectedIndex == 1)
+                return "kukuluGrid2";
+            if (TabControl1.SelectedIndex == 2)
+                return "fc2Grid";
+            if (TabControl1.SelectedIndex == 3)
+                return "fc2Grid2";
+            if (TabControl1.SelectedIndex == 4)
+                return "twitchGrid";
+            if (TabControl1.SelectedIndex == 5)
+                return "twitchGrid2";
+            if (TabControl1.SelectedIndex == 6)
+                return "logGrid";
+
+            return null;
+        }
+
+        /// <summary>
+        /// 対象グリッドをソート
+        /// https://docs.microsoft.com/ja-jp/dotnet/framework/wpf/controls/how-to-group-sort-and-filter-data-in-the-datagrid-control
+        /// </summary>
+        /// <param name="targetGrid">並べ替え対象グリッド</param>
+        private void SortList(DataGrid targetGrid)
+        {
+            ICollectionView cvTasks = CollectionViewSource.GetDefaultView(targetGrid.ItemsSource);
+            if (cvTasks != null && cvTasks.CanSort == true)
+            {
+                cvTasks.SortDescriptions.Clear();
+                cvTasks.SortDescriptions.Add(new SortDescription("Start_Time", ListSortDirection.Descending));
+            }
+        }
+
+        /// <summary>
         /// 開いているGridの更新
         /// 参考URL
         /// http://oita.oika.me/2014/11/03/wpf-datagrid-binding/
@@ -27,27 +68,153 @@ namespace Dowsingman2
         {
             if (Kukulu.EnableChange)
             {
-                if (TabControl1.SelectedIndex == 0)
+                if (GetSelectedTab() == "kukuluGrid")
+                {
                     kukuluGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(Kukulu.List);
-                if (TabControl1.SelectedIndex == 1)
+                    SortList(kukuluGrid);
+                }
+                if (GetSelectedTab() == "kukuluGrid2")
+                {
                     kukuluGrid2.ItemsSource = new ReadOnlyCollection<StreamClass>(Kukulu.All);
+                    SortList(kukuluGrid2);
+                }
             }
             if (Fc2.EnableChange)
             {
-                if (TabControl1.SelectedIndex == 2)
+                if (GetSelectedTab() == "fc2Grid")
+                {
                     fc2Grid.ItemsSource = new ReadOnlyCollection<StreamClass>(Fc2.List);
-                if (TabControl1.SelectedIndex == 3)
+                    SortList(fc2Grid);
+                }
+                if (GetSelectedTab() == "fc2Grid2")
+                {
                     fc2Grid2.ItemsSource = new ReadOnlyCollection<StreamClass>(Fc2.All);
+                    SortList(fc2Grid2);
+                }
             }
             if (Twitch.EnableChange)
             {
-                if (TabControl1.SelectedIndex == 4)
+                if (GetSelectedTab() == "twitchGrid")
+                {
                     twitchGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(Twitch.List);
-                if (TabControl1.SelectedIndex == 5)
+                    SortList(twitchGrid);
+                }
+                if (GetSelectedTab() == "twitchGrid2")
+                {
                     twitchGrid2.ItemsSource = new ReadOnlyCollection<StreamClass>(Twitch.All);
+                    SortList(twitchGrid2);
+                }
             }
-            if (TabControl1.SelectedIndex == 6)
+            if (GetSelectedTab() == "logGrid")
+            {
                 logGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(StaticClass.logList);
+                SortList(logGrid);
+            }
+        }
+
+        /// <summary>
+        /// 新しい登録チャンネルの追加
+        /// </summary>
+        private void AddNewChannel()
+        {
+            //選択中のタブがkukuluなら
+            if (GetSelectedTab() == "kukuluGrid")
+                if (Kukulu.EnableChange)
+                    //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
+                    if (!Kukulu.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != "")
+                    {
+                        //テキストボックスの内容をお気に入り配信者に追加
+                        Kukulu.List.Add(new StreamClass(Textbox1.Text));
+                        MessageBox.Show(Textbox1.Text + "を追加しました。");
+                        //内容を削除
+                        Textbox1.Text = "";
+                        UpdateDispList();
+                    }
+
+            //選択中のタブがFC2なら
+            if (GetSelectedTab() == "fc2Grid")
+                if (Fc2.EnableChange)
+                    //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
+                    if (!Fc2.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != "")
+                    {
+                        //テキストボックスの内容をお気に入り配信者に追加
+                        Fc2.List.Add(new StreamClass(Textbox1.Text));
+                        MessageBox.Show(Textbox1.Text + "を追加しました。");
+                        //内容を削除
+                        Textbox1.Text = "";
+                        UpdateDispList();
+                    }
+
+            //選択中のタブがtwitchなら
+            if (GetSelectedTab() == "twitchGrid")
+                if (Twitch.EnableChange)
+                    //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
+                    if (!Twitch.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != "")
+                    {
+                        //テキストボックスの内容をお気に入り配信者に追加
+                        Twitch.List.Add(new StreamClass(Textbox1.Text));
+                        MessageBox.Show(Textbox1.Text + "を追加しました。");
+                        //内容を削除
+                        Textbox1.Text = "";
+                        UpdateDispList();
+                    }
+        }
+
+        /// <summary>
+        /// 登録チャンネルの削除
+        /// </summary>
+        private void DeleteChannel()
+        {
+            //選択中のタブがkukuluなら
+            if (GetSelectedTab() == "kukuluGrid")
+                if (Kukulu.EnableChange)
+                    //選択されている項目があるか
+                    if (kukuluGrid.SelectedIndex != -1)
+                    {
+                        //選択されている項目を削除
+                        StreamClass item = (StreamClass)kukuluGrid.SelectedItem;
+                        Kukulu.List.Remove(item);
+                        MessageBox.Show(item.Owner + "を削除しました");
+                        UpdateDispList();
+                    }
+
+            //選択中のタブがFC2なら
+            if (GetSelectedTab() == "fc2Grid")
+                if (Fc2.EnableChange)
+                    //選択されている項目があるか
+                    if (fc2Grid.SelectedIndex != -1)
+                    {
+                        //選択されている項目を削除
+                        StreamClass item = (StreamClass)fc2Grid.SelectedItem;
+                        Fc2.List.Remove(item);
+                        MessageBox.Show(item.Owner + "を削除しました");
+                        UpdateDispList();
+                    }
+
+            //選択中のタブがtwtichなら
+            if (GetSelectedTab() == "twitchGrid")
+                if (Twitch.EnableChange)
+                    //選択されている項目があるか
+                    if (twitchGrid.SelectedIndex != -1)
+                    {
+                        //選択されている項目を削除
+                        StreamClass item = (StreamClass)twitchGrid.SelectedItem;
+                        Twitch.List.Remove(item);
+                        MessageBox.Show(item.Owner + "を削除しました");
+                        UpdateDispList();
+                    }
+
+            //選択中のタブが履歴なら
+            if (GetSelectedTab() == "logGrid")
+                //選択されている項目があるか
+                if (logGrid.SelectedIndex != -1)
+                {
+                    //選択されている項目を削除
+                    StreamClass item = (StreamClass)logGrid.SelectedItem;
+                    StaticClass.logList.Remove(item);
+                    MessageBox.Show(item.Owner + "を削除しました");
+                    UpdateDispList();
+                }
         }
 
         /// <summary>
@@ -57,44 +224,7 @@ namespace Dowsingman2
         /// <param name="e">イベントデータ</param>
         private void Button_add_Click(object sender, RoutedEventArgs e)
         {
-            //選択中のタブがkukuluなら
-            if (TabControl1.SelectedIndex == 0)
-                if (Kukulu.EnableChange)
-                    //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
-                    if (!Kukulu.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != "")
-                    {
-                        //テキストボックスの内容をお気に入り配信者に追加
-                        Kukulu.List.Add(new StreamClass(Textbox1.Text));
-                        //内容を削除
-                        Textbox1.Text = "";
-                        UpdateDispList();
-                    }
-
-            //選択中のタブがFC2なら
-            if (TabControl1.SelectedIndex == 2)
-                if (Fc2.EnableChange)
-                    //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
-                    if (!Fc2.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != "")
-                    {
-                        //テキストボックスの内容をお気に入り配信者に追加
-                        Fc2.List.Add(new StreamClass(Textbox1.Text));
-                        //内容を削除
-                        Textbox1.Text = "";
-                        UpdateDispList();
-                    }
-
-            //選択中のタブがtwitchなら
-            if (TabControl1.SelectedIndex == 4)
-                if (Twitch.EnableChange)
-                    //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
-                    if (!Twitch.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != "")
-                    {
-                        //テキストボックスの内容をお気に入り配信者に追加
-                        Twitch.List.Add(new StreamClass(Textbox1.Text));
-                        //内容を削除
-                        Textbox1.Text = "";
-                        UpdateDispList();
-                    }
+            AddNewChannel();
         }
 
         /// <summary>
@@ -104,55 +234,7 @@ namespace Dowsingman2
         /// <param name="e">イベントデータ</param>
         private void Button_del_Click(object sender, RoutedEventArgs e)
         {
-            //選択中のタブがkukuluなら
-            if (TabControl1.SelectedIndex == 0)
-                if (Kukulu.EnableChange)
-                    //選択されている項目があるか
-                    if (kukuluGrid.SelectedIndex != -1)
-                    {
-                        //選択されている項目を削除
-                        Kukulu.List.RemoveAt(kukuluGrid.SelectedIndex);
-                        UpdateDispList();
-                    }
-
-            //選択中のタブがFC2なら
-            if (TabControl1.SelectedIndex == 2)
-                if (Fc2.EnableChange)
-                    //選択されている項目があるか
-                    if (fc2Grid.SelectedIndex != -1)
-                    {
-                        //選択されている項目を削除
-                        Fc2.List.RemoveAt(fc2Grid.SelectedIndex);
-                        UpdateDispList();
-                    }
-
-            //選択中のタブがtwtichなら
-            if (TabControl1.SelectedIndex == 4)
-                if (Twitch.EnableChange)
-                    //選択されている項目があるか
-                    if (twitchGrid.SelectedIndex != -1)
-                    {
-                        //選択されている項目を削除
-                        Twitch.List.RemoveAt(twitchGrid.SelectedIndex);
-                        UpdateDispList();
-                    }
-
-            //選択中のタブが履歴なら
-            if (TabControl1.SelectedIndex == 6)
-                //選択されている項目があるか
-                if (logGrid.SelectedIndex != -1)
-                {
-                    try
-                    {
-                        //選択されている項目を削除
-                        StaticClass.logList.RemoveAt(logGrid.SelectedIndex);
-                        UpdateDispList();
-                    }
-                    catch(Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                }
+            DeleteChannel();
         }
 
         /// <summary>
@@ -172,47 +254,15 @@ namespace Dowsingman2
         /// <param name="e">イベントデータ</param>
         private void Textbox1_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            //押されたキーがエンターなら
+            //押されたキーがEnterなら
             if (e.Key == Key.Return)
             {
-                //選択中のタブがkukuluなら
-                if (TabControl1.SelectedIndex == 0)
-                    if (Kukulu.EnableChange)
-                        //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
-                        if (!Kukulu.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != "")
-                        {
-                            //テキストボックスの内容をお気に入り配信者に追加
-                            Kukulu.List.Add(new StreamClass(Textbox1.Text));
-                            //内容を削除
-                            Textbox1.Text = "";
-                            UpdateDispList();
-                        }
-
-                //選択中のタブがFC2なら
-                if (TabControl1.SelectedIndex == 2)
-                    if (Fc2.EnableChange)
-                        //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
-                        if (!Fc2.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != "")
-                        {
-                            //テキストボックスの内容をお気に入り配信者に追加
-                            Fc2.List.Add(new StreamClass(Textbox1.Text));
-                            //内容を削除
-                            Textbox1.Text = "";
-                            UpdateDispList();
-                        }
-
-                //選択中のタブがtwitchなら
-                if (TabControl1.SelectedIndex == 4)
-                    if (Twitch.EnableChange)
-                        //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
-                        if (!Twitch.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != "")
-                        {
-                            //テキストボックスの内容をお気に入り配信者に追加
-                            Twitch.List.Add(new StreamClass(Textbox1.Text));
-                            //内容を削除
-                            Textbox1.Text = "";
-                            UpdateDispList();
-                        }
+                AddNewChannel();
+            }
+            //押されたキーがDelなら
+            if (e.Key == Key.Delete)
+            {
+                DeleteChannel();
             }
         }
 
@@ -231,8 +281,7 @@ namespace Dowsingman2
                     {
                         //選択中の項目をお気に入り配信者に追加
                         Kukulu.List.Add(Kukulu.All[kukuluGrid2.SelectedIndex]);
-                        TabControl1.SelectedIndex = 0;
-                        kukuluGrid.SelectedIndex = Kukulu.List.Count - 1;
+                        MessageBox.Show(Kukulu.All[kukuluGrid2.SelectedIndex].Owner + "を追加しました。");
                         UpdateDispList();
                     }
         }
@@ -246,8 +295,7 @@ namespace Dowsingman2
                     {
                         //選択中の項目をお気に入り配信者に追加
                         Fc2.List.Add(Fc2.All[fc2Grid2.SelectedIndex]);
-                        TabControl1.SelectedIndex = 2;
-                        fc2Grid.SelectedIndex = Fc2.List.Count - 1;
+                        MessageBox.Show(Fc2.All[fc2Grid2.SelectedIndex].Owner + "を追加しました。");
                         UpdateDispList();
                     }
         }
@@ -261,8 +309,7 @@ namespace Dowsingman2
                     {
                         //選択中の項目をお気に入り配信者に追加
                         Twitch.List.Add(Twitch.All[twitchGrid2.SelectedIndex]);
-                        TabControl1.SelectedIndex = 4;
-                        twitchGrid.SelectedIndex = Twitch.List.Count - 1;
+                        MessageBox.Show(Twitch.All[twitchGrid2.SelectedIndex].Owner + "を追加しました。");
                         UpdateDispList();
                     }
         }
@@ -280,7 +327,7 @@ namespace Dowsingman2
                     if (Kukulu.List[kukuluGrid.SelectedIndex].Url != "")
                     {
                         //規定のブラウザで配信URLを開く
-                        System.Diagnostics.Process.Start(Kukulu.List[kukuluGrid.SelectedIndex].Url);
+                        System.Diagnostics.Process.Start(((StreamClass)kukuluGrid.SelectedItem).Url);
                     }
         }
         private void fc2Grid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -291,7 +338,7 @@ namespace Dowsingman2
                     if (Fc2.List[fc2Grid.SelectedIndex].Url != "")
                     {
                         //規定のブラウザで配信URLを開く
-                        System.Diagnostics.Process.Start(Fc2.List[fc2Grid.SelectedIndex].Url);
+                        System.Diagnostics.Process.Start(((StreamClass)fc2Grid.SelectedItem).Url);
                     }
 
         }
@@ -303,7 +350,7 @@ namespace Dowsingman2
                     if (Twitch.List[twitchGrid.SelectedIndex].Url != "")
                     {
                         //規定のブラウザで配信URLを開く
-                        System.Diagnostics.Process.Start(Twitch.List[twitchGrid.SelectedIndex].Url);
+                        System.Diagnostics.Process.Start(((StreamClass)twitchGrid.SelectedItem).Url);
                     }
         }
         private void logGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -313,7 +360,7 @@ namespace Dowsingman2
                 if (StaticClass.logList[logGrid.SelectedIndex].Url != "")
                 {
                     //規定のブラウザで配信URLを開く
-                    System.Diagnostics.Process.Start(StaticClass.logList[logGrid.SelectedIndex].Url);
+                    System.Diagnostics.Process.Start(((StreamClass)logGrid.SelectedItem).Url);
                 }
         }
     }

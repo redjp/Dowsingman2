@@ -59,9 +59,11 @@ namespace Dowsingman2
             }
 
             //Xpathで配信タイトルの書かれたAタグを抜き出す
-            HtmlAgilityPack.HtmlNodeCollection streamNode = doc.DocumentNode.SelectNodes("//a[@class='a_live']");
+            var streamNode = doc.DocumentNode.SelectNodes("//a[@class='a_live']");
             //Xpathで太字の配信者名を抜き出す
-            HtmlAgilityPack.HtmlNodeCollection streamerNode = doc.DocumentNode.SelectNodes("//td[contains(@id,'livecom')]//div/a/b");
+            var streamerNode = doc.DocumentNode.SelectNodes("//td[contains(@id,'livecom')]//div/a/b");
+            //Xpathで配信開始時刻を抜き出す
+            var start_timeNode = doc.DocumentNode.SelectNodes("//td[contains(@id,'livecom')]//font/font[3]");
 
             //要素数
             int count = streamNode.Count;
@@ -70,7 +72,8 @@ namespace Dowsingman2
             //一覧を収納
             for (int i = 0; i < count; i++)
             {
-                kukuluall.Add(new StreamClass(streamNode[i].InnerText, "http://live.kukulu.erinn.biz/" + streamNode[i].Attributes["href"].ValueOrDefault(), streamerNode[i].InnerText));
+                DateTime? time = DateTime.Now - TimeSpan.Parse(start_timeNode[i].InnerText);
+                kukuluall.Add(new StreamClass(streamNode[i].InnerText, "http://live.kukulu.erinn.biz/" + streamNode[i].Attributes["href"].ValueOrDefault(), streamerNode[i].InnerText, time));
             }
 
             //配信一覧を返す
@@ -204,7 +207,7 @@ namespace Dowsingman2
             using (WebClient client = new WebClient())
             {
                 string json = "";
-                const int OFFSET = 90;
+                const int OFFSET = 80;
                 const int RATE_LIMIT = 25;
 
                 for (int i = 0; i < RATE_LIMIT; i++)
@@ -236,7 +239,7 @@ namespace Dowsingman2
                         foreach (var s in r.streams)
                         {
                             if (!twitchall.Exists(item => item.Owner == s.channel.name))
-                                twitchall.Add(new StreamClass(s.channel.status, "https://www.twitch.tv/" + s.channel.name + '/', s.channel.name));
+                                twitchall.Add(new StreamClass(s.channel.status, "https://www.twitch.tv/" + s.channel.name + '/', s.channel.name, s.created_at.ToLocalTime()));
                         }
 
                         //配信がなくなったらループを抜ける
@@ -404,7 +407,7 @@ namespace Dowsingman2
                 foreach (var channel in r.channel)
                 {
                     if (channel.name != "" && channel.name != "匿名")
-                        fc2all.Add(new StreamClass(channel.title, "https://live.fc2.com/" + channel.id + '/', channel.name));
+                        fc2all.Add(new StreamClass(channel.title, "https://live.fc2.com/" + channel.id + '/', channel.name, DateTime.Parse(channel.start)));
                 }
             }
             else
@@ -534,7 +537,7 @@ namespace Dowsingman2
         /// 配信サイトから配信一覧を取得してList<StreamClass>に入れて返す
         /// </summary>
         /// <returns>配信一覧</returns>
-        private static Task<List<StreamClass>> GetAllAsync()
+        private static async Task<List<StreamClass>> GetAllAsync()
         {
             //戻り値用
             List<StreamClass> cavetubeall = new List<StreamClass>();
@@ -544,10 +547,14 @@ namespace Dowsingman2
             var feed = new SyndicationFeed();
             try
             {
-                using (XmlReader reader = XmlReader.Create("http://rss.cavelis.net/index_live.xml"))
+                //読み込み部分を非同期化
+                await Task.Run(() =>
                 {
-                    feed = SyndicationFeed.Load(reader);
-                }
+                    using (XmlReader reader = XmlReader.Create("http://rss.cavelis.net/index_live.xml"))
+                    {
+                        feed = SyndicationFeed.Load(reader);
+                    }
+                });
                 
             }
             catch (Exception ex)
@@ -562,16 +569,16 @@ namespace Dowsingman2
                 //一覧を収納
                 foreach (var item in feed.Items)
                 {
-                    cavetubeall.Add(new StreamClass(item.Title.Text, item.Id, item.Authors[0].Name));
+                    cavetubeall.Add(new StreamClass(item.Title.Text, item.Id, item.Authors[0].Name, item.PublishDate.ToLocalTime().DateTime));
                 }
             }
             else
             {
-                return Task.FromResult(new List<StreamClass>());
+                return new List<StreamClass>();
             }
 
             //配信一覧を返す
-            return Task.FromResult(cavetubeall);
+            return cavetubeall;
         }
 
         /// <summary>
