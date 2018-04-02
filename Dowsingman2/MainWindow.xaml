@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         xmlns:local="clr-namespace:Dowsingman2"
         mc:Ignorable="d"
         Title="Dowsingman2" Height="360" Width="600" MinWidth="600" MinHeight="360">
@@ -14,7 +13,7 @@
         </Grid.RowDefinitions>
         <TabControl x:Name="TabControl1" Margin="0,0,0,3" SelectionChanged="TabControl_SelectionChanged">
             <TabItem Header="Kukulu">
-                <DataGrid x:Name="kukuluGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="kukuluGrid_MouseDoubleClick">
+                <DataGrid x:Name="kukuluGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="kukuluGrid_MouseDoubleClick" PreviewKeyDown="dataGrid_PreviewKeyDown">
                     <DataGrid.Columns>
                         <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160"/>
                         <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240"/>
@@ -32,7 +31,7 @@
                 </DataGrid>
             </TabItem>
             <TabItem Header="FC2">
-                <DataGrid x:Name="fc2Grid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="fc2Grid_MouseDoubleClick">
+                <DataGrid x:Name="fc2Grid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="fc2Grid_MouseDoubleClick" PreviewKeyDown="dataGrid_PreviewKeyDown">
                     <DataGrid.Columns>
                         <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160"/>
                         <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240"/>
@@ -50,7 +49,7 @@
                 </DataGrid>
             </TabItem>
             <TabItem Header="Twitch">
-                <DataGrid x:Name="twitchGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="twitchGrid_MouseDoubleClick">
+                <DataGrid x:Name="twitchGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="twitchGrid_MouseDoubleClick" PreviewKeyDown="dataGrid_PreviewKeyDown">
                     <DataGrid.Columns>
                         <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160"/>
                         <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240"/>
@@ -68,7 +67,7 @@
                 </DataGrid>
             </TabItem>
             <TabItem Header="履歴">
-                <DataGrid x:Name="logGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="logGrid_MouseDoubleClick">
+                <DataGrid x:Name="logGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="logGrid_MouseDoubleClick" PreviewKeyDown="dataGrid_PreviewKeyDown">
                     <DataGrid.Columns>
                         <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160"/>
                         <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240"/>

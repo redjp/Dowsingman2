@@ -72,11 +72,13 @@ namespace Dowsingman2
                 {
                     kukuluGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(Kukulu.List);
                     SortList(kukuluGrid);
+                    kukuluGrid.Focus();
                 }
                 if (GetSelectedTab() == "kukuluGrid2")
                 {
                     kukuluGrid2.ItemsSource = new ReadOnlyCollection<StreamClass>(Kukulu.All);
                     SortList(kukuluGrid2);
+                    kukuluGrid2.Focus();
                 }
             }
             if (Fc2.EnableChange)
@@ -85,11 +87,13 @@ namespace Dowsingman2
                 {
                     fc2Grid.ItemsSource = new ReadOnlyCollection<StreamClass>(Fc2.List);
                     SortList(fc2Grid);
+                    fc2Grid.Focus();
                 }
                 if (GetSelectedTab() == "fc2Grid2")
                 {
                     fc2Grid2.ItemsSource = new ReadOnlyCollection<StreamClass>(Fc2.All);
                     SortList(fc2Grid2);
+                    fc2Grid2.Focus();
                 }
             }
             if (Twitch.EnableChange)
@@ -98,17 +102,20 @@ namespace Dowsingman2
                 {
                     twitchGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(Twitch.List);
                     SortList(twitchGrid);
+                    twitchGrid.Focus();
                 }
                 if (GetSelectedTab() == "twitchGrid2")
                 {
                     twitchGrid2.ItemsSource = new ReadOnlyCollection<StreamClass>(Twitch.All);
                     SortList(twitchGrid2);
+                    twitchGrid2.Focus();
                 }
             }
             if (GetSelectedTab() == "logGrid")
             {
                 logGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(StaticClass.logList);
                 SortList(logGrid);
+                logGrid.Focus();
             }
         }
 
@@ -259,7 +266,16 @@ namespace Dowsingman2
             {
                 AddNewChannel();
             }
-            //押されたキーがDelなら
+        }
+
+        /// <summary>
+        /// データグリッドでキー入力があった場合の処理
+        /// </summary>
+        /// <param name="sender">呼び出し元オブジェクト</param>
+        /// <param name="e">イベントデータ</param>
+        private void dataGrid_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            //押されたキーがDeleteなら
             if (e.Key == Key.Delete)
             {
                 DeleteChannel();
