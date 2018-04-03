@@ -144,7 +144,10 @@ namespace Dowsingman2
                 try
                 {
                     //ついでに履歴に追加
-                    if (!StaticClass.logList.Exists(item => item.Start_Time - stackStreamNote[0].Start_Time < new TimeSpan(0,1,0) && item.Owner == stackStreamNote[0].Owner))
+                    if (!StaticClass.logList.Exists(item =>
+                    new TimeSpan(0,-1,0) < item.Start_Time - stackStreamNote[0].Start_Time
+                    && item.Start_Time - stackStreamNote[0].Start_Time  < new TimeSpan(0,1,0)
+                    && item.Owner == stackStreamNote[0].Owner && item.Title == stackStreamNote[0].Title))
                     {
                         StaticClass.logList.Insert(0, stackStreamNote[0]);
                         if (StaticClass.logList.Count > MAX_LOG)
