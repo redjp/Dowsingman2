@@ -144,7 +144,7 @@ namespace Dowsingman2
                 while (StaticClass.logList.Exists(item =>
                         new TimeSpan(0, -1, 0) < item.Start_Time - stackStreamNote[0].Start_Time
                         && item.Start_Time - stackStreamNote[0].Start_Time < new TimeSpan(0, 1, 0)
-                        && item.Owner == stackStreamNote[0].Owner && item.Title == stackStreamNote[0].Title))
+                        && item.Owner == stackStreamNote[0].Owner))
                 {
                     //かぶっていれば削除
                     stackStreamNote.RemoveAt(0);
