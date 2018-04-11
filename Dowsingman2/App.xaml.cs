@@ -45,9 +45,6 @@ namespace Dowsingman2
         /// <param name="e">イベントデータ を格納している ExitEventArgs</param>
         protected override void OnExit(ExitEventArgs e)
         {
-            base.OnExit(e);
-            this.notifyIcon.Dispose();
-
             //フォルダがなければ作成
             if (!Directory.Exists(@".\favorite"))
                 Directory.CreateDirectory(@".\favorite");
@@ -59,6 +56,9 @@ namespace Dowsingman2
 
             //終了時にXMLファイルへ保存（履歴）
             ListToFile(new List<StreamClass>(StaticClass.logList), System.IO.Path.GetFullPath(@".\favorite\log.xml"));
+
+            base.OnExit(e);
+            this.notifyIcon.Dispose();
         }
 
         /// <summary>
