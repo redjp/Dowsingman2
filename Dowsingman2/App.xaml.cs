@@ -57,8 +57,8 @@ namespace Dowsingman2
             //終了時にXMLファイルへ保存（履歴）
             ListToFile(new List<StreamClass>(StaticClass.logList), System.IO.Path.GetFullPath(@".\favorite\log.xml"));
 
-            base.OnExit(e);
             this.notifyIcon.Dispose();
+            base.OnExit(e);
         }
 
         /// <summary>
