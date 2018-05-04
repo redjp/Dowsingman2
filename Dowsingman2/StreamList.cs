@@ -72,7 +72,12 @@ namespace Dowsingman2
             //一覧を収納
             for (int i = 0; i < count; i++)
             {
-                DateTime? time = DateTime.Now - TimeSpan.Parse(start_timeNode[i].InnerText);
+                //24時間以上だとTimeSpan.Parseはエラーを返すので自前で分割
+                TimeSpan ts = new TimeSpan(int.Parse(start_timeNode[i].InnerText.Split(':')[0]),    // hours
+                                           int.Parse(start_timeNode[i].InnerText.Split(':')[1]),    // minutes
+                                           0);                               // seconds
+                DateTime? time = DateTime.Now - ts;
+
                 kukuluall.Add(new StreamClass(streamNode[i].InnerText, "http://live.kukulu.erinn.biz/" + streamNode[i].Attributes["href"].ValueOrDefault(), streamerNode[i].InnerText, time));
             }
 
