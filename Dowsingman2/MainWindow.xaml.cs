@@ -76,13 +76,13 @@ namespace Dowsingman2
                 {
                     kukuluGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(Kukulu.List);
                     SortList(kukuluGrid);
-                    kukuluGrid.Focus();
+                    if (!Textbox1.IsFocused) kukuluGrid.Focus();
                 }
                 if (GetSelectedTab() == "kukuluGrid2")
                 {
                     kukuluGrid2.ItemsSource = new ReadOnlyCollection<StreamClass>(Kukulu.All);
                     SortList(kukuluGrid2);
-                    kukuluGrid2.Focus();
+                    if (!Textbox1.IsFocused) kukuluGrid2.Focus();
                 }
             }
             if (Fc2.EnableChange)
@@ -91,13 +91,13 @@ namespace Dowsingman2
                 {
                     fc2Grid.ItemsSource = new ReadOnlyCollection<StreamClass>(Fc2.List);
                     SortList(fc2Grid);
-                    fc2Grid.Focus();
+                    if (!Textbox1.IsFocused) fc2Grid.Focus();
                 }
                 if (GetSelectedTab() == "fc2Grid2")
                 {
                     fc2Grid2.ItemsSource = new ReadOnlyCollection<StreamClass>(Fc2.All);
                     SortList(fc2Grid2);
-                    fc2Grid2.Focus();
+                    if (!Textbox1.IsFocused) fc2Grid2.Focus();
                 }
             }
             if (Twitch.EnableChange)
@@ -106,13 +106,13 @@ namespace Dowsingman2
                 {
                     twitchGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(Twitch.List);
                     SortList(twitchGrid);
-                    twitchGrid.Focus();
+                    if (!Textbox1.IsFocused) twitchGrid.Focus();
                 }
                 if (GetSelectedTab() == "twitchGrid2")
                 {
                     twitchGrid2.ItemsSource = new ReadOnlyCollection<StreamClass>(Twitch.All);
                     SortList(twitchGrid2);
-                    twitchGrid2.Focus();
+                    if (!Textbox1.IsFocused) twitchGrid2.Focus();
                 }
             }
             if (Cavetube.EnableChange)
@@ -121,20 +121,20 @@ namespace Dowsingman2
                 {
                     cavetubeGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(Cavetube.List);
                     SortList(cavetubeGrid);
-                    cavetubeGrid.Focus();
+                    if (!Textbox1.IsFocused) cavetubeGrid.Focus();
                 }
                 if (GetSelectedTab() == "cavetubeGrid2")
                 {
                     cavetubeGrid2.ItemsSource = new ReadOnlyCollection<StreamClass>(Cavetube.All);
                     SortList(cavetubeGrid2);
-                    cavetubeGrid2.Focus();
+                    if (!Textbox1.IsFocused) cavetubeGrid2.Focus();
                 }
             }
             if (GetSelectedTab() == "logGrid")
             {
                 logGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(StaticClass.logList);
                 SortList(logGrid);
-                logGrid.Focus();
+                if (!Textbox1.IsFocused) logGrid.Focus();
             }
         }
 
