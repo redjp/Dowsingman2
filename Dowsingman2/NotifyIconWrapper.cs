@@ -201,41 +201,17 @@ namespace Dowsingman2
         /// </summary>
         public async Task UpdateListAndMenu()
         {
-            //各リストの更新（配信通知スタックを受け取る）
-            try
-            {
-                stackStreamNote.AddRange(await Kukulu.UpdateListAsync());
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            /*
-            try
-            {
-                stackStreamNote.AddRange(await Cavetube.UpdateListAsync());
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            */
-            try
-            {
-                stackStreamNote.AddRange(await Fc2.UpdateListAsync());
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            Task<List<StreamClass>>[] tasks = new Task<List<StreamClass>>[4];
 
-            try
+            //各リストの更新（配信通知スタックを受け取る）
+            tasks[0] = Kukulu.UpdateListAsync();
+            tasks[1] = Twitch.UpdateListAsync();
+            tasks[2] = Fc2.UpdateListAsync();
+            tasks[3] = Cavetube.UpdateListAsync();
+
+            foreach (var task in tasks)
             {
-                stackStreamNote.AddRange(await Twitch.UpdateListAsync());
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
+                stackStreamNote.AddRange(await task);
             }
 
             //ウィンドウが開いていれば更新
@@ -310,6 +286,7 @@ namespace Dowsingman2
                 ListToContextMenu(new ReadOnlyCollection<StreamClass>(Kukulu.List));
                 ListToContextMenu(new ReadOnlyCollection<StreamClass>(Fc2.List));
                 ListToContextMenu(new ReadOnlyCollection<StreamClass>(Twitch.List));
+                ListToContextMenu(new ReadOnlyCollection<StreamClass>(Cavetube.List));
             }
             catch (Exception ex)
             {

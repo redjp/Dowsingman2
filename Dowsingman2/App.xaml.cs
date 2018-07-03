@@ -2,6 +2,9 @@
 using System.IO;
 using System.Text;
 using System.Xml.Serialization;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Linq;
 
 namespace Dowsingman2
 {
@@ -18,23 +21,55 @@ namespace Dowsingman2
         private NotifyIconWrapper notifyIcon;
 
         /// <summary>
+        /// 多重起動を防止する為のミューテックス。
+        /// </summary>
+        private static Mutex _mutex;
+        /// <summary>
+        /// ミューテックス用のGUID
+        /// </summary>
+        private const string APPNAME_GUID = "Dowsingman2 - {FAB552E3-0F8F-446F-90A0-EE05BDE8C8D1}";
+
+        private static readonly string KUKULU_PATH = Path.GetFullPath(@".\favorite\kukulu.xml");
+        private static readonly string TWITCH_PATH = Path.GetFullPath(@".\favorite\twitch.xml");
+        private static readonly string FC2_PATH = Path.GetFullPath(@".\favorite\fc2.xml");
+        private static readonly string CAVETUBE_PATH = Path.GetFullPath(@".\favorite\cavetube.xml");
+        private static readonly string LOG_PATH = Path.GetFullPath(@".\favorite\log.xml");
+
+        /// <summary>
         /// System.Windows.Application.Startup イベント を発生させます。
         /// </summary>
         /// <param name="e">イベントデータ を格納している StartupEventArgs</param>
         protected override async void OnStartup(StartupEventArgs e)
         {
+            //多重起動チェック
+            App._mutex = new Mutex(false, APPNAME_GUID);
+            if (!App._mutex.WaitOne(0, false))
+            {
+                App._mutex.Close();
+                App._mutex = null;
+                this.Shutdown();
+                return;
+            }
+
+            //起動時にXMLファイルから読み込み
+            if(File.Exists(KUKULU_PATH))
+                Kukulu.List = (await DeserializeAsync<List<string>>(KUKULU_PATH))
+                    .Select(x => new StreamClass(x)).ToList();
+            if(File.Exists(TWITCH_PATH))
+                Twitch.List = (await DeserializeAsync<List<string>>(TWITCH_PATH))
+                    .Select(x => new StreamClass(x)).ToList();
+            if(File.Exists(FC2_PATH))
+                Fc2.List = (await DeserializeAsync<List<string>>(FC2_PATH))
+                    .Select(x => new StreamClass(x)).ToList();
+            if(File.Exists(CAVETUBE_PATH))
+                Cavetube.List = (await DeserializeAsync<List<string>>(CAVETUBE_PATH))
+                    .Select(x => new StreamClass(x)).ToList();
+            if(File.Exists(LOG_PATH))
+                StaticClass.logList = await DeserializeAsync<List<StreamClass>>(LOG_PATH);
+
             base.OnStartup(e);
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             this.notifyIcon = new NotifyIconWrapper();
-
-            //起動時にXMLファイルから読み込み
-            Kukulu.List = FileToListString(System.IO.Path.GetFullPath(@".\favorite\kukulu.xml"));
-            Twitch.List = FileToListString(System.IO.Path.GetFullPath(@".\favorite\twitch.xml"));
-            Fc2.List = FileToListString(System.IO.Path.GetFullPath(@".\favorite\fc2.xml"));
-            
-            //起動時にXMLファイルから読み込み（履歴）
-            StaticClass.logList = FileToList(System.IO.Path.GetFullPath(@".\favorite\log.xml"));
-
             //起動時に配信をチェック
             await notifyIcon.UpdateListAndMenu();
         }
@@ -43,140 +78,74 @@ namespace Dowsingman2
         /// System.Windows.Application.Exit イベント を発生させます。
         /// </summary>
         /// <param name="e">イベントデータ を格納している ExitEventArgs</param>
-        protected override void OnExit(ExitEventArgs e)
+        protected override async void OnExit(ExitEventArgs e)
         {
+            if (App._mutex == null) { return; }
+
             //フォルダがなければ作成
             if (!Directory.Exists(@".\favorite"))
                 Directory.CreateDirectory(@".\favorite");
 
-            //終了時にXMLファイルへ保存
-            ListToFileString(new List<StreamClass>(Kukulu.List), System.IO.Path.GetFullPath(@".\favorite\kukulu.xml"));
-            ListToFileString(new List<StreamClass>(Twitch.List), System.IO.Path.GetFullPath(@".\favorite\twitch.xml"));
-            ListToFileString(new List<StreamClass>(Fc2.List), System.IO.Path.GetFullPath(@".\favorite\fc2.xml"));
+            //XMLファイルへ保存
+            await SerializeAsync(Kukulu.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\kukulu.xml"));
+            await SerializeAsync(Twitch.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\twitch.xml"));
+            await SerializeAsync(Fc2.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\fc2.xml"));
+            await SerializeAsync(Cavetube.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\cavetube.xml"));
+            await SerializeAsync(StaticClass.logList, Path.GetFullPath(@".\favorite\log.xml"));
 
-            //終了時にXMLファイルへ保存（履歴）
-            ListToFile(new List<StreamClass>(StaticClass.logList), System.IO.Path.GetFullPath(@".\favorite\log.xml"));
+            // ミューテックスの解放
+            App._mutex.ReleaseMutex();
+            App._mutex.Close();
+            App._mutex = null;
 
             this.notifyIcon.Dispose();
             base.OnExit(e);
         }
 
-        /// <summary>
-        /// XMLファイルからリストを読み込み
-        /// </summary>
-        /// <param name="filePath">XMLファイルのフルパス</param>
-        /// <returns>読み込まれたリスト</returns>
-        private List<StreamClass> FileToList(string filePath)
+        // 排他ロックに使うSemaphoreSlimオブジェクト
+        // （プロセス間の排他が必要なときはSemaphoreオブジェクトに変える）
+        static System.Threading.SemaphoreSlim _semaphore
+          = new System.Threading.SemaphoreSlim(1, 1);
+
+        // シリアライズする
+        static async Task SerializeAsync<T>(T data, string filePath)
         {
-            //戻り値
-            var list = new List<StreamClass>();
-
-            if (File.Exists(filePath))
+            await _semaphore.WaitAsync(); // ロックを取得する
+            try
             {
-                //https://dobon.net/vb/dotnet/file/xmlserializer.html
-                XmlSerializer serializer = new XmlSerializer(typeof(List<StreamClass>));
-                using (System.IO.StreamReader sr = new System.IO.StreamReader(filePath, new UTF8Encoding(false)))
+                var xmlSerializer = new XmlSerializer(typeof(T));
+                using (var streamWriter = new StreamWriter(filePath, false, new UTF8Encoding(false)))
                 {
-                    try
-                    {
-                        List<StreamClass> loadList = new List<StreamClass>();
-                        loadList = (List<StreamClass>)serializer.Deserialize(sr);
-
-                        foreach (StreamClass sc in loadList)
-                        {
-                            list.Add(sc);
-                        }
-                    }
-                    catch
-                    {
-                        list = new List<StreamClass>();
-                    }
+                    await Task.Run(() => xmlSerializer.Serialize(streamWriter, data));
+                    await streamWriter.FlushAsync();  // .NET Framework 4.5以降
                 }
             }
-
-            return list;
-        }
-
-        /// <summary>
-        /// XMLファイルからリストを読み込み
-        /// </summary>
-        /// <param name="filePath">XMLファイルのフルパス</param>
-        /// <returns>読み込まれたリスト</returns>
-        private List<StreamClass> FileToListString(string filePath)
-        {
-            //戻り値
-            var list = new List<StreamClass>();
-
-            if (File.Exists(filePath))
+            finally
             {
-                //https://dobon.net/vb/dotnet/file/xmlserializer.html
-                XmlSerializer serializer = new XmlSerializer(typeof(List<string>));
-                using (System.IO.StreamReader sr = new System.IO.StreamReader(filePath, new UTF8Encoding(false)))
-                {
-                    try
-                    {
-                        List<string> loadList = new List<string>();
-                        loadList = (List<string>)serializer.Deserialize(sr);
-
-                        foreach (string str in loadList)
-                        {
-                            list.Add(new StreamClass(str));
-                        }
-                    }
-                    catch
-                    {
-                        list = new List<StreamClass>();
-                    }
-                }
-            }
-
-            return list;
-        }
-
-        /// <summary>
-        /// リストをXMLファイルへ保存
-        /// </summary>
-        /// <param name="saveList">保存するリスト</param>
-        /// <param name="filePath">XMLファイルのフルパス</param>
-        private void ListToFile(List<StreamClass> saveList, string filePath)
-        {
-            //https://dobon.net/vb/dotnet/file/xmlserializer.html
-            XmlSerializer serializer = new XmlSerializer(typeof(List<StreamClass>));
-            using (StreamWriter sw = new StreamWriter(filePath, false, new UTF8Encoding(false)))
-            {
-                try
-                {
-                    serializer.Serialize(sw, saveList);
-                }
-                catch
-                {
-                }
+                _semaphore.Release(); // ロックを解放する
             }
         }
 
-        /// <summary>
-        /// リストをXMLファイルへ保存
-        /// </summary>
-        /// <param name="saveList">保存するリスト</param>
-        /// <param name="filePath">XMLファイルのフルパス</param>
-        private void ListToFileString(List<StreamClass> saveList, string filePath)
+        // デシリアライズする
+        static async Task<T> DeserializeAsync<T>(string filePath)
         {
-            List<string> saveOwnerList = new List<string>();
-            foreach (StreamClass st in saveList)
+            await _semaphore.WaitAsync(); // ロックを取得する
+            try
             {
-                saveOwnerList.Add(st.Owner);
+                var xmlSerializer = new XmlSerializer(typeof(T));
+                var xmlSettings = new System.Xml.XmlReaderSettings()
+                {
+                    CheckCharacters = false,
+                };
+                using (var streamReader = new StreamReader(filePath, new UTF8Encoding(false)))
+                using (var xmlReader = System.Xml.XmlReader.Create(streamReader, xmlSettings))
+                {
+                    return await Task.Run(() => (T)xmlSerializer.Deserialize(xmlReader));
+                }
             }
-            //https://dobon.net/vb/dotnet/file/xmlserializer.html
-            XmlSerializer serializer = new XmlSerializer(typeof(List<string>));
-            using (StreamWriter sw = new StreamWriter(filePath, false, new UTF8Encoding(false)))
+            finally
             {
-                try
-                {
-                    serializer.Serialize(sw, saveOwnerList);
-                }
-                catch
-                {
-                }
+                _semaphore.Release(); // ロックを解放する
             }
         }
     }

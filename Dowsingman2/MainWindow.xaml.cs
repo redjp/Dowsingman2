@@ -39,6 +39,10 @@ namespace Dowsingman2
             if (TabControl1.SelectedIndex == 5)
                 return "twitchGrid2";
             if (TabControl1.SelectedIndex == 6)
+                return "cavetubeGrid";
+            if (TabControl1.SelectedIndex == 7)
+                return "cavetubeGrid2";
+            if (TabControl1.SelectedIndex == 8)
                 return "logGrid";
 
             return null;
@@ -111,6 +115,21 @@ namespace Dowsingman2
                     twitchGrid2.Focus();
                 }
             }
+            if (Cavetube.EnableChange)
+            {
+                if (GetSelectedTab() == "cavetubeGrid")
+                {
+                    cavetubeGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(Cavetube.List);
+                    SortList(cavetubeGrid);
+                    cavetubeGrid.Focus();
+                }
+                if (GetSelectedTab() == "cavetubeGrid2")
+                {
+                    cavetubeGrid2.ItemsSource = new ReadOnlyCollection<StreamClass>(Cavetube.All);
+                    SortList(cavetubeGrid2);
+                    cavetubeGrid2.Focus();
+                }
+            }
             if (GetSelectedTab() == "logGrid")
             {
                 logGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(StaticClass.logList);
@@ -128,13 +147,13 @@ namespace Dowsingman2
             if (GetSelectedTab() == "kukuluGrid")
                 if (Kukulu.EnableChange)
                     //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
-                    if (!Kukulu.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != "")
+                    if (!Kukulu.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != string.Empty)
                     {
                         //テキストボックスの内容をお気に入り配信者に追加
                         Kukulu.List.Add(new StreamClass(Textbox1.Text));
                         MessageBox.Show(Textbox1.Text + "を追加しました。");
                         //内容を削除
-                        Textbox1.Text = "";
+                        Textbox1.Text = string.Empty;
                         UpdateDispList();
                     }
 
@@ -142,13 +161,13 @@ namespace Dowsingman2
             if (GetSelectedTab() == "fc2Grid")
                 if (Fc2.EnableChange)
                     //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
-                    if (!Fc2.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != "")
+                    if (!Fc2.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != string.Empty)
                     {
                         //テキストボックスの内容をお気に入り配信者に追加
                         Fc2.List.Add(new StreamClass(Textbox1.Text));
                         MessageBox.Show(Textbox1.Text + "を追加しました。");
                         //内容を削除
-                        Textbox1.Text = "";
+                        Textbox1.Text = string.Empty;
                         UpdateDispList();
                     }
 
@@ -156,13 +175,27 @@ namespace Dowsingman2
             if (GetSelectedTab() == "twitchGrid")
                 if (Twitch.EnableChange)
                     //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
-                    if (!Twitch.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != "")
+                    if (!Twitch.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != string.Empty)
                     {
                         //テキストボックスの内容をお気に入り配信者に追加
                         Twitch.List.Add(new StreamClass(Textbox1.Text));
                         MessageBox.Show(Textbox1.Text + "を追加しました。");
                         //内容を削除
-                        Textbox1.Text = "";
+                        Textbox1.Text = string.Empty;
+                        UpdateDispList();
+                    }
+
+            //選択中のタブがcavetubeなら
+            if (GetSelectedTab() == "cavetubeGrid")
+                if (Cavetube.EnableChange)
+                    //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
+                    if (!Cavetube.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != string.Empty)
+                    {
+                        //テキストボックスの内容をお気に入り配信者に追加
+                        Twitch.List.Add(new StreamClass(Textbox1.Text));
+                        MessageBox.Show(Textbox1.Text + "を追加しました。");
+                        //内容を削除
+                        Textbox1.Text = string.Empty;
                         UpdateDispList();
                     }
         }
@@ -207,6 +240,19 @@ namespace Dowsingman2
                         //選択されている項目を削除
                         StreamClass item = (StreamClass)twitchGrid.SelectedItem;
                         Twitch.List.Remove(item);
+                        MessageBox.Show(item.Owner + "を削除しました");
+                        UpdateDispList();
+                    }
+
+            //選択中のタブがcavetubeなら
+            if (GetSelectedTab() == "cavetubeGrid")
+                if (Cavetube.EnableChange)
+                    //選択されている項目があるか
+                    if (cavetubeGrid.SelectedIndex != -1)
+                    {
+                        //選択されている項目を削除
+                        StreamClass item = (StreamClass)cavetubeGrid.SelectedItem;
+                        Cavetube.List.Remove(item);
                         MessageBox.Show(item.Owner + "を削除しました");
                         UpdateDispList();
                     }
@@ -292,42 +338,68 @@ namespace Dowsingman2
             if (Kukulu.EnableChange)
                 //選択されている項目があるか
                 if (kukuluGrid2.SelectedIndex != -1)
+                {
+                    var item = (StreamClass)kukuluGrid2.SelectedItem;
                     //同じ名前が登録されていないか
-                    if (!Kukulu.List.Exists(item => item.Owner == Kukulu.All[kukuluGrid2.SelectedIndex].Owner))
+                    if (!Kukulu.List.Exists(x => x.Owner == item.Owner))
                     {
                         //選択中の項目をお気に入り配信者に追加
-                        Kukulu.List.Add(Kukulu.All[kukuluGrid2.SelectedIndex]);
-                        MessageBox.Show(Kukulu.All[kukuluGrid2.SelectedIndex].Owner + "を追加しました。");
+                        Kukulu.List.Add(item);
+                        MessageBox.Show(item.Owner + "を追加しました。");
                         UpdateDispList();
                     }
+                }
         }
         private void fc2Grid2_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (Kukulu.EnableChange)
                 //選択されている項目があるか
                 if (fc2Grid2.SelectedIndex != -1)
+                {
+                    var item = (StreamClass)fc2Grid2.SelectedItem;
                     //同じ名前が登録されていないか
-                    if (!Fc2.List.Exists(item => item.Owner == Fc2.All[fc2Grid2.SelectedIndex].Owner))
+                    if (!Fc2.List.Exists(x => x.Owner == item.Owner))
                     {
                         //選択中の項目をお気に入り配信者に追加
-                        Fc2.List.Add(Fc2.All[fc2Grid2.SelectedIndex]);
-                        MessageBox.Show(Fc2.All[fc2Grid2.SelectedIndex].Owner + "を追加しました。");
+                        Fc2.List.Add(item);
+                        MessageBox.Show(item.Owner + "を追加しました。");
                         UpdateDispList();
                     }
+                }
         }
         private void twitchGrid2_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (Kukulu.EnableChange)
                 //選択されている項目があるか
                 if (twitchGrid2.SelectedIndex != -1)
+                {
+                    var item = (StreamClass)twitchGrid2.SelectedItem;
                     //同じ名前が登録されていないか
-                    if (!Twitch.List.Exists(item => item.Owner == Twitch.All[twitchGrid2.SelectedIndex].Owner))
+                    if (!Twitch.List.Exists(x => x.Owner == item.Owner))
                     {
                         //選択中の項目をお気に入り配信者に追加
-                        Twitch.List.Add(Twitch.All[twitchGrid2.SelectedIndex]);
-                        MessageBox.Show(Twitch.All[twitchGrid2.SelectedIndex].Owner + "を追加しました。");
+                        Twitch.List.Add(item);
+                        MessageBox.Show(item.Owner + "を追加しました。");
                         UpdateDispList();
                     }
+                }
+        }
+        private void cavetubeGrid2_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (Kukulu.EnableChange)
+                //選択されている項目があるか
+                if (cavetubeGrid2.SelectedIndex != -1)
+                {
+                    var item = (StreamClass)cavetubeGrid2.SelectedItem;
+                    //同じ名前が登録されていないか
+                    if (!Cavetube.List.Exists(x => x.Owner == item.Owner))
+                    {
+                        //選択中の項目をお気に入り配信者に追加
+                        Cavetube.List.Add(item);
+                        MessageBox.Show(item.Owner + "を追加しました。");
+                        UpdateDispList();
+                    }
+                }
         }
 
         /// <summary>
@@ -340,22 +412,24 @@ namespace Dowsingman2
             if (Kukulu.EnableChange)
                 //選択されている項目があるか
                 if (kukuluGrid.SelectedIndex != -1)
-                    if (Kukulu.List[kukuluGrid.SelectedIndex].Url != "")
-                    {
+                {
+                    var url = ((StreamClass)kukuluGrid.SelectedItem).Url;
+                    if (url != string.Empty)
                         //規定のブラウザで配信URLを開く
-                        System.Diagnostics.Process.Start(((StreamClass)kukuluGrid.SelectedItem).Url);
-                    }
+                        System.Diagnostics.Process.Start(url);
+                }
         }
         private void fc2Grid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (Fc2.EnableChange)
                 //選択されている項目があるか
                 if (fc2Grid.SelectedIndex != -1)
-                    if (Fc2.List[fc2Grid.SelectedIndex].Url != "")
-                    {
+                {
+                    var url = ((StreamClass)fc2Grid.SelectedItem).Url;
+                    if (url != string.Empty)
                         //規定のブラウザで配信URLを開く
-                        System.Diagnostics.Process.Start(((StreamClass)fc2Grid.SelectedItem).Url);
-                    }
+                        System.Diagnostics.Process.Start(url);
+                }
 
         }
         private void twitchGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -363,21 +437,35 @@ namespace Dowsingman2
             if (Twitch.EnableChange)
                 //選択されている項目があるか
                 if (twitchGrid.SelectedIndex != -1)
-                    if (Twitch.List[twitchGrid.SelectedIndex].Url != "")
-                    {
+                {
+                    var url = ((StreamClass)twitchGrid.SelectedItem).Url;
+                    if (url != string.Empty)
                         //規定のブラウザで配信URLを開く
-                        System.Diagnostics.Process.Start(((StreamClass)twitchGrid.SelectedItem).Url);
-                    }
+                        System.Diagnostics.Process.Start(url);
+                }
+        }
+        private void cavetubeGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (Cavetube.EnableChange)
+                //選択されている項目があるか
+                if (cavetubeGrid.SelectedIndex != -1)
+                {
+                    var url = ((StreamClass)cavetubeGrid.SelectedItem).Url;
+                    if (url != string.Empty)
+                        //規定のブラウザで配信URLを開く
+                        System.Diagnostics.Process.Start(url);
+                }
         }
         private void logGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             //選択されている項目があるか
             if (logGrid.SelectedIndex != -1)
-                if (StaticClass.logList[logGrid.SelectedIndex].Url != "")
-                {
+            {
+                var url = ((StreamClass)logGrid.SelectedItem).Url;
+                if (url != string.Empty)
                     //規定のブラウザで配信URLを開く
-                    System.Diagnostics.Process.Start(((StreamClass)logGrid.SelectedItem).Url);
-                }
+                    System.Diagnostics.Process.Start(url);
+            }
         }
     }
 }
