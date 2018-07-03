@@ -23,7 +23,7 @@ namespace Dowsingman2
         private List<StreamClass> contextMenuNote = new List<StreamClass>();
 
         private MainWindow wnd = null;
-        private string balloonClickUrl = "";
+        private string balloonClickUrl = string.Empty;
 
         const string SoundFile = "./resource/favorite.wav";
         const string IconPFile = "./resource/icon_P.ico";

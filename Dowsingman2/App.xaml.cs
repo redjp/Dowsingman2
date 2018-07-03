@@ -27,7 +27,7 @@ namespace Dowsingman2
         /// <summary>
         /// ミューテックス用のGUID
         /// </summary>
-        private const string APPNAME_GUID = "Dowsingman2 - {FAB552E3-0F8F-446F-90A0-EE05BDE8C8D1}";
+        private const string APPNAME_GUID = "Dowsingman2-{FAB552E3-0F8F-446F-90A0-EE05BDE8C8D1}";
 
         private static readonly string KUKULU_PATH = Path.GetFullPath(@".\favorite\kukulu.xml");
         private static readonly string TWITCH_PATH = Path.GetFullPath(@".\favorite\twitch.xml");
@@ -45,6 +45,7 @@ namespace Dowsingman2
             App._mutex = new Mutex(false, APPNAME_GUID);
             if (!App._mutex.WaitOne(0, false))
             {
+                MessageBox.Show("すでに起動しています！");
                 App._mutex.Close();
                 App._mutex = null;
                 this.Shutdown();
@@ -74,20 +75,15 @@ namespace Dowsingman2
         /// System.Windows.Application.Exit イベント を発生させます。
         /// </summary>
         /// <param name="e">イベントデータ を格納している ExitEventArgs</param>
-        protected override async void OnExit(ExitEventArgs e)
+        protected override void OnExit(ExitEventArgs e)
         {
-            if (App._mutex == null) { return; }
+            if (App._mutex == null) { base.OnExit(e); return; }
 
             //フォルダがなければ作成
             if (!Directory.Exists(@".\favorite"))
                 Directory.CreateDirectory(@".\favorite");
 
-            //XMLファイルへ保存
-            await SerializeAsync(Kukulu.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\kukulu.xml"));
-            await SerializeAsync(Twitch.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\twitch.xml"));
-            await SerializeAsync(Fc2.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\fc2.xml"));
-            await SerializeAsync(Cavetube.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\cavetube.xml"));
-            await SerializeAsync(StaticClass.logList, Path.GetFullPath(@".\favorite\log.xml"));
+            SaveAll();
 
             // ミューテックスの解放
             App._mutex.ReleaseMutex();
@@ -96,6 +92,16 @@ namespace Dowsingman2
 
             this.notifyIcon.Dispose();
             base.OnExit(e);
+        }
+
+        static void SaveAll()
+        {
+            //XMLファイルへ保存
+            Serialize(Kukulu.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\kukulu.xml"));
+            Serialize(Twitch.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\twitch.xml"));
+            Serialize(Fc2.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\fc2.xml"));
+            Serialize(Cavetube.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\cavetube.xml"));
+            Serialize(StaticClass.logList, Path.GetFullPath(@".\favorite\log.xml"));
         }
 
         // 排他ロックに使うSemaphoreSlimオブジェクト
@@ -119,6 +125,15 @@ namespace Dowsingman2
             finally
             {
                 _semaphore.Release(); // ロックを解放する
+            }
+        }
+
+        static void Serialize<T>(T data, string filePath)
+        {
+            var xmlSerializer = new XmlSerializer(typeof(T));
+            using (var streamWriter = new StreamWriter(filePath, false, new UTF8Encoding(false)))
+            {
+                xmlSerializer.Serialize(streamWriter, data);
             }
         }
 

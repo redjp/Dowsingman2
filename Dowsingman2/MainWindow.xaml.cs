@@ -192,7 +192,7 @@ namespace Dowsingman2
                     if (!Cavetube.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != string.Empty)
                     {
                         //テキストボックスの内容をお気に入り配信者に追加
-                        Twitch.List.Add(new StreamClass(Textbox1.Text));
+                        Cavetube.List.Add(new StreamClass(Textbox1.Text));
                         MessageBox.Show(Textbox1.Text + "を追加しました。");
                         //内容を削除
                         Textbox1.Text = string.Empty;
