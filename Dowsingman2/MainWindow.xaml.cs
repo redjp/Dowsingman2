@@ -337,7 +337,7 @@ namespace Dowsingman2
         {
             if (Kukulu.EnableChange)
                 //選択されている項目があるか
-                if (kukuluGrid2.SelectedIndex != -1)
+                if (kukuluGrid2.SelectedIndex >= 0)
                 {
                     var item = (StreamClass)kukuluGrid2.SelectedItem;
                     //同じ名前が登録されていないか
@@ -354,7 +354,7 @@ namespace Dowsingman2
         {
             if (Kukulu.EnableChange)
                 //選択されている項目があるか
-                if (fc2Grid2.SelectedIndex != -1)
+                if (fc2Grid2.SelectedIndex >= 0)
                 {
                     var item = (StreamClass)fc2Grid2.SelectedItem;
                     //同じ名前が登録されていないか
@@ -371,7 +371,7 @@ namespace Dowsingman2
         {
             if (Kukulu.EnableChange)
                 //選択されている項目があるか
-                if (twitchGrid2.SelectedIndex != -1)
+                if (twitchGrid2.SelectedIndex >= 0)
                 {
                     var item = (StreamClass)twitchGrid2.SelectedItem;
                     //同じ名前が登録されていないか
@@ -388,7 +388,7 @@ namespace Dowsingman2
         {
             if (Kukulu.EnableChange)
                 //選択されている項目があるか
-                if (cavetubeGrid2.SelectedIndex != -1)
+                if (cavetubeGrid2.SelectedIndex >= 0)
                 {
                     var item = (StreamClass)cavetubeGrid2.SelectedItem;
                     //同じ名前が登録されていないか
@@ -411,7 +411,7 @@ namespace Dowsingman2
         {
             if (Kukulu.EnableChange)
                 //選択されている項目があるか
-                if (kukuluGrid.SelectedIndex != -1)
+                if (kukuluGrid.SelectedIndex >= 0)
                 {
                     var url = ((StreamClass)kukuluGrid.SelectedItem).Url;
                     if (url != string.Empty)
@@ -423,7 +423,7 @@ namespace Dowsingman2
         {
             if (Fc2.EnableChange)
                 //選択されている項目があるか
-                if (fc2Grid.SelectedIndex != -1)
+                if (fc2Grid.SelectedIndex >= 0)
                 {
                     var url = ((StreamClass)fc2Grid.SelectedItem).Url;
                     if (url != string.Empty)
@@ -436,7 +436,7 @@ namespace Dowsingman2
         {
             if (Twitch.EnableChange)
                 //選択されている項目があるか
-                if (twitchGrid.SelectedIndex != -1)
+                if (twitchGrid.SelectedIndex >= 0)
                 {
                     var url = ((StreamClass)twitchGrid.SelectedItem).Url;
                     if (url != string.Empty)
@@ -448,7 +448,7 @@ namespace Dowsingman2
         {
             if (Cavetube.EnableChange)
                 //選択されている項目があるか
-                if (cavetubeGrid.SelectedIndex != -1)
+                if (cavetubeGrid.SelectedIndex >= 0)
                 {
                     var url = ((StreamClass)cavetubeGrid.SelectedItem).Url;
                     if (url != string.Empty)
@@ -459,7 +459,7 @@ namespace Dowsingman2
         private void logGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             //選択されている項目があるか
-            if (logGrid.SelectedIndex != -1)
+            if (logGrid.SelectedIndex >= 0)
             {
                 var url = ((StreamClass)logGrid.SelectedItem).Url;
                 if (url != string.Empty)

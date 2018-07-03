@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Xml;
 using System.ServiceModel.Syndication;
+using System.Linq;
 
 /// <summary>
 /// 非同期処理に書き換え＆StaticClassを統合
@@ -18,7 +19,7 @@ namespace Dowsingman2
     /// All:配信一覧
     /// UpdateListAsync():更新メソッド
     /// </summary>
-    public class Kukulu
+    public static class Kukulu
     {
         #region プロパティ
         /// <summary>
@@ -100,7 +101,7 @@ namespace Dowsingman2
             var streamAll = new List<StreamClass>();
             try
             {
-                //くくる配信一覧を取得（別スレッドで実行）
+                //配信一覧を取得（別スレッドで実行）
                 streamAll = await GetAllAsync();
             }
             catch (Exception ex)
@@ -116,47 +117,35 @@ namespace Dowsingman2
                 EnableChange = false;
                 try
                 {
-                    //現在の登録チャンネルリストを取得
-                    List<StreamClass> streamList = new List<StreamClass>(List);
-
-                    //配信中ステータスと配信者名保存用
-                    var statusList = new List<Boolean>();
-                    var loadList = new List<string>();
-
-                    //kukuluタブの情報を保存
-                    foreach (StreamClass st in streamList)
+                    if (List.Count > 0)
                     {
-                        statusList.Add(st.StreamStatus);
-                        loadList.Add(st.Owner);
-                    }
+                        //現在の登録チャンネルリストを取得
+                        List<StreamClass> streamList = new List<StreamClass>(List);
+                        var statusList = streamList.Select(x => x.StreamStatus).ToList();
+                        //配信情報を初期化
+                        streamList = streamList.Select(x => new StreamClass(x.Owner)).ToList();
 
-                    //保存した情報を元にリセット
-                    streamList = new List<StreamClass>();
-                    foreach (string str in loadList)
-                    {
-                        streamList.Add(new StreamClass(str));
-                    }
-
-                    foreach (StreamClass st in streamAll)
-                    {
-                        //一致する配信者名があった場合indexを取得
-                        int index = streamList.FindIndex(item => item.Owner == st.Owner);
-                        if (index != -1)
+                        foreach (StreamClass st in streamAll)
                         {
-                            //配信情報を上書き
-                            streamList[index] = st;
-
-                            //新しく開始した配信なら通知スタックに追加
-                            if (!statusList[index])
+                            //一致する配信者名があった場合indexを取得
+                            int index = streamList.FindIndex(item => item.Owner == st.Owner);
+                            if (index >= 0)
                             {
-                                stackStreamNote.Add(st);
-                                statusList[index] = true;
+                                //配信情報を上書き
+                                streamList[index] = st;
+
+                                //新しく開始した配信なら通知スタックに追加
+                                if (!statusList[index])
+                                {
+                                    stackStreamNote.Add(st);
+                                    statusList[index] = true;
+                                }
                             }
                         }
+
+                        List = streamList;
                     }
 
-                    //最後に結果を入れる
-                    List = streamList;
                     All = streamAll;
                 }
                 catch (Exception ex)
@@ -200,6 +189,9 @@ namespace Dowsingman2
         public static Boolean EnableChange { get; set; } = true;
         #endregion
 
+        const int OFFSET = 80;
+        const int RATE_LIMIT = 25;
+
         /// <summary>
         /// 配信サイトから配信一覧を取得してList<StreamClass>に入れて返す
         /// </summary>
@@ -207,13 +199,11 @@ namespace Dowsingman2
         private static async Task<List<StreamClass>> GetAllAsync()
         {
             //戻り値用
-            List<StreamClass> twitchall = new List<StreamClass>();
+            List<StreamClass> result = new List<StreamClass>();
 
             using (WebClient client = new WebClient())
             {
-                string json = "";
-                const int OFFSET = 80;
-                const int RATE_LIMIT = 25;
+                string json = string.Empty;
 
                 for (int i = 0; i < RATE_LIMIT; i++)
                 {
@@ -235,7 +225,7 @@ namespace Dowsingman2
                     }
 
                     //ちゃんと取得出来ているか
-                    if (json != null)
+                    if (json != null && json != string.Empty)
                     {
                         //jsonをパースしてRootObjectに変換
                         var r = JsonConvert.DeserializeObject<TwitchRootObject.RootObject>(json);
@@ -243,23 +233,18 @@ namespace Dowsingman2
                         //一覧を収納
                         foreach (var s in r.streams)
                         {
-                            if (!twitchall.Exists(item => item.Owner == s.channel.name))
-                                twitchall.Add(new StreamClass(s.channel.status, "https://www.twitch.tv/" + s.channel.name + '/', s.channel.name, s.created_at.ToLocalTime()));
+                            if (!result.Exists(item => item.Owner == s.channel.name))
+                                result.Add(new StreamClass(s.channel.status, "https://www.twitch.tv/" + s.channel.name + '/', s.channel.name, s.created_at.ToLocalTime()));
                         }
 
                         //配信がなくなったらループを抜ける
-                        if (r.streams.Count < OFFSET)
-                            i = RATE_LIMIT;
-                    }
-                    else
-                    {
-                        return new List<StreamClass>();
+                        if (r.streams.Count < OFFSET) break;
                     }
                 }
             }
 
-                //配信一覧を返す
-                return twitchall;
+            //配信一覧を返す
+            return result;
         }
 
         /// <summary>
@@ -293,47 +278,35 @@ namespace Dowsingman2
                 EnableChange = false;
                 try
                 {
-                    //現在の登録チャンネルリストを取得
-                    List<StreamClass> streamList = new List<StreamClass>(List);
-
-                    //配信中ステータスと配信者名保存用
-                    var statusList = new List<Boolean>();
-                    var loadList = new List<string>();
-
-                    //更新前の情報を保存
-                    foreach (StreamClass st in streamList)
+                    if (List.Count > 0)
                     {
-                        statusList.Add(st.StreamStatus);
-                        loadList.Add(st.Owner);
-                    }
+                        //現在の登録チャンネルリストを取得
+                        List<StreamClass> streamList = new List<StreamClass>(List);
+                        var statusList = streamList.Select(x => x.StreamStatus).ToList();
+                        //配信情報を初期化
+                        streamList = streamList.Select(x => new StreamClass(x.Owner)).ToList();
 
-                    //保存した情報を元にリセット
-                    streamList = new List<StreamClass>();
-                    foreach (string str in loadList)
-                    {
-                        streamList.Add(new StreamClass(str));
-                    }
-
-                    foreach (StreamClass st in streamAll)
-                    {
-                        //一致する配信者名があった場合indexを取得
-                        int index = streamList.FindIndex(item => item.Owner == st.Owner);
-                        if (index != -1)
+                        foreach (StreamClass st in streamAll)
                         {
-                            //配信情報を上書き
-                            streamList[index] = st;
-
-                            //新しく開始した配信なら通知スタックに追加
-                            if (!statusList[index])
+                            //一致する配信者名があった場合indexを取得
+                            int index = streamList.FindIndex(item => item.Owner == st.Owner);
+                            if (index >= 0)
                             {
-                                stackStreamNote.Add(st);
-                                statusList[index] = true;
+                                //配信情報を上書き
+                                streamList[index] = st;
+
+                                //新しく開始した配信なら通知スタックに追加
+                                if (!statusList[index])
+                                {
+                                    stackStreamNote.Add(st);
+                                    statusList[index] = true;
+                                }
                             }
                         }
+
+                        List = streamList;
                     }
 
-                    //最後に結果を入れる
-                    List = streamList;
                     All = streamAll;
                 }
                 catch (Exception ex)
@@ -386,7 +359,7 @@ namespace Dowsingman2
             List<StreamClass> fc2all = new List<StreamClass>();
 
             //FC2の配信一覧（一般）を取得
-            string json = "";
+            string json = string.Empty;
             using (WebClient client = new WebClient())
             {
                 try
@@ -398,12 +371,12 @@ namespace Dowsingman2
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    json = "";
+                    json = string.Empty;
                 }
             }
 
             //ちゃんと取得出来ているか
-            if (json != "")
+            if (json != string.Empty)
             {
                 //jsonをパースしてRootObjectに変換
                 var r = JsonConvert.DeserializeObject<Fc2RootObject.RootObject>(json);
@@ -411,13 +384,9 @@ namespace Dowsingman2
                 //一覧を収納
                 foreach (var channel in r.channel)
                 {
-                    if (channel.name != "" && channel.name != "匿名")
+                    if (channel.name != string.Empty && channel.name != "匿名")
                         fc2all.Add(new StreamClass(channel.title, "https://live.fc2.com/" + channel.id + '/', channel.name, DateTime.Parse(channel.start)));
                 }
-            }
-            else
-            {
-                return new List<StreamClass>();
             }
 
             //配信一覧を返す
@@ -455,47 +424,35 @@ namespace Dowsingman2
                 EnableChange = false;
                 try
                 {
-                    //現在の登録チャンネルリストを取得
-                    List<StreamClass> streamList = new List<StreamClass>(List);
-
-                    //配信中ステータスと配信者名保存用
-                    var statusList = new List<Boolean>();
-                    var loadList = new List<string>();
-
-                    //更新前の情報を保存
-                    foreach (StreamClass st in streamList)
+                    if (List.Count > 0)
                     {
-                        statusList.Add(st.StreamStatus);
-                        loadList.Add(st.Owner);
-                    }
+                        //現在の登録チャンネルリストを取得
+                        List<StreamClass> streamList = new List<StreamClass>(List);
+                        var statusList = streamList.Select(x => x.StreamStatus).ToList();
+                        //配信情報を初期化
+                        streamList = streamList.Select(x => new StreamClass(x.Owner)).ToList();
 
-                    //保存した情報を元にリセット
-                    streamList = new List<StreamClass>();
-                    foreach (string str in loadList)
-                    {
-                        streamList.Add(new StreamClass(str));
-                    }
-
-                    foreach (StreamClass st in streamAll)
-                    {
-                        //一致する配信者名があった場合indexを取得
-                        int index = streamList.FindIndex(item => item.Owner == st.Owner);
-                        if (index != -1)
+                        foreach (StreamClass st in streamAll)
                         {
-                            //配信情報を上書き
-                            streamList[index] = st;
-
-                            //新しく開始した配信なら通知スタックに追加
-                            if (!statusList[index])
+                            //一致する配信者名があった場合indexを取得
+                            int index = streamList.FindIndex(item => item.Owner == st.Owner);
+                            if (index >= 0)
                             {
-                                stackStreamNote.Add(st);
-                                statusList[index] = true;
+                                //配信情報を上書き
+                                streamList[index] = st;
+
+                                //新しく開始した配信なら通知スタックに追加
+                                if (!statusList[index])
+                                {
+                                    stackStreamNote.Add(st);
+                                    statusList[index] = true;
+                                }
                             }
                         }
+
+                        List = streamList;
                     }
 
-                    //最後に結果を入れる
-                    List = streamList;
                     All = streamAll;
                 }
                 catch (Exception ex)
@@ -617,47 +574,35 @@ namespace Dowsingman2
                 EnableChange = false;
                 try
                 {
-                    //現在の登録チャンネルリストを取得
-                    List<StreamClass> streamList = new List<StreamClass>(List);
-
-                    //配信中ステータスと配信者名保存用
-                    var statusList = new List<Boolean>();
-                    var loadList = new List<string>();
-
-                    //更新前の情報を保存
-                    foreach (StreamClass st in streamList)
+                    if (List.Count > 0)
                     {
-                        statusList.Add(st.StreamStatus);
-                        loadList.Add(st.Owner);
-                    }
+                        //現在の登録チャンネルリストを取得
+                        List<StreamClass> streamList = new List<StreamClass>(List);
+                        var statusList = streamList.Select(x => x.StreamStatus).ToList();
+                        //配信情報を初期化
+                        streamList = streamList.Select(x => new StreamClass(x.Owner)).ToList();
 
-                    //保存した情報を元にリセット
-                    streamList = new List<StreamClass>();
-                    foreach (string str in loadList)
-                    {
-                        streamList.Add(new StreamClass(str));
-                    }
-
-                    foreach (StreamClass st in streamAll)
-                    {
-                        //一致する配信者名があった場合indexを取得
-                        int index = streamList.FindIndex(item => item.Owner == st.Owner);
-                        if (index != -1)
+                        foreach (StreamClass st in streamAll)
                         {
-                            //配信情報を上書き
-                            streamList[index] = st;
-
-                            //新しく開始した配信なら通知スタックに追加
-                            if (!statusList[index])
+                            //一致する配信者名があった場合indexを取得
+                            int index = streamList.FindIndex(item => item.Owner == st.Owner);
+                            if (index >= 0)
                             {
-                                stackStreamNote.Add(st);
-                                statusList[index] = true;
+                                //配信情報を上書き
+                                streamList[index] = st;
+
+                                //新しく開始した配信なら通知スタックに追加
+                                if (!statusList[index])
+                                {
+                                    stackStreamNote.Add(st);
+                                    statusList[index] = true;
+                                }
                             }
                         }
-                    }
 
-                    //最後に結果を入れる
-                    List = streamList;
+                        List = streamList;
+                    }
+                    
                     All = streamAll;
                 }
                 catch (Exception ex)

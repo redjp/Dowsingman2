@@ -12,16 +12,16 @@ namespace Dowsingman2
 
         public StreamClass()
         {
-            this.Title = "";
-            this.Url = "";
-            this.Owner = "";
+            this.Title = string.Empty;
+            this.Url = string.Empty;
+            this.Owner = string.Empty;
             this.Start_Time = null;
             this.StreamStatus = false;
         }
         public StreamClass(string owner)
         {
-            this.Title = "";
-            this.Url = "";
+            this.Title = string.Empty;
+            this.Url = string.Empty;
             this.Owner = owner;
             this.Start_Time = null;
             this.StreamStatus = false;

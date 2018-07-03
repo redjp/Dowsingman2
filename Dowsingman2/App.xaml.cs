@@ -52,20 +52,16 @@ namespace Dowsingman2
             }
 
             //起動時にXMLファイルから読み込み
-            if(File.Exists(KUKULU_PATH))
-                Kukulu.List = (await DeserializeAsync<List<string>>(KUKULU_PATH))
-                    .Select(x => new StreamClass(x)).ToList();
-            if(File.Exists(TWITCH_PATH))
-                Twitch.List = (await DeserializeAsync<List<string>>(TWITCH_PATH))
-                    .Select(x => new StreamClass(x)).ToList();
-            if(File.Exists(FC2_PATH))
-                Fc2.List = (await DeserializeAsync<List<string>>(FC2_PATH))
-                    .Select(x => new StreamClass(x)).ToList();
-            if(File.Exists(CAVETUBE_PATH))
-                Cavetube.List = (await DeserializeAsync<List<string>>(CAVETUBE_PATH))
-                    .Select(x => new StreamClass(x)).ToList();
-            if(File.Exists(LOG_PATH))
-                StaticClass.logList = await DeserializeAsync<List<StreamClass>>(LOG_PATH);
+            Kukulu.List = (File.Exists(KUKULU_PATH)) ? (await DeserializeAsync<List<string>>(KUKULU_PATH))
+                .Select(x => new StreamClass(x)).ToList() : new List<StreamClass>();
+            Twitch.List = (File.Exists(TWITCH_PATH)) ? (await DeserializeAsync<List<string>>(TWITCH_PATH))
+                .Select(x => new StreamClass(x)).ToList() : new List<StreamClass>();
+            Fc2.List = (File.Exists(FC2_PATH)) ? (await DeserializeAsync<List<string>>(FC2_PATH))
+                .Select(x => new StreamClass(x)).ToList() : new List<StreamClass>();
+            Cavetube.List = (File.Exists(CAVETUBE_PATH)) ? (await DeserializeAsync<List<string>>(CAVETUBE_PATH))
+                .Select(x => new StreamClass(x)).ToList() : new List<StreamClass>();
+            StaticClass.logList = (File.Exists(LOG_PATH)) ? await DeserializeAsync<List<StreamClass>>(LOG_PATH)
+                : new List<StreamClass>();
 
             base.OnStartup(e);
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
