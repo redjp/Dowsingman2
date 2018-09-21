@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
@@ -154,6 +155,7 @@ namespace Dowsingman2
                         MessageBox.Show(Textbox1.Text + "を追加しました。");
                         //内容を削除
                         Textbox1.Text = string.Empty;
+                        App.SaveList("Kukulu");
                         UpdateDispList();
                     }
 
@@ -168,6 +170,7 @@ namespace Dowsingman2
                         MessageBox.Show(Textbox1.Text + "を追加しました。");
                         //内容を削除
                         Textbox1.Text = string.Empty;
+                        App.SaveList("Fc2");
                         UpdateDispList();
                     }
 
@@ -182,6 +185,7 @@ namespace Dowsingman2
                         MessageBox.Show(Textbox1.Text + "を追加しました。");
                         //内容を削除
                         Textbox1.Text = string.Empty;
+                        App.SaveList("Twitch");
                         UpdateDispList();
                     }
 
@@ -196,6 +200,7 @@ namespace Dowsingman2
                         MessageBox.Show(Textbox1.Text + "を追加しました。");
                         //内容を削除
                         Textbox1.Text = string.Empty;
+                        App.SaveList("Cavetube");
                         UpdateDispList();
                     }
         }
@@ -207,67 +212,97 @@ namespace Dowsingman2
         {
             //選択中のタブがkukuluなら
             if (GetSelectedTab() == "kukuluGrid")
+            {
+                StreamClass item = (StreamClass)kukuluGrid.SelectedItem;
+                if (MessageBox.Show(item.Owner + "を削除しますか？", string.Empty , MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                    return;
+
                 if (Kukulu.EnableChange)
                     //選択されている項目があるか
                     if (kukuluGrid.SelectedIndex != -1)
                     {
                         //選択されている項目を削除
-                        StreamClass item = (StreamClass)kukuluGrid.SelectedItem;
                         Kukulu.List.Remove(item);
                         MessageBox.Show(item.Owner + "を削除しました");
+                        App.SaveList("Kukulu");
                         UpdateDispList();
                     }
+            }
 
             //選択中のタブがFC2なら
             if (GetSelectedTab() == "fc2Grid")
+            {
+                StreamClass item = (StreamClass)fc2Grid.SelectedItem;
+                if (MessageBox.Show(item.Owner + "を削除しますか？", string.Empty, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                    return;
+
                 if (Fc2.EnableChange)
                     //選択されている項目があるか
                     if (fc2Grid.SelectedIndex != -1)
                     {
                         //選択されている項目を削除
-                        StreamClass item = (StreamClass)fc2Grid.SelectedItem;
                         Fc2.List.Remove(item);
                         MessageBox.Show(item.Owner + "を削除しました");
+                        App.SaveList("Fc2");
                         UpdateDispList();
                     }
+            }
 
             //選択中のタブがtwtichなら
             if (GetSelectedTab() == "twitchGrid")
+            {
+                StreamClass item = (StreamClass)twitchGrid.SelectedItem;
+                if (MessageBox.Show(item.Owner + "を削除しますか？", string.Empty, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                    return;
+
                 if (Twitch.EnableChange)
                     //選択されている項目があるか
                     if (twitchGrid.SelectedIndex != -1)
                     {
                         //選択されている項目を削除
-                        StreamClass item = (StreamClass)twitchGrid.SelectedItem;
                         Twitch.List.Remove(item);
                         MessageBox.Show(item.Owner + "を削除しました");
+                        App.SaveList("Twitch");
                         UpdateDispList();
                     }
+            }
 
             //選択中のタブがcavetubeなら
             if (GetSelectedTab() == "cavetubeGrid")
+            {
+                StreamClass item = (StreamClass)cavetubeGrid.SelectedItem;
+                if (MessageBox.Show(item.Owner + "を削除しますか？", string.Empty, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                    return;
+
                 if (Cavetube.EnableChange)
                     //選択されている項目があるか
                     if (cavetubeGrid.SelectedIndex != -1)
                     {
                         //選択されている項目を削除
-                        StreamClass item = (StreamClass)cavetubeGrid.SelectedItem;
                         Cavetube.List.Remove(item);
                         MessageBox.Show(item.Owner + "を削除しました");
+                        App.SaveList("Cavetube");
                         UpdateDispList();
                     }
+            }
 
             //選択中のタブが履歴なら
             if (GetSelectedTab() == "logGrid")
+            {
+                StreamClass item = (StreamClass)logGrid.SelectedItem;
+                if (MessageBox.Show(item.Owner + "を削除しますか？", string.Empty, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                    return;
+
                 //選択されている項目があるか
                 if (logGrid.SelectedIndex != -1)
                 {
                     //選択されている項目を削除
-                    StreamClass item = (StreamClass)logGrid.SelectedItem;
                     StaticClass.logList.Remove(item);
                     MessageBox.Show(item.Owner + "を削除しました");
+                    App.SaveList("Log");
                     UpdateDispList();
                 }
+            }
         }
 
         /// <summary>
@@ -466,6 +501,13 @@ namespace Dowsingman2
                     //規定のブラウザで配信URLを開く
                     System.Diagnostics.Process.Start(url);
             }
+        }
+
+        //音量調整機能をつけるまでの応急処置
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var player = new System.Media.SoundPlayer(Path.GetFullPath(@".\resource\favorite.wav"));
+            player.Play();
         }
     }
 }

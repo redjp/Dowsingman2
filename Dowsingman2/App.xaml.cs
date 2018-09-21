@@ -83,8 +83,6 @@ namespace Dowsingman2
             if (!Directory.Exists(@".\favorite"))
                 Directory.CreateDirectory(@".\favorite");
 
-            SaveAll();
-
             // ミューテックスの解放
             App._mutex.ReleaseMutex();
             App._mutex.Close();
@@ -94,14 +92,43 @@ namespace Dowsingman2
             base.OnExit(e);
         }
 
-        static void SaveAll()
+        //static void SaveAll()
+        //{
+        //    //XMLファイルへ保存
+        //    Serialize(Kukulu.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\kukulu.xml"));
+        //    Serialize(Twitch.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\twitch.xml"));
+        //    Serialize(Fc2.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\fc2.xml"));
+        //    Serialize(Cavetube.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\cavetube.xml"));
+        //    Serialize(StaticClass.logList, Path.GetFullPath(@".\favorite\log.xml"));
+        //}
+
+        /// <summary>
+        /// リストをXML形式で保存
+        /// </summary>
+        /// <param name="listName">保存するリストの名前</param>
+        public static void SaveList(string listName)
         {
-            //XMLファイルへ保存
-            Serialize(Kukulu.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\kukulu.xml"));
-            Serialize(Twitch.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\twitch.xml"));
-            Serialize(Fc2.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\fc2.xml"));
-            Serialize(Cavetube.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\cavetube.xml"));
-            Serialize(StaticClass.logList, Path.GetFullPath(@".\favorite\log.xml"));
+            switch(listName)
+            {
+                case "Kukulu":
+                    Serialize(Kukulu.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\kukulu.xml"));
+                    break;
+                case "Twitch":
+                    Serialize(Twitch.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\twitch.xml"));
+                    break;
+                case "Fc2":
+                    Serialize(Fc2.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\fc2.xml"));
+                    break;
+                case "Cavetube":
+                    Serialize(Cavetube.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\cavetube.xml"));
+                    break;
+                case "Log":
+                    Serialize(StaticClass.logList, Path.GetFullPath(@".\favorite\log.xml"));
+                    break;
+                default:
+                    MessageBox.Show("error! SaveListの引数が不正です。");
+                    break;
+            }
         }
 
         // 排他ロックに使うSemaphoreSlimオブジェクト

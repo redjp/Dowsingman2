@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -25,9 +26,9 @@ namespace Dowsingman2
         private MainWindow wnd = null;
         private string balloonClickUrl = string.Empty;
 
-        const string SoundFile = "./resource/favorite.wav";
-        const string IconPFile = "./resource/icon_P.ico";
-        const string IconGFile = "./resource/icon_G.ico";
+        const string SoundFile = @".\resource\favorite.wav";
+        const string IconPFile = @".\resource\icon_P.ico";
+        const string IconGFile = @".\resource\icon_G.ico";
         const int balloontime = 3200;
         const int MAX_LOG = 100;
 
@@ -116,7 +117,7 @@ namespace Dowsingman2
         /// </summary>
         /// <param name="sc">配信情報</param>
         /// <param name="time">表示時間</param>
-        public void balloonNotifyIcon(StreamClass sc, int time)
+        private void balloonNotifyIcon(StreamClass sc, int time)
         {
             notifyIcon1.BalloonTipTitle = sc.Title;
             notifyIcon1.BalloonTipText = sc.Owner;
@@ -129,7 +130,7 @@ namespace Dowsingman2
         /// </summary>
         private void PlaySound()
         {
-            var player = new System.Media.SoundPlayer(SoundFile);
+            var player = new System.Media.SoundPlayer(Path.GetFullPath(SoundFile));
             player.Play();
         }
 
@@ -167,6 +168,7 @@ namespace Dowsingman2
                     StaticClass.logList.Insert(0, stackStreamNote[0]);
                     if (StaticClass.logList.Count > MAX_LOG)
                         StaticClass.logList.RemoveAt(MAX_LOG);
+                    App.SaveList("Log");
                 }
                 catch (Exception ex)
                 {

@@ -96,6 +96,7 @@
         </TabControl>
         <TextBox x:Name="Textbox1" HorizontalAlignment="Left" Height="24" Margin="10,7,0,9" TextWrapping="Wrap" VerticalAlignment="Center" Width="316" Padding="1" Grid.Row="1" KeyDown="Textbox1_KeyDown" MaxLines="1" MaxLength="64"/>
         <Button x:Name="Button_add" Content="追加" Margin="345,8,0,10" VerticalAlignment="Center" Width="75" Click="Button_add_Click" HorizontalAlignment="Left" Grid.Row="1"/>
-        <Button x:Name="Button_del" Content="削除" HorizontalAlignment="Left" Margin="440,8,0,10" VerticalAlignment="Center" Width="75" Click="Button_del_Click" Grid.Row="1"/>
+        <Button x:Name="Button_del" Content="削除" HorizontalAlignment="Left" Margin="434,8,0,10" VerticalAlignment="Center" Width="75" Click="Button_del_Click" Grid.Row="1"/>
+        <Button Content="音" HorizontalAlignment="Left" Margin="538,7,0,0" Grid.Row="1" VerticalAlignment="Top" Width="30" Click="Button_Click" RenderTransformOrigin="0.5,0.5"/>
     </Grid>
 </Window>
