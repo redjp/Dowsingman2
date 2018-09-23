@@ -79,10 +79,6 @@ namespace Dowsingman2
         {
             if (App._mutex == null) { base.OnExit(e); return; }
 
-            //フォルダがなければ作成
-            if (!Directory.Exists(@".\favorite"))
-                Directory.CreateDirectory(@".\favorite");
-
             // ミューテックスの解放
             App._mutex.ReleaseMutex();
             App._mutex.Close();
@@ -108,7 +104,11 @@ namespace Dowsingman2
         /// <param name="listName">保存するリストの名前</param>
         public static void SaveList(string listName)
         {
-            switch(listName)
+            //フォルダがなければ作成
+            if (!Directory.Exists(@".\favorite"))
+                Directory.CreateDirectory(@".\favorite");
+
+            switch (listName)
             {
                 case "Kukulu":
                     Serialize(Kukulu.List.Select(x => x.Owner).ToList(), Path.GetFullPath(@".\favorite\kukulu.xml"));
