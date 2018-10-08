@@ -386,6 +386,7 @@ namespace Dowsingman2
                         //選択中の項目をお気に入り配信者に追加
                         Kukulu.List.Add(item);
                         MessageBox.Show(item.Owner + "を追加しました。");
+                        App.SaveList("Kukulu");
                         UpdateDispList();
                     }
                 }
@@ -403,6 +404,7 @@ namespace Dowsingman2
                         //選択中の項目をお気に入り配信者に追加
                         Fc2.List.Add(item);
                         MessageBox.Show(item.Owner + "を追加しました。");
+                        App.SaveList("Fc2");
                         UpdateDispList();
                     }
                 }
@@ -420,6 +422,7 @@ namespace Dowsingman2
                         //選択中の項目をお気に入り配信者に追加
                         Twitch.List.Add(item);
                         MessageBox.Show(item.Owner + "を追加しました。");
+                        App.SaveList("Twitch");
                         UpdateDispList();
                     }
                 }
@@ -437,6 +440,7 @@ namespace Dowsingman2
                         //選択中の項目をお気に入り配信者に追加
                         Cavetube.List.Add(item);
                         MessageBox.Show(item.Owner + "を追加しました。");
+                        App.SaveList("Cavetube");
                         UpdateDispList();
                     }
                 }
