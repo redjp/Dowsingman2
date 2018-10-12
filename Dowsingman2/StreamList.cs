@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.ServiceModel.Syndication;
 using System.Linq;
+using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 /// <summary>
 /// 非同期処理に書き換え＆StaticClassを統合
@@ -36,6 +38,8 @@ namespace Dowsingman2
         public static Boolean EnableChange { get; set; } = true;
         #endregion
 
+        private static Regex specialCharsRegex_ = new Regex("[\\00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]", RegexOptions.Compiled);
+
         /// <summary>
         /// 配信サイトから配信一覧を取得してList<StreamClass>に入れて返す
         /// </summary>
@@ -45,41 +49,43 @@ namespace Dowsingman2
             //戻り値
             var kukuluall = new List<StreamClass>();
 
-            HtmlAgilityPack.HtmlWeb hweb = new HtmlAgilityPack.HtmlWeb();
-            var doc = new HtmlAgilityPack.HtmlDocument();
+            string kukulu_str;
+            List<string[]> list = null;
 
-            try
-            {
-                //kukuluLiveから配信一覧を取得
-                doc = await hweb.LoadFromWebAsync("http://live.kukulu.erinn.biz/_live.ajax.php");
+            using (WebClient client = new WebClient()) {
+                try
+                {
+                    //エンコード設定（UTF8）
+                    client.Encoding = System.Text.Encoding.UTF8;
+
+                    //kukuluLiveから配信一覧を取得
+                    string url = @"http://dwsrod.kuku.lu/xml/stream/popular/search/all?limit=100";
+                    kukulu_str = await client.DownloadStringTaskAsync(url);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return kukuluall;
+                }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return kukuluall;
-            }
+            XDocument xDocument = XDocument.Parse(RemoveSpecialChars(kukulu_str));
 
-            //Xpathで配信タイトルの書かれたAタグを抜き出す
-            var streamNode = doc.DocumentNode.SelectNodes("//a[@class='a_live']");
-            //Xpathで太字の配信者名を抜き出す
-            var streamerNode = doc.DocumentNode.SelectNodes("//td[contains(@id,'livecom')]//div/a/b");
-            //Xpathで配信開始時刻を抜き出す
-            var start_timeNode = doc.DocumentNode.SelectNodes("//td[contains(@id,'livecom')]//font/font[3]");
-
-            //要素数
-            int count = streamNode.Count;
-            if (streamerNode.Count < count) count = streamerNode.Count;
+            list = (from array in xDocument.Root.Element("results").Elements("array")
+                        let user = array.Element("userName").Value
+                        let title = array.Element("title").Value
+                        let date = array.Element("streamStartedAt").Value
+                        select new string[4]
+                        {
+                title,
+                user,
+                date,
+                array.Element("url").Value,
+                        }).ToList();
 
             //一覧を収納
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < list.Count; i++)
             {
-                //24時間以上だとTimeSpan.Parseはエラーを返すので自前で分割
-                TimeSpan ts = new TimeSpan(int.Parse(start_timeNode[i].InnerText.Split(':')[0]),    // hours
-                                           int.Parse(start_timeNode[i].InnerText.Split(':')[1]),    // minutes
-                                           0);                               // seconds
-                DateTime? time = DateTime.Now - ts;
-
-                kukuluall.Add(new StreamClass(streamNode[i].InnerText, "http://live.kukulu.erinn.biz/" + streamNode[i].Attributes["href"].ValueOrDefault(), streamerNode[i].InnerText, time));
+                kukuluall.Add(new StreamClass(list[i][0], list[i][3], list[i][1], FormatDate(list[i][2])));
             }
 
             //配信一覧を返す
@@ -164,6 +170,23 @@ namespace Dowsingman2
             return stackStreamNote;
         }
         #endregion
+
+
+        public static string RemoveSpecialChars(string value)
+        {
+            return specialCharsRegex_.Replace(value, "");
+        }
+
+        public static DateTime? FormatDate(string dateString)
+        {
+            if (dateString == "")
+            {
+                return null;
+            }
+            DateTime dateTime = DateTime.ParseExact(dateString, "yyyy-MM-dd HH:mm:ss", null);
+            dateTime = dateTime.AddHours(17.0);
+            return dateTime;
+        }
     }
 
 

@@ -139,24 +139,27 @@ namespace Dowsingman2
         /// </summary>
         private void updateBalloonStack()
         {
-            try
+            if (stackStreamNote.Count > 0)
             {
-                //履歴とかぶりがないか検索
-                while (StaticClass.logList.Exists(item =>
-                        new TimeSpan(0, -1, 0) < item.Start_Time - stackStreamNote[0].Start_Time
-                        && item.Start_Time - stackStreamNote[0].Start_Time < new TimeSpan(0, 1, 0)
-                        && item.Owner == stackStreamNote[0].Owner))
+                try
                 {
-                    //かぶっていれば削除
-                    stackStreamNote.RemoveAt(0);
-                    //スタックがなければループを抜ける
-                    if (stackStreamNote.Count <= 0)
-                        break;
+                    //履歴とかぶりがないか検索
+                    while (StaticClass.logList.Exists(item =>
+                            new TimeSpan(0, -1, 0) < item.Start_Time - stackStreamNote[0].Start_Time
+                            && item.Start_Time - stackStreamNote[0].Start_Time < new TimeSpan(0, 1, 0)
+                            && item.Owner == stackStreamNote[0].Owner))
+                    {
+                        //かぶっていれば削除
+                        stackStreamNote.RemoveAt(0);
+                        //スタックがなければループを抜ける
+                        if (stackStreamNote.Count <= 0)
+                            break;
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
 
             //通知スタックがあるか
