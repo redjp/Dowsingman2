@@ -38,6 +38,7 @@ namespace Dowsingman2
         public static Boolean EnableChange { get; set; } = true;
         #endregion
 
+        private static TimeZoneInfo timeZoneInfo_ = TimeZoneInfo.FindSystemTimeZoneById("US Eastern Standard Time");
         private static Regex specialCharsRegex_ = new Regex("[\\00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]", RegexOptions.Compiled);
 
         /// <summary>
@@ -184,7 +185,7 @@ namespace Dowsingman2
                 return null;
             }
             DateTime dateTime = DateTime.ParseExact(dateString, "yyyy-MM-dd HH:mm:ss", null);
-            dateTime = dateTime.AddHours(17.0);
+            dateTime = ((!timeZoneInfo_.IsDaylightSavingTime(dateTime)) ? dateTime.AddHours(17.0) : dateTime.AddHours(16.0));
             return dateTime;
         }
     }
