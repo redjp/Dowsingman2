@@ -5,98 +5,98 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Dowsingman2"
         mc:Ignorable="d"
-        Title="Dowsingman2" Height="360" Width="600" MinWidth="600" MinHeight="360">
+        Title="Dowsingman2" Height="360" Width="600" MinWidth="600" MinHeight="360" Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="380*"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <TabControl x:Name="TabControl1" Margin="0,0,0,3" SelectionChanged="TabControl_SelectionChanged">
+        <TabControl x:Name="TabControl1" Margin="0,0,0,3" SelectionChanged="TabControl1_SelectionChanged">
             <TabItem Header="kukulu" Width="60">
-                <DataGrid x:Name="kukuluGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="kukuluGrid_MouseDoubleClick" PreviewKeyDown="dataGrid_PreviewKeyDown" CanUserSortColumns="False">
+                <DataGrid x:Name="kukuluGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="kukuluGrid_MouseDoubleClick" PreviewKeyDown="dataGrid_PreviewKeyDown">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160"/>
-                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240"/>
-                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180"/>
+                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160*"/>
+                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240*"/>
+                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180*"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
             <TabItem Header="一覧">
-                <DataGrid x:Name="kukuluGrid2" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="kukuluGrid2_MouseDoubleClick" CanUserSortColumns="False">
+                <DataGrid x:Name="kukuluGrid2" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="kukuluGrid2_MouseDoubleClick">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160"/>
-                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240"/>
-                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180"/>
+                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160*"/>
+                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240*"/>
+                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180*"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
             <TabItem Header="FC2" Width="60">
-                <DataGrid x:Name="fc2Grid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="fc2Grid_MouseDoubleClick" PreviewKeyDown="dataGrid_PreviewKeyDown" CanUserSortColumns="False">
+                <DataGrid x:Name="fc2Grid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="fc2Grid_MouseDoubleClick" PreviewKeyDown="dataGrid_PreviewKeyDown">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160"/>
-                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240"/>
-                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180"/>
+                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160*"/>
+                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240*"/>
+                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180*"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
             <TabItem Header="一覧">
-                <DataGrid x:Name="fc2Grid2" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="fc2Grid2_MouseDoubleClick" CanUserSortColumns="False">
+                <DataGrid x:Name="fc2Grid2" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="fc2Grid2_MouseDoubleClick">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160"/>
-                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240"/>
-                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180"/>
+                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160*"/>
+                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240*"/>
+                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180*"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
             <TabItem Header="Twitch" Width="60">
-                <DataGrid x:Name="twitchGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="twitchGrid_MouseDoubleClick" PreviewKeyDown="dataGrid_PreviewKeyDown" CanUserSortColumns="False">
+                <DataGrid x:Name="twitchGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="twitchGrid_MouseDoubleClick" PreviewKeyDown="dataGrid_PreviewKeyDown">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160"/>
-                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240"/>
-                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180"/>
+                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160*"/>
+                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240*"/>
+                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180*"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
             <TabItem Header="一覧">
-                <DataGrid x:Name="twitchGrid2" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="twitchGrid2_MouseDoubleClick" CanUserSortColumns="False">
+                <DataGrid x:Name="twitchGrid2" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="twitchGrid2_MouseDoubleClick">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160"/>
-                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240"/>
-                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180"/>
+                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160*"/>
+                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240*"/>
+                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180*"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
             <TabItem Header="cavetube" Width="60">
-                <DataGrid x:Name="cavetubeGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="cavetubeGrid_MouseDoubleClick" PreviewKeyDown="dataGrid_PreviewKeyDown" CanUserSortColumns="False">
+                <DataGrid x:Name="cavetubeGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="cavetubeGrid_MouseDoubleClick" PreviewKeyDown="dataGrid_PreviewKeyDown">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160"/>
-                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240"/>
-                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180"/>
+                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160*"/>
+                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240*"/>
+                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180*"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
             <TabItem Header="一覧">
-                <DataGrid x:Name="cavetubeGrid2" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="cavetubeGrid2_MouseDoubleClick" CanUserSortColumns="False">
+                <DataGrid x:Name="cavetubeGrid2" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="cavetubeGrid2_MouseDoubleClick">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160"/>
-                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240"/>
-                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180"/>
+                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160*"/>
+                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240*"/>
+                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180*"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
             <TabItem Header="履歴" Width="60">
-                <DataGrid x:Name="logGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="logGrid_MouseDoubleClick" PreviewKeyDown="dataGrid_PreviewKeyDown" CanUserSortColumns="False">
+                <DataGrid x:Name="logGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeRows="False" HorizontalScrollBarVisibility="Hidden" MouseDoubleClick="logGrid_MouseDoubleClick" PreviewKeyDown="dataGrid_PreviewKeyDown">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160"/>
-                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240"/>
-                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180"/>
+                        <DataGridTextColumn Binding="{Binding Owner}" Header="配信者名" MinWidth="160" Width="160*"/>
+                        <DataGridTextColumn Binding="{Binding Title}" Header="配信タイトル" MinWidth="240" Width="240*"/>
+                        <DataGridTextColumn Binding="{Binding Start_Time}" Header="配信開始時刻" MinWidth="180" Width="180*"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
         </TabControl>
         <TextBox x:Name="Textbox1" HorizontalAlignment="Left" Height="24" Margin="10,7,0,9" TextWrapping="Wrap" VerticalAlignment="Center" Width="316" Padding="1" Grid.Row="1" KeyDown="Textbox1_KeyDown" MaxLines="1" MaxLength="64"/>
         <Button x:Name="Button_add" Content="追加" Margin="345,8,0,10" VerticalAlignment="Center" Width="75" Click="Button_add_Click" HorizontalAlignment="Left" Grid.Row="1"/>
-        <Button x:Name="Button_del" Content="削除" HorizontalAlignment="Left" Margin="434,8,0,10" VerticalAlignment="Center" Width="75" Click="Button_del_Click" Grid.Row="1"/>
-        <Button Content="音" HorizontalAlignment="Left" Margin="538,7,0,0" Grid.Row="1" VerticalAlignment="Top" Width="30" Click="Button_Click" RenderTransformOrigin="0.5,0.5"/>
+        <Button x:Name="Button_del" Content="削除" HorizontalAlignment="Left" Margin="434,8,0,10" Width="75" Click="Button_del_Click" Grid.Row="1" VerticalAlignment="Center"/>
+        <Button Content="音" Margin="0,0,10,2" Grid.Row="1" Width="30" Click="Button_Click" RenderTransformOrigin="0.5,0.5" Height="24" HorizontalAlignment="Right" VerticalAlignment="Center"/>
     </Grid>
 </Window>

@@ -1,11 +1,15 @@
-﻿using System;
-using System.IO;
-using System.Collections.ObjectModel;
+﻿using Dowsingman2.BaseClass;
+using Dowsingman2.LiveService;
+using Dowsingman2.Properties;
+using Dowsingman2.SubManager;
 using System.ComponentModel;
+using System;
+using System.IO;
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
+
 
 namespace Dowsingman2
 {
@@ -14,10 +18,28 @@ namespace Dowsingman2
     /// </summary>
     public partial class MainWindow : Window
     {
+        public int LastTabIndex { get; private set; }
+
         public MainWindow()
         {
             InitializeComponent();
 
+            // ウィンドウのサイズを復元
+            RecoverWindowBounds();
+
+            NotifyIconWrapper.UpdateCompleted += NotifyIconWrapper_UpdateCompleted;
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            // ウィンドウのサイズを保存
+            SaveWindowBounds();
+            
+            NotifyIconWrapper.UpdateCompleted -= NotifyIconWrapper_UpdateCompleted;
+        }
+
+        public void NotifyIconWrapper_UpdateCompleted(object sender, EventArgs e)
+        {
             UpdateDispList();
         }
 
@@ -27,26 +49,29 @@ namespace Dowsingman2
         /// <returns></returns>
         private string GetSelectedTab()
         {
-            if (TabControl1.SelectedIndex == 0)
-                return "kukuluGrid";
-            if (TabControl1.SelectedIndex == 1)
-                return "kukuluGrid2";
-            if (TabControl1.SelectedIndex == 2)
-                return "fc2Grid";
-            if (TabControl1.SelectedIndex == 3)
-                return "fc2Grid2";
-            if (TabControl1.SelectedIndex == 4)
-                return "twitchGrid";
-            if (TabControl1.SelectedIndex == 5)
-                return "twitchGrid2";
-            if (TabControl1.SelectedIndex == 6)
-                return "cavetubeGrid";
-            if (TabControl1.SelectedIndex == 7)
-                return "cavetubeGrid2";
-            if (TabControl1.SelectedIndex == 8)
-                return "logGrid";
-
-            return null;
+            switch (TabControl1.SelectedIndex)
+            {
+                case 0:
+                    return "kukuluGrid";
+                case 1:
+                    return "kukuluGrid2";
+                case 2:
+                    return "fc2Grid";
+                case 3:
+                    return "fc2Grid2";
+                case 4:
+                    return "twitchGrid";
+                case 5:
+                    return "twitchGrid2";
+                case 6:
+                    return "cavetubeGrid";
+                case 7:
+                    return "cavetubeGrid2";
+                case 8:
+                    return "logGrid";
+                default:
+                    return string.Empty;
+            }
         }
 
         /// <summary>
@@ -71,71 +96,66 @@ namespace Dowsingman2
         /// </summary>
         public void UpdateDispList()
         {
-            if (Kukulu.EnableChange)
+            DataGrid grid = null;
+            AbstractManager manager = null;
+            bool isFavorite = true;
+
+            switch (GetSelectedTab())
             {
-                if (GetSelectedTab() == "kukuluGrid")
-                {
-                    kukuluGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(Kukulu.List);
-                    SortList(kukuluGrid);
-                    if (!Textbox1.IsFocused) kukuluGrid.Focus();
-                }
-                if (GetSelectedTab() == "kukuluGrid2")
-                {
-                    kukuluGrid2.ItemsSource = new ReadOnlyCollection<StreamClass>(Kukulu.All);
-                    SortList(kukuluGrid2);
-                    if (!Textbox1.IsFocused) kukuluGrid2.Focus();
-                }
+                case "kukuluGrid":
+                    grid = kukuluGrid;
+                    manager = KukuluManager.GetInstance();
+                    isFavorite = true;
+                    break;
+                case "kukuluGrid2":
+                    grid = kukuluGrid2;
+                    manager = KukuluManager.GetInstance();
+                    isFavorite = false;
+                    break;
+                case "fc2Grid":
+                    grid = fc2Grid;
+                    manager = Fc2Manager.GetInstance();
+                    isFavorite = true;
+                    break;
+                case "fc2Grid2":
+                    grid = fc2Grid2;
+                    manager = Fc2Manager.GetInstance();
+                    isFavorite = false;
+                    break;
+                case "twitchGrid":
+                    grid = twitchGrid;
+                    manager = TwitchManager.GetInstance();
+                    isFavorite = true;
+                    break;
+                case "twitchGrid2":
+                    grid = twitchGrid2;
+                    manager = TwitchManager.GetInstance();
+                    isFavorite = false;
+                    break;
+                case "cavetubeGrid":
+                    grid = cavetubeGrid;
+                    manager = CavetubeManager.GetInstance();
+                    isFavorite = true;
+                    break;
+                case "cavetubeGrid2":
+                    grid = cavetubeGrid2;
+                    manager = CavetubeManager.GetInstance();
+                    isFavorite = false;
+                    break;
+                case "logGrid":
+                    grid = logGrid;
+                    manager = LogManager.GetInstance();
+                    isFavorite = true;
+                    break;
             }
-            if (Fc2.EnableChange)
+            if (grid != null && manager != null)
             {
-                if (GetSelectedTab() == "fc2Grid")
-                {
-                    fc2Grid.ItemsSource = new ReadOnlyCollection<StreamClass>(Fc2.List);
-                    SortList(fc2Grid);
-                    if (!Textbox1.IsFocused) fc2Grid.Focus();
-                }
-                if (GetSelectedTab() == "fc2Grid2")
-                {
-                    fc2Grid2.ItemsSource = new ReadOnlyCollection<StreamClass>(Fc2.All);
-                    SortList(fc2Grid2);
-                    if (!Textbox1.IsFocused) fc2Grid2.Focus();
-                }
-            }
-            if (Twitch.EnableChange)
-            {
-                if (GetSelectedTab() == "twitchGrid")
-                {
-                    twitchGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(Twitch.List);
-                    SortList(twitchGrid);
-                    if (!Textbox1.IsFocused) twitchGrid.Focus();
-                }
-                if (GetSelectedTab() == "twitchGrid2")
-                {
-                    twitchGrid2.ItemsSource = new ReadOnlyCollection<StreamClass>(Twitch.All);
-                    SortList(twitchGrid2);
-                    if (!Textbox1.IsFocused) twitchGrid2.Focus();
-                }
-            }
-            if (Cavetube.EnableChange)
-            {
-                if (GetSelectedTab() == "cavetubeGrid")
-                {
-                    cavetubeGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(Cavetube.List);
-                    SortList(cavetubeGrid);
-                    if (!Textbox1.IsFocused) cavetubeGrid.Focus();
-                }
-                if (GetSelectedTab() == "cavetubeGrid2")
-                {
-                    cavetubeGrid2.ItemsSource = new ReadOnlyCollection<StreamClass>(Cavetube.All);
-                    SortList(cavetubeGrid2);
-                    if (!Textbox1.IsFocused) cavetubeGrid2.Focus();
-                }
-            }
-            if (GetSelectedTab() == "logGrid")
-            {
-                logGrid.ItemsSource = new ReadOnlyCollection<StreamClass>(StaticClass.logList);
-                SortList(logGrid);
-                if (!Textbox1.IsFocused) logGrid.Focus();
+                if (isFavorite)
+                    grid.ItemsSource = manager.GetFavoriteStreamClassList();
+                else
+                    grid.ItemsSource = manager.GetLiveStreamClassList();
+
+                SortList(grid);
             }
         }
 
@@ -144,65 +164,35 @@ namespace Dowsingman2
         /// </summary>
         private void AddNewChannel()
         {
-            //選択中のタブがkukuluなら
-            if (GetSelectedTab() == "kukuluGrid")
-                if (Kukulu.EnableChange)
-                    //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
-                    if (!Kukulu.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != string.Empty)
-                    {
-                        //テキストボックスの内容をお気に入り配信者に追加
-                        Kukulu.List.Add(new StreamClass(Textbox1.Text));
-                        MessageBox.Show(Textbox1.Text + "を追加しました。");
-                        //内容を削除
-                        Textbox1.Text = string.Empty;
-                        App.SaveList("Kukulu");
-                        UpdateDispList();
-                    }
+            if (Textbox1.Text != string.Empty)
+            {
+                AbstractManager manager = null;
+                switch (GetSelectedTab())
+                {
+                    case "kukuluGrid":
+                        manager = KukuluManager.GetInstance();
+                        break;
+                    case "fc2Grid":
+                        manager = Fc2Manager.GetInstance();
+                        break;
 
-            //選択中のタブがFC2なら
-            if (GetSelectedTab() == "fc2Grid")
-                if (Fc2.EnableChange)
-                    //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
-                    if (!Fc2.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != string.Empty)
-                    {
-                        //テキストボックスの内容をお気に入り配信者に追加
-                        Fc2.List.Add(new StreamClass(Textbox1.Text));
-                        MessageBox.Show(Textbox1.Text + "を追加しました。");
-                        //内容を削除
-                        Textbox1.Text = string.Empty;
-                        App.SaveList("Fc2");
-                        UpdateDispList();
-                    }
+                    case "twitchGrid":
+                        manager = TwitchManager.GetInstance();
+                        break;
 
-            //選択中のタブがtwitchなら
-            if (GetSelectedTab() == "twitchGrid")
-                if (Twitch.EnableChange)
-                    //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
-                    if (!Twitch.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != string.Empty)
-                    {
-                        //テキストボックスの内容をお気に入り配信者に追加
-                        Twitch.List.Add(new StreamClass(Textbox1.Text));
-                        MessageBox.Show(Textbox1.Text + "を追加しました。");
-                        //内容を削除
-                        Textbox1.Text = string.Empty;
-                        App.SaveList("Twitch");
-                        UpdateDispList();
-                    }
-
-            //選択中のタブがcavetubeなら
-            if (GetSelectedTab() == "cavetubeGrid")
-                if (Cavetube.EnableChange)
-                    //同じ名前が登録されていないか、テキストボックスが空欄じゃないか
-                    if (!Cavetube.List.Exists(item => item.Owner == Textbox1.Text) && Textbox1.Text != string.Empty)
-                    {
-                        //テキストボックスの内容をお気に入り配信者に追加
-                        Cavetube.List.Add(new StreamClass(Textbox1.Text));
-                        MessageBox.Show(Textbox1.Text + "を追加しました。");
-                        //内容を削除
-                        Textbox1.Text = string.Empty;
-                        App.SaveList("Cavetube");
-                        UpdateDispList();
-                    }
+                    case "CavetubeGrid":
+                        manager = CavetubeManager.GetInstance();
+                        break;
+                }
+                if (manager != null && manager.AddFavorite(new StreamClass(Textbox1.Text)))
+                {
+                    MessageBox.Show(Textbox1.Text + "を追加しました。");
+                    //内容を削除
+                    Textbox1.Text = string.Empty;
+                    UpdateDispList();
+                    manager.Save();
+                }
+            }
         }
 
         /// <summary>
@@ -210,102 +200,47 @@ namespace Dowsingman2
         /// </summary>
         private void DeleteChannel()
         {
-            //選択中のタブがkukuluなら
-            if (GetSelectedTab() == "kukuluGrid")
+            DataGrid grid = null;
+            AbstractManager manager = null;
+            switch (GetSelectedTab())
             {
-                //選択されている項目があるか
-                if (kukuluGrid.SelectedIndex != -1)
-                {
-                    StreamClass item = (StreamClass)kukuluGrid.SelectedItem;
-                    if (MessageBox.Show(item.Owner + "を削除しますか？", string.Empty, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
-                        return;
-
-                    if (Kukulu.EnableChange)
-
-                        //選択されている項目を削除
-                        Kukulu.List.Remove(item);
-                    MessageBox.Show(item.Owner + "を削除しました");
-                    App.SaveList("Kukulu");
-                    UpdateDispList();
-                }
+                case "kukuluGrid":
+                    grid = kukuluGrid;
+                    manager = KukuluManager.GetInstance();
+                    break;
+                case "fc2Grid":
+                    grid = fc2Grid;
+                    manager = Fc2Manager.GetInstance();
+                    break;
+                case "twitchGrid":
+                    grid = twitchGrid;
+                    manager = TwitchManager.GetInstance();
+                    break;
+                case "cavetubeGrid":
+                    grid = cavetubeGrid;
+                    manager = CavetubeManager.GetInstance();
+                    break;
+                case "logGrid":
+                    grid = logGrid;
+                    manager = LogManager.GetInstance();
+                    break;
             }
-
-            //選択中のタブがFC2なら
-            if (GetSelectedTab() == "fc2Grid")
+            if (grid != null && manager != null && grid.SelectedIndex != -1)
             {
-                //選択されている項目があるか
-                if (fc2Grid.SelectedIndex != -1)
+                StreamClass item = grid.SelectedItem as StreamClass;
+                if (MessageBox.Show(item.Owner + "を削除しますか？", string.Empty, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                    return;
+
+                //選択されている項目を削除
+                if (manager.RemoveFavorite(item))
                 {
-                    StreamClass item = (StreamClass)fc2Grid.SelectedItem;
-                    if (MessageBox.Show(item.Owner + "を削除しますか？", string.Empty, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
-                        return;
-
-                    if (Fc2.EnableChange)
-
-                        //選択されている項目を削除
-                        Fc2.List.Remove(item);
                     MessageBox.Show(item.Owner + "を削除しました");
-                    App.SaveList("Fc2");
                     UpdateDispList();
+                    manager.Save();
                 }
-            }
-
-            //選択中のタブがtwtichなら
-            if (GetSelectedTab() == "twitchGrid")
-            {
-                //選択されている項目があるか
-                if (twitchGrid.SelectedIndex != -1)
+                else
                 {
-                    StreamClass item = (StreamClass)twitchGrid.SelectedItem;
-                    if (MessageBox.Show(item.Owner + "を削除しますか？", string.Empty, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
-                        return;
-
-                    if (Twitch.EnableChange)
-
-                        //選択されている項目を削除
-                        Twitch.List.Remove(item);
-                    MessageBox.Show(item.Owner + "を削除しました");
-                    App.SaveList("Twitch");
-                    UpdateDispList();
-                }
-            }
-
-            //選択中のタブがcavetubeなら
-            if (GetSelectedTab() == "cavetubeGrid")
-            {
-                //選択されている項目があるか
-                if (cavetubeGrid.SelectedIndex != -1)
-                {
-                    StreamClass item = (StreamClass)cavetubeGrid.SelectedItem;
-                    if (MessageBox.Show(item.Owner + "を削除しますか？", string.Empty, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
-                        return;
-
-                    if (Cavetube.EnableChange)
-
-                        //選択されている項目を削除
-                        Cavetube.List.Remove(item);
-                    MessageBox.Show(item.Owner + "を削除しました");
-                    App.SaveList("Cavetube");
-                    UpdateDispList();
-                }
-            }
-
-            //選択中のタブが履歴なら
-            if (GetSelectedTab() == "logGrid")
-            {
-                //選択されている項目があるか
-                if (logGrid.SelectedIndex != -1)
-                {
-                    StreamClass item = (StreamClass)logGrid.SelectedItem;
-                    if (MessageBox.Show(item.Owner + "を削除しますか？", string.Empty, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
-                        return;
-
-
-                    //選択されている項目を削除
-                    StaticClass.logList.Remove(item);
-                    MessageBox.Show(item.Owner + "を削除しました");
-                    App.SaveList("Log");
-                    UpdateDispList();
+                    MessageBox.Show("削除に失敗しました");
                 }
             }
         }
@@ -328,16 +263,6 @@ namespace Dowsingman2
         private void Button_del_Click(object sender, RoutedEventArgs e)
         {
             DeleteChannel();
-        }
-
-        /// <summary>
-        /// タブ切り替え時の処理
-        /// </summary>
-        /// <param name="sender">呼び出し元オブジェクト</param>
-        /// <param name="e">イベントデータ</param>
-        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            UpdateDispList();
         }
 
         /// <summary>
@@ -375,75 +300,50 @@ namespace Dowsingman2
         /// <param name="e">イベントデータ</param>
         private void kukuluGrid2_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (Kukulu.EnableChange)
-                //選択されている項目があるか
-                if (kukuluGrid2.SelectedIndex >= 0)
-                {
-                    var item = (StreamClass)kukuluGrid2.SelectedItem;
-                    //同じ名前が登録されていないか
-                    if (!Kukulu.List.Exists(x => x.Owner == item.Owner))
-                    {
-                        //選択中の項目をお気に入り配信者に追加
-                        Kukulu.List.Add(item);
-                        MessageBox.Show(item.Owner + "を追加しました。");
-                        App.SaveList("Kukulu");
-                        UpdateDispList();
-                    }
-                }
+            //選択されている項目があるか
+            if (kukuluGrid2.SelectedIndex >= 0)
+            {
+                var item = (StreamClass)kukuluGrid2.SelectedItem;
+                AddFavoriteFromGrid(KukuluManager.GetInstance(), item);
+            }
         }
         private void fc2Grid2_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (Kukulu.EnableChange)
-                //選択されている項目があるか
-                if (fc2Grid2.SelectedIndex >= 0)
-                {
-                    var item = (StreamClass)fc2Grid2.SelectedItem;
-                    //同じ名前が登録されていないか
-                    if (!Fc2.List.Exists(x => x.Owner == item.Owner))
-                    {
-                        //選択中の項目をお気に入り配信者に追加
-                        Fc2.List.Add(item);
-                        MessageBox.Show(item.Owner + "を追加しました。");
-                        App.SaveList("Fc2");
-                        UpdateDispList();
-                    }
-                }
+            //選択されている項目があるか
+            if (fc2Grid2.SelectedIndex >= 0)
+            {
+                var item = (StreamClass)fc2Grid2.SelectedItem;
+                AddFavoriteFromGrid(Fc2Manager.GetInstance(), item);
+            }
         }
         private void twitchGrid2_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (Kukulu.EnableChange)
-                //選択されている項目があるか
-                if (twitchGrid2.SelectedIndex >= 0)
-                {
-                    var item = (StreamClass)twitchGrid2.SelectedItem;
-                    //同じ名前が登録されていないか
-                    if (!Twitch.List.Exists(x => x.Owner == item.Owner))
-                    {
-                        //選択中の項目をお気に入り配信者に追加
-                        Twitch.List.Add(item);
-                        MessageBox.Show(item.Owner + "を追加しました。");
-                        App.SaveList("Twitch");
-                        UpdateDispList();
-                    }
-                }
+            //選択されている項目があるか
+            if (twitchGrid2.SelectedIndex >= 0)
+            {
+                var item = (StreamClass)twitchGrid2.SelectedItem;
+                AddFavoriteFromGrid(TwitchManager.GetInstance(), item);
+            }
         }
         private void cavetubeGrid2_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (Kukulu.EnableChange)
-                //選択されている項目があるか
-                if (cavetubeGrid2.SelectedIndex >= 0)
-                {
-                    var item = (StreamClass)cavetubeGrid2.SelectedItem;
-                    //同じ名前が登録されていないか
-                    if (!Cavetube.List.Exists(x => x.Owner == item.Owner))
-                    {
-                        //選択中の項目をお気に入り配信者に追加
-                        Cavetube.List.Add(item);
-                        MessageBox.Show(item.Owner + "を追加しました。");
-                        App.SaveList("Cavetube");
-                        UpdateDispList();
-                    }
-                }
+            //選択されている項目があるか
+            if (cavetubeGrid2.SelectedIndex >= 0)
+            {
+                var item = cavetubeGrid2.SelectedItem as StreamClass;
+                AddFavoriteFromGrid(CavetubeManager.GetInstance(), item);
+            }
+        }
+
+        private void AddFavoriteFromGrid(AbstractManager manager, StreamClass newFavorite)
+        {
+            if (manager.AddFavorite(newFavorite))
+            {
+                LogManager.GetInstance().AddFavorite(newFavorite);
+                MessageBox.Show(newFavorite.Owner + "を追加しました。");
+                UpdateDispList();
+                manager.Save();
+            }
         }
 
         /// <summary>
@@ -453,59 +353,31 @@ namespace Dowsingman2
         /// <param name="e">イベントデータ</param>
         private void kukuluGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (Kukulu.EnableChange)
-                //選択されている項目があるか
-                if (kukuluGrid.SelectedIndex >= 0)
-                {
-                    var url = ((StreamClass)kukuluGrid.SelectedItem).Url;
-                    if (url != string.Empty)
-                        //規定のブラウザで配信URLを開く
-                        System.Diagnostics.Process.Start(url);
-                }
+            GridDoubleClicked(kukuluGrid);
         }
         private void fc2Grid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (Fc2.EnableChange)
-                //選択されている項目があるか
-                if (fc2Grid.SelectedIndex >= 0)
-                {
-                    var url = ((StreamClass)fc2Grid.SelectedItem).Url;
-                    if (url != string.Empty)
-                        //規定のブラウザで配信URLを開く
-                        System.Diagnostics.Process.Start(url);
-                }
-
+            GridDoubleClicked(fc2Grid);
         }
         private void twitchGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (Twitch.EnableChange)
-                //選択されている項目があるか
-                if (twitchGrid.SelectedIndex >= 0)
-                {
-                    var url = ((StreamClass)twitchGrid.SelectedItem).Url;
-                    if (url != string.Empty)
-                        //規定のブラウザで配信URLを開く
-                        System.Diagnostics.Process.Start(url);
-                }
+            GridDoubleClicked(twitchGrid);
         }
         private void cavetubeGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (Cavetube.EnableChange)
-                //選択されている項目があるか
-                if (cavetubeGrid.SelectedIndex >= 0)
-                {
-                    var url = ((StreamClass)cavetubeGrid.SelectedItem).Url;
-                    if (url != string.Empty)
-                        //規定のブラウザで配信URLを開く
-                        System.Diagnostics.Process.Start(url);
-                }
+            GridDoubleClicked(cavetubeGrid);
         }
         private void logGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            GridDoubleClicked(logGrid);
+        }
+
+        private void GridDoubleClicked(DataGrid grid)
+        {
             //選択されている項目があるか
-            if (logGrid.SelectedIndex >= 0)
+            if (grid.SelectedIndex >= 0)
             {
-                var url = ((StreamClass)logGrid.SelectedItem).Url;
+                var url = (grid.SelectedItem as StreamClass).Url;
                 if (url != string.Empty)
                     //規定のブラウザで配信URLを開く
                     System.Diagnostics.Process.Start(url);
@@ -515,8 +387,75 @@ namespace Dowsingman2
         //音量調整機能をつけるまでの応急処置
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            var player = new System.Media.SoundPlayer(Path.GetFullPath(@".\resource\favorite.wav"));
+            var player = new System.Media.SoundPlayer(Path.GetFullPath(".\\resource\\favorite.wav"));
             player.Play();
+        }
+
+        /// <summary>
+        /// タブ切り替え時の処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TabControl1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (LastTabIndex != TabControl1.SelectedIndex)
+            {
+                LastTabIndex = TabControl1.SelectedIndex;
+                UpdateDispList();
+            }
+        }
+
+        /// <summary>
+        /// ウィンドウの位置・サイズを保存します。
+        /// </summary>
+        void SaveWindowBounds()
+        {
+            var settings = Settings.Default;
+            settings.WindowMaximized = WindowState == WindowState.Maximized;
+            WindowState = WindowState.Normal; // 最大化解除
+            settings.WindowLeft = Left;
+            settings.WindowTop = Top;
+            settings.WindowWidth = Width;
+            settings.WindowHeight = Height;
+            settings.SelectedTabIndex = TabControl1.SelectedIndex;
+            settings.Save();
+        }
+
+        /// <summary>
+        /// ウィンドウの位置・サイズを復元します。
+        /// </summary>
+        private void RecoverWindowBounds()
+        {
+            var settings = Settings.Default;
+            if (settings.WindowLeft >= 0 &&
+                (settings.WindowLeft + settings.WindowWidth) < SystemParameters.VirtualScreenWidth)
+            {
+                Left = settings.WindowLeft;
+            }
+            if (settings.WindowTop >= 0 &&
+                (settings.WindowTop + settings.WindowHeight) < SystemParameters.VirtualScreenHeight)
+            {
+                Top = settings.WindowTop;
+            }
+            if (settings.WindowWidth >= 600 &&
+               settings.WindowWidth <= SystemParameters.WorkArea.Width)
+            {
+                Width = settings.WindowWidth;
+            }
+            if (settings.WindowHeight >= 360 &&
+               settings.WindowHeight <= SystemParameters.WorkArea.Height)
+            {
+                Height = settings.WindowHeight;
+            }
+            if (settings.WindowMaximized)
+            {
+                // ロード後に最大化
+                Loaded += (o, e) => WindowState = WindowState.Maximized;
+            }
+            if (settings.SelectedTabIndex >= 0)
+            {
+                TabControl1.SelectedIndex = settings.SelectedTabIndex;
+            }
         }
     }
 }

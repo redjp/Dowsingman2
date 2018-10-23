@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dowsingman2
+namespace Dowsingman2.BaseClass
 {
     public class StreamClass
     {

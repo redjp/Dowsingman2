@@ -1,11 +1,17 @@
-﻿using System;
-using System.IO;
+﻿using Dowsingman2.BaseClass;
+using Dowsingman2.LiveService;
+using Dowsingman2.SubManager;
+using Dowsingman2.MyUtility;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.Win32;
 
 /// <summary>
 /// 参考URL
@@ -18,6 +24,9 @@ namespace Dowsingman2
     /// </summary>
     public partial class NotifyIconWrapper : Component
     {
+        public static event EventHandler UpdateCompleted;
+
+        private List<AbstractManager> managers_ = new List<AbstractManager>();
         //配信通知スタック
         private List<StreamClass> stackStreamNote = new List<StreamClass>();
         //コンテキストメニュー用
@@ -26,11 +35,15 @@ namespace Dowsingman2
         private MainWindow wnd = null;
         private string balloonClickUrl = string.Empty;
 
-        const string SoundFile = @".\resource\favorite.wav";
-        const string IconPFile = @".\resource\icon_P.ico";
-        const string IconGFile = @".\resource\icon_G.ico";
+        const string SOUND_LOCAL_PATH = ".\\resource\\favorite.wav";
+        const string ICON_P_LOCAL_PATH = ".\\resource\\icon_P.ico";
+        const string ICON_G_LOCAL_PATH = ".\\resource\\icon_G.ico";
         const int balloontime = 3200;
         const int MAX_LOG = 100;
+
+        public string SoundFilePath { get; }
+        public string IconPFilePath { get; }
+        public string IconGFilePath { get; }
 
         /// <summary>
         /// NotifyIconWrapper クラス を生成、初期化します。
@@ -43,6 +56,17 @@ namespace Dowsingman2
             // コンテキストメニューのイベントを設定
             this.toolStripMenuItem_Open.Click += this.toolStripMenuItem_Open_Click;
             this.toolStripMenuItem_Exit.Click += this.toolStripMenuItem_Exit_Click;
+            SystemEvents.SessionEnding += new SessionEndingEventHandler(SystemEvents_SessionEnding);
+            SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
+
+            managers_.Add(KukuluManager.GetInstance());
+            managers_.Add(CavetubeManager.GetInstance());
+            managers_.Add(Fc2Manager.GetInstance());
+            managers_.Add(TwitchManager.GetInstance());
+
+            SoundFilePath = Path.GetFullPath(SOUND_LOCAL_PATH);
+            IconPFilePath = Path.GetFullPath(ICON_P_LOCAL_PATH);
+            IconGFilePath = Path.GetFullPath(ICON_G_LOCAL_PATH);
         }
 
         /// <summary>
@@ -67,7 +91,7 @@ namespace Dowsingman2
         }
 
         /// <summary>
-        /// アイコンをダブルクリックしたときに開かれます
+        /// アイコンをダブルクリックしたときに呼ばれます。
         /// </summary>
         /// <param name="sender">呼び出し元オブジェクト</param>
         /// <param name="e">イベントデータ</param>
@@ -94,11 +118,22 @@ namespace Dowsingman2
                 wnd = new MainWindow();
                 wnd.Show();
                 wnd.Activate();
+                wnd.UpdateDispList();
             }
             else
             {
                 temp.Activate();
             }
+        }
+
+        /// <summary>
+        /// Windowsがログオフ、シャットダウンしたときに呼び出されます。
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SystemEvents_SessionEnding(object sender, SessionEndingEventArgs e)
+        {
+            Application.Current.Shutdown();
         }
 
         /// <summary>
@@ -108,7 +143,6 @@ namespace Dowsingman2
         /// <param name="e">イベントデータ</param>
         private void toolStripMenuItem_Exit_Click(object sender, EventArgs e)
         {
-            // 現在のアプリケーションを終了
             Application.Current.Shutdown();
         }
 
@@ -130,8 +164,10 @@ namespace Dowsingman2
         /// </summary>
         private void PlaySound()
         {
-            var player = new System.Media.SoundPlayer(Path.GetFullPath(SoundFile));
-            player.Play();
+            using (var player = new System.Media.SoundPlayer(SoundFilePath))
+            {
+                player.Play();
+            }
         }
 
         /// <summary>
@@ -143,11 +179,8 @@ namespace Dowsingman2
             {
                 try
                 {
-                    //履歴とかぶりがないか検索
-                    while (StaticClass.logList.Exists(item =>
-                            new TimeSpan(0, -1, 0) < item.Start_Time - stackStreamNote[0].Start_Time
-                            && item.Start_Time - stackStreamNote[0].Start_Time < new TimeSpan(0, 1, 0)
-                            && item.Owner == stackStreamNote[0].Owner))
+                    //履歴を追加
+                    while (!LogManager.GetInstance().AddFavorite(stackStreamNote[0]))
                     {
                         //かぶっていれば削除
                         stackStreamNote.RemoveAt(0);
@@ -158,25 +191,15 @@ namespace Dowsingman2
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    MyTraceSource.TraceEvent(TraceEventType.Error, ex);
+                    return;
                 }
             }
 
             //通知スタックがあるか
             if (stackStreamNote.Count > 0)
             {
-                try
-                {
-                    //ついでに履歴に追加
-                    StaticClass.logList.Insert(0, stackStreamNote[0]);
-                    if (StaticClass.logList.Count > MAX_LOG)
-                        StaticClass.logList.RemoveAt(MAX_LOG);
-                    App.SaveList("Log");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+                LogManager.GetInstance().Save();
 
                 //スタックがあるなら1つ目を処理
                 balloonNotifyIcon(stackStreamNote[0], balloontime);
@@ -206,31 +229,43 @@ namespace Dowsingman2
         /// </summary>
         public async Task UpdateListAndMenu()
         {
-            Task<List<StreamClass>>[] tasks = new Task<List<StreamClass>>[4];
+            Dictionary<AbstractManager, Task<bool>> taskdictionary = new Dictionary<AbstractManager, Task<bool>>();
 
-            //各リストの更新（配信通知スタックを受け取る）
-            tasks[0] = Kukulu.UpdateListAsync();
-            tasks[1] = Twitch.UpdateListAsync();
-            tasks[2] = Fc2.UpdateListAsync();
-            tasks[3] = Cavetube.UpdateListAsync();
-
-            foreach (var task in tasks)
+            foreach (AbstractManager manager in managers_)
             {
-                stackStreamNote.AddRange(await task);
+                taskdictionary[manager] = manager.RefreshLiveAsync();
+            }
+
+            foreach (AbstractManager manager in managers_)
+            {
+                if (await taskdictionary[manager])
+                {
+                    stackStreamNote.AddRange(manager.CheckFavorite());
+                }
             }
 
             //ウィンドウが開いていれば更新
             if (Application.Current.Windows.OfType<Window>().FirstOrDefault() != null)
                 wnd.UpdateDispList();
 
-            //通知スタック1つ目を即座に処理
-            updateBalloonStack();
+            if (!timer2.Enabled)
+            {
+                //通知スタック1つ目を即座に処理
+                updateBalloonStack();
 
-            //通知が残っていればタイマーをオン
-            if (stackStreamNote.Count > 0)
-                timer2.Enabled = true;
+                //通知が残っていればタイマーをオン
+                if (stackStreamNote.Count > 0)
+                    timer2.Enabled = true;
+            }
 
             ContextMenuUpdate();
+
+            OnUpdateCompleted();
+        }
+
+        private void OnUpdateCompleted()
+        {
+            UpdateCompleted?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -256,20 +291,12 @@ namespace Dowsingman2
         }
 
         /// <summary>
-        /// 配信中の配信をListからContextMenuに追加
+        /// 配信中の配信をListで返す
         /// </summary>
         /// <param name="list">登録チャンネルリスト</param>
-        private void ListToContextMenu(ReadOnlyCollection<StreamClass> list)
+        private List<StreamClass> ExtractOnLive(ReadOnlyCollection<StreamClass> list)
         {
-            foreach (StreamClass sc in list)
-            {
-                if (sc.StreamStatus)
-                {
-                    //コンテキストメニューに配信情報を追加
-                    contextMenuNote.Add(sc);
-                }
-
-            }
+            return list.Where(x => x.StreamStatus).ToList();
         }
 
         /// <summary>
@@ -288,14 +315,15 @@ namespace Dowsingman2
                 }
 
                 //配信中の配信を探す
-                ListToContextMenu(new ReadOnlyCollection<StreamClass>(Kukulu.List));
-                ListToContextMenu(new ReadOnlyCollection<StreamClass>(Fc2.List));
-                ListToContextMenu(new ReadOnlyCollection<StreamClass>(Twitch.List));
-                ListToContextMenu(new ReadOnlyCollection<StreamClass>(Cavetube.List));
+                foreach(AbstractManager manager in managers_)
+                {
+                    contextMenuNote.AddRange(ExtractOnLive(manager.GetFavoriteStreamClassList()));
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                MyTraceSource.TraceEvent(TraceEventType.Error, ex);
+                return;
             }
 
             //配信が1つ以上あるなら
@@ -312,10 +340,10 @@ namespace Dowsingman2
                 }
 
                 //コンテキストメニューに配信が1つ以上あるならアイコンの色を変える
-                notifyIcon1.Icon = new System.Drawing.Icon(IconPFile);
+                notifyIcon1.Icon = new System.Drawing.Icon(ICON_P_LOCAL_PATH);
             }
             else
-                notifyIcon1.Icon = new System.Drawing.Icon(IconGFile);
+                notifyIcon1.Icon = new System.Drawing.Icon(ICON_G_LOCAL_PATH);
         }
 
         /// <summary>
@@ -326,7 +354,8 @@ namespace Dowsingman2
         private void ContextMenu_Clicked(object sender, EventArgs e)
         {
             System.Windows.Forms.ToolStripMenuItem item = (System.Windows.Forms.ToolStripMenuItem)sender;
-
+            if (item.Text == "開く" || item.Text == "終了") return;
+            
             //クリックされた名前と同じ名前をリストから探してURLを開く
             foreach (StreamClass st in contextMenuNote)
             {
@@ -341,6 +370,24 @@ namespace Dowsingman2
                         {
                             Console.WriteLine(ex.Message);
                         }
+            }
+        }
+
+        private async void timer3_Tick(object sender, EventArgs e)
+        {
+            timer3.Enabled = false;
+            await UpdateListAndMenu();
+            timer1.Enabled = true;
+        }
+
+        private void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
+        {
+            if (e.Mode == PowerModes.Resume)
+            {
+                timer1.Enabled = false;
+                System.Threading.Thread.Sleep(3000);
+                if (!timer1.Enabled && !timer3.Enabled)
+                    timer3.Start();
             }
         }
     }
