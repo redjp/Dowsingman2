@@ -181,7 +181,7 @@ namespace Dowsingman2
                         manager = TwitchManager.GetInstance();
                         break;
 
-                    case "CavetubeGrid":
+                    case "cavetubeGrid":
                         manager = CavetubeManager.GetInstance();
                         break;
                 }
