@@ -1,17 +1,16 @@
 ﻿using Dowsingman2.BaseClass;
 using Dowsingman2.LiveService;
-using Dowsingman2.SubManager;
 using Dowsingman2.MyUtility;
+using Dowsingman2.SubManager;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using Microsoft.Win32;
 
 /// <summary>
 /// 参考URL
@@ -24,22 +23,23 @@ namespace Dowsingman2
     /// </summary>
     public partial class NotifyIconWrapper : Component
     {
-        public static event EventHandler UpdateCompleted;
+        public static event EventHandler RefreshStarting;
+        public static event EventHandler RefreshCompleted;
+
+        private object lockobject = new object();
 
         private List<AbstractManager> managers_ = new List<AbstractManager>();
         //配信通知スタック
-        private List<StreamClass> stackStreamNote = new List<StreamClass>();
+        private List<StreamClass> balloonStacks_ = new List<StreamClass>();
         //コンテキストメニュー用
-        private List<StreamClass> contextMenuNote = new List<StreamClass>();
+        private List<StreamClass> contextMenuItems_ = new List<StreamClass>();
 
-        private MainWindow wnd = null;
-        private string balloonClickUrl = string.Empty;
+        private string balloonClickUrl_ = string.Empty;
 
         const string SOUND_LOCAL_PATH = ".\\resource\\favorite.wav";
         const string ICON_P_LOCAL_PATH = ".\\resource\\icon_P.ico";
         const string ICON_G_LOCAL_PATH = ".\\resource\\icon_G.ico";
         const int balloontime = 3200;
-        const int MAX_LOG = 100;
 
         public string SoundFilePath { get; }
         public string IconPFilePath { get; }
@@ -115,7 +115,7 @@ namespace Dowsingman2
             if (temp == null)
             {
                 // MainWindow を生成、表示
-                wnd = new MainWindow();
+                var wnd = new MainWindow();
                 wnd.Show();
                 wnd.Activate();
                 wnd.UpdateDispList();
@@ -133,6 +133,7 @@ namespace Dowsingman2
         /// <param name="e"></param>
         private void SystemEvents_SessionEnding(object sender, SessionEndingEventArgs e)
         {
+            LogManager.GetInstance().Save();
             Application.Current.Shutdown();
         }
 
@@ -143,76 +144,11 @@ namespace Dowsingman2
         /// <param name="e">イベントデータ</param>
         private void toolStripMenuItem_Exit_Click(object sender, EventArgs e)
         {
+            LogManager.GetInstance().Save();
             Application.Current.Shutdown();
         }
 
-        /// <summary>
-        /// バルーン表示メソッド
-        /// </summary>
-        /// <param name="sc">配信情報</param>
-        /// <param name="time">表示時間</param>
-        private void balloonNotifyIcon(StreamClass sc, int time)
-        {
-            notifyIcon1.BalloonTipTitle = sc.Title;
-            notifyIcon1.BalloonTipText = sc.Owner;
-            balloonClickUrl = sc.Url;
-            notifyIcon1.ShowBalloonTip(time);
-        }
 
-        /// <summary>
-        /// 音を鳴らす
-        /// </summary>
-        private void PlaySound()
-        {
-            using (var player = new System.Media.SoundPlayer(SoundFilePath))
-            {
-                player.Play();
-            }
-        }
-
-        /// <summary>
-        /// 通知スタック処理
-        /// </summary>
-        private void updateBalloonStack()
-        {
-            if (stackStreamNote.Count > 0)
-            {
-                try
-                {
-                    //履歴を追加
-                    while (!LogManager.GetInstance().AddFavorite(stackStreamNote[0]))
-                    {
-                        //かぶっていれば削除
-                        stackStreamNote.RemoveAt(0);
-                        //スタックがなければループを抜ける
-                        if (stackStreamNote.Count <= 0)
-                            break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MyTraceSource.TraceEvent(TraceEventType.Error, ex);
-                    return;
-                }
-            }
-
-            //通知スタックがあるか
-            if (stackStreamNote.Count > 0)
-            {
-                LogManager.GetInstance().Save();
-
-                //スタックがあるなら1つ目を処理
-                balloonNotifyIcon(stackStreamNote[0], balloontime);
-                stackStreamNote.RemoveAt(0);
-
-                //音を鳴らす
-                PlaySound();
-            }
-            else
-            {
-                timer2.Enabled = false;
-            }
-        }
 
         /// <summary>
         /// 一定時間起きにタイマーイベントで一覧取得（非同期）
@@ -221,51 +157,52 @@ namespace Dowsingman2
         /// <param name="e">イベントデータ</param>
         private async void timer1_Tick(object sender, EventArgs e)
         {
-            await UpdateListAndMenu();
+            await RefreshNotifyIconAsync();
         }
 
         /// <summary>
         /// 各リストとコンテキストメニューの更新
         /// </summary>
-        public async Task UpdateListAndMenu()
+        public async Task RefreshNotifyIconAsync()
         {
-            Dictionary<AbstractManager, Task<bool>> taskdictionary = new Dictionary<AbstractManager, Task<bool>>();
+            OnRefreshStarting();
+
+            var tasks = new List<Task>();
+            var lockObject = new Object();
 
             foreach (AbstractManager manager in managers_)
             {
-                taskdictionary[manager] = manager.RefreshLiveAsync();
-            }
-
-            foreach (AbstractManager manager in managers_)
-            {
-                if (await taskdictionary[manager])
+                //サイトごとにタスクを作り、配信一覧からお気に入りの更新まで済ませる
+                tasks.Add(manager.RefreshLiveAsync().ContinueWith(task =>
                 {
-                    stackStreamNote.AddRange(manager.CheckFavorite());
-                }
+                    if (task.Result)
+                        lock (lockObject)
+                            balloonStacks_.AddRange(manager.CheckFavorite());
+                }));
             }
+            await Task.WhenAll(tasks);
 
-            //ウィンドウが開いていれば更新
-            if (Application.Current.Windows.OfType<Window>().FirstOrDefault() != null)
-                wnd.UpdateDispList();
 
             if (!timer2.Enabled)
             {
                 //通知スタック1つ目を即座に処理
-                updateBalloonStack();
-
-                //通知が残っていればタイマーをオン
-                if (stackStreamNote.Count > 0)
-                    timer2.Enabled = true;
+                MyBalloon.ExcuteBalloonStack(balloonStacks_, notifyIcon1, balloontime, SoundFilePath);
+                timer2.Enabled = balloonStacks_.Count > 0;
             }
 
             ContextMenuUpdate();
 
-            OnUpdateCompleted();
+            OnRefreshCompleted();
         }
 
-        private void OnUpdateCompleted()
+        private void OnRefreshStarting()
         {
-            UpdateCompleted?.Invoke(this, EventArgs.Empty);
+            RefreshStarting?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnRefreshCompleted()
+        {
+            RefreshCompleted?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -275,7 +212,8 @@ namespace Dowsingman2
         /// <param name="e">イベントデータ</param>
         private void timer2_Tick(object sender, EventArgs e)
         {
-            updateBalloonStack();
+            MyBalloon.ExcuteBalloonStack(balloonStacks_, notifyIcon1, balloontime, SoundFilePath);
+            timer2.Enabled = balloonStacks_.Count > 0;
         }
 
         /// <summary>
@@ -285,54 +223,37 @@ namespace Dowsingman2
         /// <param name="e">イベントデータ</param>
         private void notifyIcon1_BalloonTipClicked(object sender, EventArgs e)
         {
-            if (balloonClickUrl != "")
-                //規定のブラウザで配信URLを開く
-                System.Diagnostics.Process.Start(balloonClickUrl);
+            //規定のブラウザで配信URLを開く
+            MyTools.OpenBrowser(balloonClickUrl_);
         }
 
-        /// <summary>
-        /// 配信中の配信をListで返す
-        /// </summary>
-        /// <param name="list">登録チャンネルリスト</param>
-        private List<StreamClass> ExtractOnLive(ReadOnlyCollection<StreamClass> list)
-        {
-            return list.Where(x => x.StreamStatus).ToList();
-        }
+
 
         /// <summary>
         /// コンテキストメニューの再描画
         /// </summary>
         public void ContextMenuUpdate()
         {
-            try
+            //コンテキストメニューの配信情報を初期化
+            contextMenuItems_ = new List<StreamClass>();
+            //コンテキストメニューの3項目目以降を削除
+            while (this.contextMenuStrip1.Items.Count > 2)
             {
-                //コンテキストメニューの配信情報を初期化
-                contextMenuNote = new List<StreamClass>();
-                //コンテキストメニューの3項目目以降を削除
-                while (this.contextMenuStrip1.Items.Count > 2)
-                {
-                    this.contextMenuStrip1.Items.RemoveAt(0);
-                }
-
-                //配信中の配信を探す
-                foreach(AbstractManager manager in managers_)
-                {
-                    contextMenuNote.AddRange(ExtractOnLive(manager.GetFavoriteStreamClassList()));
-                }
+                this.contextMenuStrip1.Items.RemoveAt(0);
             }
-            catch (Exception ex)
+
+            foreach (AbstractManager manager in managers_)
             {
-                MyTraceSource.TraceEvent(TraceEventType.Error, ex);
-                return;
+                contextMenuItems_.AddRange(manager.GetFavoriteLiveOnly());
             }
 
             //配信が1つ以上あるなら
-            if (contextMenuNote.Count > 0)
+            if (contextMenuItems_.Count > 0)
             {
                 //セパレータを追加
                 this.contextMenuStrip1.Items.Insert(0, new System.Windows.Forms.ToolStripSeparator());
 
-                foreach (StreamClass sc in contextMenuNote)
+                foreach (StreamClass sc in contextMenuItems_)
                 {
                     //メニューの先頭に配信を追加
                     System.Windows.Forms.ToolStripMenuItem tsi = new System.Windows.Forms.ToolStripMenuItem(sc.Owner, null, ContextMenu_Clicked);
@@ -343,7 +264,9 @@ namespace Dowsingman2
                 notifyIcon1.Icon = new System.Drawing.Icon(ICON_P_LOCAL_PATH);
             }
             else
+            {
                 notifyIcon1.Icon = new System.Drawing.Icon(ICON_G_LOCAL_PATH);
+            }
         }
 
         /// <summary>
@@ -357,26 +280,20 @@ namespace Dowsingman2
             if (item.Text == "開く" || item.Text == "終了") return;
             
             //クリックされた名前と同じ名前をリストから探してURLを開く
-            foreach (StreamClass st in contextMenuNote)
+            foreach (StreamClass st in contextMenuItems_)
             {
                 if (st.Owner == item.Text)
-                    if (st.Url != "")
-                        try
-                        {
-                            //規定のブラウザで配信URLを開く
-                            System.Diagnostics.Process.Start(st.Url);
-                        }
-                        catch(Exception ex)
-                        {
-                            Console.WriteLine(ex.Message);
-                        }
+                {
+                    MyTools.OpenBrowser(st.Url);
+                    return;
+                }
             }
         }
 
         private async void timer3_Tick(object sender, EventArgs e)
         {
             timer3.Enabled = false;
-            await UpdateListAndMenu();
+            await RefreshNotifyIconAsync();
             timer1.Enabled = true;
         }
 

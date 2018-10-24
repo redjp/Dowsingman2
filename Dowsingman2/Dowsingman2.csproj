@@ -82,16 +82,15 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BaseClass\AbstractManager.cs" />
-    <Compile Include="BaseClass\RelayCommand.cs" />
-    <Compile Include="BaseClass\ViewModelBase.cs" />
     <Compile Include="LiveService\CavetubeManager.cs" />
     <Compile Include="LiveService\Fc2Manager.cs" />
     <Compile Include="LiveService\KukuluManager.cs" />
     <Compile Include="LiveService\TwitchManager.cs" />
+    <Compile Include="MyUtility\MyBalloon.cs" />
+    <Compile Include="MyUtility\MyTools.cs" />
     <Compile Include="SubManager\LogManager.cs" />
-    <Compile Include="MainWindowViewModel.cs" />
-    <Compile Include="MyUtililty\MySerializer.cs" />
-    <Compile Include="MyUtililty\MyTraceSource.cs" />
+    <Compile Include="MyUtility\MySerializer.cs" />
+    <Compile Include="MyUtility\MyTraceSource.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="LiveService\RootObject.cs" />
     <Compile Include="BaseClass\StreamClass.cs" />

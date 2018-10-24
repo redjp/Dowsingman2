@@ -44,6 +44,15 @@ namespace Dowsingman2.BaseClass
                 return favoriteStreamClassList_.AsReadOnly();
         }
 
+        /// <summary>
+        /// お気に入りのうち配信中のものだけをリストで返す
+        /// </summary>
+        public virtual ReadOnlyCollection<StreamClass> GetFavoriteLiveOnly()
+        {
+            lock (lockobject)
+                return favoriteStreamClassList_.Where(x => x.StreamStatus).ToList().AsReadOnly();
+        }
+
         public virtual bool AddFavorite(StreamClass newFavorite)
         {
             lock (lockobject)
@@ -89,7 +98,7 @@ namespace Dowsingman2.BaseClass
             try
             {
                 List<StreamClass> list = await DownloadLiveAsync();
-                lock(lockobject)
+                lock (lockobject)
                     liveStreamClassList_ = list;
                 return true;
             }
@@ -152,13 +161,13 @@ namespace Dowsingman2.BaseClass
                 lock (lockobject)
                     favoriteStreamClassList_ = list.Select(x => new StreamClass(x)).ToList();
             }
-            catch(DirectoryNotFoundException)
+            catch (DirectoryNotFoundException)
             {
                 MyTraceSource.TraceEvent(TraceEventType.Error, new StringBuilder(40).Append("[").Append(FileName).Append("] Favoriteフォルダが見つかりません").ToString());
                 Directory.CreateDirectory(".\\favorite");
                 InitStreamClassList();
             }
-            catch(FileNotFoundException)
+            catch (FileNotFoundException)
             {
                 MyTraceSource.TraceEvent(TraceEventType.Error, new StringBuilder(40).Append("[").Append(FileName).Append("] ファイルが見つかりません").ToString());
                 InitStreamClassList();

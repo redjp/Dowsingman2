@@ -2,6 +2,7 @@
 using Dowsingman2.LiveService;
 using Dowsingman2.Properties;
 using Dowsingman2.SubManager;
+using Dowsingman2.MyUtility;
 using System.ComponentModel;
 using System;
 using System.IO;
@@ -27,7 +28,7 @@ namespace Dowsingman2
             // ウィンドウのサイズを復元
             RecoverWindowBounds();
 
-            NotifyIconWrapper.UpdateCompleted += NotifyIconWrapper_UpdateCompleted;
+            NotifyIconWrapper.RefreshCompleted += NotifyIconWrapper_UpdateCompleted;
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
@@ -35,7 +36,7 @@ namespace Dowsingman2
             // ウィンドウのサイズを保存
             SaveWindowBounds();
             
-            NotifyIconWrapper.UpdateCompleted -= NotifyIconWrapper_UpdateCompleted;
+            NotifyIconWrapper.RefreshCompleted -= NotifyIconWrapper_UpdateCompleted;
         }
 
         public void NotifyIconWrapper_UpdateCompleted(object sender, EventArgs e)
@@ -340,9 +341,9 @@ namespace Dowsingman2
             if (manager.AddFavorite(newFavorite))
             {
                 LogManager.GetInstance().AddFavorite(newFavorite);
+                manager.Save();
                 MessageBox.Show(newFavorite.Owner + "を追加しました。");
                 UpdateDispList();
-                manager.Save();
             }
         }
 
@@ -377,18 +378,14 @@ namespace Dowsingman2
             //選択されている項目があるか
             if (grid.SelectedIndex >= 0)
             {
-                var url = (grid.SelectedItem as StreamClass).Url;
-                if (url != string.Empty)
-                    //規定のブラウザで配信URLを開く
-                    System.Diagnostics.Process.Start(url);
+                MyTools.OpenBrowser((grid.SelectedItem as StreamClass).Url);
             }
         }
 
         //音量調整機能をつけるまでの応急処置
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            var player = new System.Media.SoundPlayer(Path.GetFullPath(".\\resource\\favorite.wav"));
-            player.Play();
+            MyTools.PlaySound(Path.GetFullPath(".\\resource\\favorite.wav"));
         }
 
         /// <summary>

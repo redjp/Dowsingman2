@@ -19,8 +19,12 @@ namespace Dowsingman2.SubManager
             return instance_;
         }
 
+        public int maxLogSize { get; private set; }
+
         private LogManager() : base("Log", "log.xml")
         {
+            maxLogSize = 100;
+
             Load();
         }
 
@@ -38,6 +42,11 @@ namespace Dowsingman2.SubManager
                 else
                 {
                     favoriteStreamClassList_.Add(newFavorite);
+                    //最大サイズを超えていれば古い方から削除
+                    while (favoriteStreamClassList_.Count > maxLogSize)
+                    {
+                        favoriteStreamClassList_.RemoveAt(0);
+                    }
                     return true;
                 }
             }
