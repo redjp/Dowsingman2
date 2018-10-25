@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 
-namespace Dowsingman2.MyUtility
+namespace Dowsingman2.UtilityClass
 {
     internal class MyTraceSource
     {

@@ -1,6 +1,6 @@
 ﻿using Dowsingman2.BaseClass;
 using Dowsingman2.LiveService;
-using Dowsingman2.MyUtility;
+using Dowsingman2.UtilityClass;
 using Dowsingman2.SubManager;
 using Microsoft.Win32;
 using System;
@@ -224,7 +224,7 @@ namespace Dowsingman2
         private void notifyIcon1_BalloonTipClicked(object sender, EventArgs e)
         {
             //規定のブラウザで配信URLを開く
-            MyTools.OpenBrowser(balloonClickUrl_);
+            MyUtility.OpenBrowser(balloonClickUrl_);
         }
 
 
@@ -284,7 +284,7 @@ namespace Dowsingman2
             {
                 if (st.Owner == item.Text)
                 {
-                    MyTools.OpenBrowser(st.Url);
+                    MyUtility.OpenBrowser(st.Url);
                     return;
                 }
             }

@@ -1,11 +1,12 @@
 ﻿using Dowsingman2.BaseClass;
-using Dowsingman2.MyUtility;
+using Dowsingman2.Error;
+using Dowsingman2.UtilityClass;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.ServiceModel.Syndication;
+using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
-using System.Xml;
+using System.Xml.Linq;
 
 namespace Dowsingman2.LiveService
 {
@@ -26,40 +27,43 @@ namespace Dowsingman2.LiveService
 
         public override async Task<List<StreamClass>> DownloadLiveAsync()
         {
-            List<StreamClass> result = new List<StreamClass>();
+            var result = new List<StreamClass>();
 
-            //参考URL
-            //http://www.atmarkit.co.jp/fdotnet/dotnettips/753rssfeed/rssfeed.html
-            var feed = new SyndicationFeed();
             try
             {
-                //読み込み部分を非同期化
-                await Task.Run(() =>
-                {
-                    using (XmlReader reader = XmlReader.Create(url_))
-                    {
-                        feed = SyndicationFeed.Load(reader);
-                    }
-                });
+                XDocument xDocument = XDocument.Parse(MyUtility.RemoveSpecialChars(await new MyHttpClient().GetStringAsync(url_, null)));
+                XNamespace ns = "http://www.w3.org/2005/Atom";
+                XNamespace ct = "http://gae.cavelis.net";
+                result = (from entry in xDocument.Root.Elements(ns + "entry")
+                        let owner = entry.Element(ns + "author").Element(ns + "name").Value
+                        let title = entry.Element(ns + "title").Value
+                        let description = entry.Element(ns + "summary").Value
+                        let start_time = FormatDate(entry.Element(ct + "start_date").Value)
+                        let url = entry.Element(ns + "id").Value
+                        let listener = entry.Element(ct + "listener").Value
+                        select new StreamClass(title, url, owner, start_time)).ToList();
             }
-            catch (Exception ex)
+            catch (HttpClientException innerException)
             {
-                MyTraceSource.TraceEvent(TraceEventType.Error, ex);
-                return result;
+                throw innerException;
+            }
+            catch (Exception innerException2)
+            {
+                throw innerException2;
             }
 
-            //ちゃんと取得出来ているか
-            if (feed != null)
-            {
-                //一覧を収納
-                foreach (var item in feed.Items)
-                {
-                    result.Add(new StreamClass(item.Title.Text, item.Id, item.Authors[0].Name, item.PublishDate.ToLocalTime().DateTime));
-                }
-            }
-
-            //配信一覧を返す
             return result;
+        }
+
+        public DateTime? FormatDate(string dateString)
+        {
+            if (dateString == "")
+            {
+                return null;
+            }
+            DateTime dateTime = DateTime.ParseExact(dateString, "ddd MMM d HH:mm:ss 'UTC' yyyy", DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeUniversal);
+            dateTime = dateTime.ToLocalTime();
+            return dateTime;
         }
     }
 }

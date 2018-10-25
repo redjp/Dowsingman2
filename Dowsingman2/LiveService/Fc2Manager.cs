@@ -1,11 +1,14 @@
 ﻿using Dowsingman2.BaseClass;
-using Dowsingman2.MyUtility;
-using Newtonsoft.Json;
+using Dowsingman2.UtilityClass;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
+using System.Globalization;
+using System.Linq;
+using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Dowsingman2.LiveService
 {
@@ -28,38 +31,32 @@ namespace Dowsingman2.LiveService
         {
             List<StreamClass> result = new List<StreamClass>();
 
-            string json = string.Empty;
-            using (WebClient client = new WebClient())
+            string json = MyUtility.RemoveSpecialChars(await new MyHttpClient().GetStringAsync(url_, null));
+            using (XmlDictionaryReader reader = JsonReaderWriterFactory.CreateJsonReader(Encoding.UTF8.GetBytes(json), XmlDictionaryReaderQuotas.Max))
             {
-                //エンコード設定（UTF8）
-                client.Encoding = System.Text.Encoding.UTF8;
+                XDocument xDocument = XDocument.Load(reader);
 
-                try
-                {
-                    json = await client.DownloadStringTaskAsync(url_);
-                }
-                catch (Exception ex)
-                {
-                    MyTraceSource.TraceEvent(TraceEventType.Error, ex);
-                    return result;
-                }
+                result.AddRange((from item in xDocument.Root.Element("channel").Elements("item")
+                                 let owner = item.Element("name").Value
+                                 let title = item.Element("title").Value
+                                 let start_time = FormatDate(item.Element("start").Value)
+                                 let url = "http://live.fc2.com/" + item.Element("id").Value + '/'
+                                 let listener = item.Element("count").Value
+                                 where owner.Replace(" ", string.Empty).Replace("　", string.Empty) != string.Empty && owner != "匿名"
+                                 select new StreamClass(title, url, owner, start_time)).ToList());
             }
 
-            if (json != string.Empty)
-            {
-                //jsonをパースしてRootObjectに変換
-                var r = JsonConvert.DeserializeObject<Fc2RootObject.RootObject>(json);
-
-                //一覧を収納
-                foreach (var channel in r.channel)
-                {
-                    if (channel.name != string.Empty && channel.name != "匿名")
-                        result.Add(new StreamClass(channel.title, "https://live.fc2.com/" + channel.id + '/', channel.name, DateTime.Parse(channel.start)));
-                }
-            }
-
-            //配信一覧を返す
             return result;
+        }
+
+        public DateTime? FormatDate(string dateString)
+        {
+            if (dateString == "")
+            {
+                return null;
+            }
+            DateTime dateTime = DateTime.ParseExact(dateString, "yyyy-MM-dd HH:mm:ss", DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None);
+            return dateTime;
         }
     }
 }

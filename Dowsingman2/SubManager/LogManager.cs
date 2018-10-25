@@ -1,5 +1,5 @@
 ﻿using Dowsingman2.BaseClass;
-using Dowsingman2.MyUtility;
+using Dowsingman2.UtilityClass;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -33,8 +33,7 @@ namespace Dowsingman2.SubManager
             lock (lockobject)
             {
                 if (favoriteStreamClassList_.Exists(x =>
-                                new TimeSpan(0, -1, 0) < x.Start_Time - newFavorite.Start_Time
-                                && x.Start_Time - newFavorite.Start_Time < new TimeSpan(0, 1, 0)
+                                x.Start_Time == newFavorite.Start_Time
                                 && x.Owner == newFavorite.Owner))
                 {
                     return false;
@@ -75,6 +74,9 @@ namespace Dowsingman2.SubManager
 
         public override void Load()
         {
+#if DEBUG
+            MyTraceSource.TraceEvent(TraceEventType.Information, new StringBuilder(40).Append("[").Append(FileName).Append("] ファイル読み込み開始").ToString());
+#endif
             try
             {
                 List<StreamClass> list = MySerializer.Deserialize<List<StreamClass>>(FilePath);
@@ -83,13 +85,17 @@ namespace Dowsingman2.SubManager
             }
             catch (DirectoryNotFoundException)
             {
+#if DEBUG
                 MyTraceSource.TraceEvent(TraceEventType.Error, new StringBuilder(40).Append("[").Append(FileName).Append("] Favoriteフォルダが見つかりません").ToString());
+#endif
                 Directory.CreateDirectory(".\\favorite");
                 InitStreamClassList();
             }
             catch (FileNotFoundException)
             {
+#if DEBUG
                 MyTraceSource.TraceEvent(TraceEventType.Error, new StringBuilder(40).Append("[").Append(FileName).Append("] ファイルが見つかりません").ToString());
+#endif
                 InitStreamClassList();
             }
             catch (Exception ex)
@@ -100,10 +106,17 @@ namespace Dowsingman2.SubManager
 
             if (favoriteStreamClassList_ == null)
                 InitStreamClassList();
+
+#if DEBUG
+            MyTraceSource.TraceEvent(TraceEventType.Information, new StringBuilder(40).Append("[").Append(FileName).Append("] ファイル読み込み完了").ToString());
+#endif
         }
 
         public override void Save()
         {
+#if DEBUG
+            MyTraceSource.TraceEvent(TraceEventType.Information, new StringBuilder(40).Append("[").Append(FileName).Append("] ファイル保存開始").ToString());
+#endif
             while (true)
             {
                 List<StreamClass> list = GetFavoriteStreamClassList().ToList();
@@ -113,7 +126,9 @@ namespace Dowsingman2.SubManager
                 }
                 catch (DirectoryNotFoundException)
                 {
+#if DEBUG
                     MyTraceSource.TraceEvent(TraceEventType.Error, new StringBuilder(40).Append("[").Append(FileName).Append("] Favoriteフォルダが見つかりません").ToString());
+#endif
                     Directory.CreateDirectory(".\\favorite");
                     continue;
                 }
@@ -123,6 +138,9 @@ namespace Dowsingman2.SubManager
                 }
                 break;
             }
+#if DEBUG
+            MyTraceSource.TraceEvent(TraceEventType.Information, new StringBuilder(40).Append("[").Append(FileName).Append("] ファイル保存完了").ToString());
+#endif
         }
 
         protected override void InitStreamClassList()

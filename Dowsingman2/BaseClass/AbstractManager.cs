@@ -1,4 +1,4 @@
-﻿using Dowsingman2.MyUtility;
+﻿using Dowsingman2.UtilityClass;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -94,6 +94,9 @@ namespace Dowsingman2.BaseClass
             }
 
             IsRequest = true;
+#if DEBUG
+            MyTraceSource.TraceEvent(TraceEventType.Information, new StringBuilder(40).Append("[").Append(Name).Append("] Httpリクエスト開始").ToString());
+#endif
 
             try
             {
@@ -110,13 +113,23 @@ namespace Dowsingman2.BaseClass
             finally
             {
                 IsRequest = false;
+#if DEBUG
+                MyTraceSource.TraceEvent(TraceEventType.Information, new StringBuilder(40).Append("[").Append(Name).Append("] Httpリクエスト完了").ToString());
+#endif
             }
         }
 
+        /// <summary>
+        /// 配信一覧とお気に入り一覧を比較してお気に入り一覧を変更する
+        /// </summary>
+        /// <returns>新しく開始した配信のリスト</returns>
         public virtual List<StreamClass> CheckFavorite()
         {
             List<StreamClass> result = new List<StreamClass>();
 
+#if DEBUG
+            MyTraceSource.TraceEvent(TraceEventType.Information, new StringBuilder(40).Append("[").Append(Name).Append("] お気に入りチェック開始").ToString());
+#endif
             lock (lockobject)
             {
                 if (liveStreamClassList_.Count > 0 && favoriteStreamClassList_.Count > 0)
@@ -149,12 +162,19 @@ namespace Dowsingman2.BaseClass
                 }
             }
 
+#if DEBUG
+            MyTraceSource.TraceEvent(TraceEventType.Information, new StringBuilder(40).Append("[").Append(Name).Append("] お気に入りチェック完了").ToString());
+#endif
+
             //追加の通知スタックを返す
             return result;
         }
 
         public virtual void Load()
         {
+#if DEBUG
+            MyTraceSource.TraceEvent(TraceEventType.Information, new StringBuilder(40).Append("[").Append(FileName).Append("] ファイル読み込み開始").ToString());
+#endif
             try
             {
                 List<string> list = MySerializer.Deserialize<List<string>>(FilePath);
@@ -163,13 +183,17 @@ namespace Dowsingman2.BaseClass
             }
             catch (DirectoryNotFoundException)
             {
+#if DEBUG
                 MyTraceSource.TraceEvent(TraceEventType.Error, new StringBuilder(40).Append("[").Append(FileName).Append("] Favoriteフォルダが見つかりません").ToString());
+#endif
                 Directory.CreateDirectory(".\\favorite");
                 InitStreamClassList();
             }
             catch (FileNotFoundException)
             {
+#if DEBUG
                 MyTraceSource.TraceEvent(TraceEventType.Error, new StringBuilder(40).Append("[").Append(FileName).Append("] ファイルが見つかりません").ToString());
+#endif
                 InitStreamClassList();
             }
             catch (Exception ex)
@@ -180,10 +204,17 @@ namespace Dowsingman2.BaseClass
 
             if (favoriteStreamClassList_ == null)
                 InitStreamClassList();
+
+#if DEBUG
+            MyTraceSource.TraceEvent(TraceEventType.Information, new StringBuilder(40).Append("[").Append(FileName).Append("] ファイル読み込み完了").ToString());
+#endif
         }
 
         public virtual void Save()
         {
+#if DEBUG
+            MyTraceSource.TraceEvent(TraceEventType.Information, new StringBuilder(40).Append("[").Append(FileName).Append("] ファイル保存開始").ToString());
+#endif
             while (true)
             {
                 List<string> list = GetFavoriteStreamClassList().Select(x => x.Owner).ToList();
@@ -193,7 +224,9 @@ namespace Dowsingman2.BaseClass
                 }
                 catch (DirectoryNotFoundException)
                 {
+#if DEBUG
                     MyTraceSource.TraceEvent(TraceEventType.Error, new StringBuilder(40).Append("[").Append(FileName).Append("] Favoriteフォルダが見つかりません").ToString());
+#endif
                     Directory.CreateDirectory(".\\favorite");
                     continue;
                 }
@@ -203,6 +236,9 @@ namespace Dowsingman2.BaseClass
                 }
                 break;
             }
+#if DEBUG
+            MyTraceSource.TraceEvent(TraceEventType.Information, new StringBuilder(40).Append("[").Append(FileName).Append("] ファイル保存完了").ToString());
+#endif
         }
 
         protected virtual void InitStreamClassList()

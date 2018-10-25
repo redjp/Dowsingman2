@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Media;
 using System.Windows.Forms;
 
-namespace Dowsingman2.MyUtility
+namespace Dowsingman2.UtilityClass
 {
     public static class MyBalloon
     {
@@ -24,7 +24,7 @@ namespace Dowsingman2.MyUtility
                 if (LogManager.GetInstance().AddFavorite(streamClass))
                 {
                     ShowBalloon(notifyIcon, streamClass, time);
-                    MyTools.PlaySound(soundFilePath);
+                    MyUtility.PlaySound(soundFilePath);
                     break;
                 }
             }

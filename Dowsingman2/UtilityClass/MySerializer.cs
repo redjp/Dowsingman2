@@ -3,7 +3,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace Dowsingman2.MyUtility
+namespace Dowsingman2.UtilityClass
 {
     class MySerializer
     {

@@ -16,12 +16,6 @@ namespace Dowsingman2
 
         private const string APPNAME_GUID = "Dowsingman2-{FAB552E3-0F8F-446F-90A0-EE05BDE8C8D1}";
 
-        private static readonly string KUKULU_PATH = Path.GetFullPath(@".\favorite\kukulu.xml");
-        private static readonly string TWITCH_PATH = Path.GetFullPath(@".\favorite\twitch.xml");
-        private static readonly string FC2_PATH = Path.GetFullPath(@".\favorite\fc2.xml");
-        private static readonly string CAVETUBE_PATH = Path.GetFullPath(@".\favorite\cavetube.xml");
-        private static readonly string LOG_PATH = Path.GetFullPath(@".\favorite\log.xml");
-
         /// <summary>
         /// System.Windows.Application.Startup イベント を発生させます。
         /// </summary>
@@ -50,17 +44,11 @@ namespace Dowsingman2
         /// <param name="e">イベントデータ を格納している ExitEventArgs</param>
         protected override void OnExit(ExitEventArgs e)
         {
-            if (mutex != null)
-            {
-                mutex.Close();
-            }
+            mutex?.Close();
 
             base.OnExit(e);
 
-            if (this.notifyIcon != null)
-            {
-                this.notifyIcon.Dispose();
-            }
+            this.notifyIcon?.Dispose();
         }
     }
 }

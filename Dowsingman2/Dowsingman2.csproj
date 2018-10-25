@@ -55,13 +55,10 @@
     <StartupObject>Dowsingman2.App</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -82,17 +79,20 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BaseClass\AbstractManager.cs" />
+    <Compile Include="Error\ServerErrorException.cs" />
+    <Compile Include="Error\ClientErrorException.cs" />
+    <Compile Include="Error\HttpClientException.cs" />
     <Compile Include="LiveService\CavetubeManager.cs" />
     <Compile Include="LiveService\Fc2Manager.cs" />
     <Compile Include="LiveService\KukuluManager.cs" />
     <Compile Include="LiveService\TwitchManager.cs" />
-    <Compile Include="MyUtility\MyBalloon.cs" />
-    <Compile Include="MyUtility\MyTools.cs" />
+    <Compile Include="UtilityClass\MyBalloon.cs" />
+    <Compile Include="UtilityClass\MyHttpClient.cs" />
+    <Compile Include="UtilityClass\MyUtility.cs" />
     <Compile Include="SubManager\LogManager.cs" />
-    <Compile Include="MyUtility\MySerializer.cs" />
-    <Compile Include="MyUtility\MyTraceSource.cs" />
+    <Compile Include="UtilityClass\MySerializer.cs" />
+    <Compile Include="UtilityClass\MyTraceSource.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="LiveService\RootObject.cs" />
     <Compile Include="BaseClass\StreamClass.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -134,7 +134,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

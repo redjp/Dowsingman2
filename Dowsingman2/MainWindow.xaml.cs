@@ -2,7 +2,7 @@
 using Dowsingman2.LiveService;
 using Dowsingman2.Properties;
 using Dowsingman2.SubManager;
-using Dowsingman2.MyUtility;
+using Dowsingman2.UtilityClass;
 using System.ComponentModel;
 using System;
 using System.IO;
@@ -148,16 +148,16 @@ namespace Dowsingman2
                     manager = LogManager.GetInstance();
                     isFavorite = true;
                     break;
+                default:
+                    return;
             }
-            if (grid != null && manager != null)
-            {
-                if (isFavorite)
-                    grid.ItemsSource = manager.GetFavoriteStreamClassList();
-                else
-                    grid.ItemsSource = manager.GetLiveStreamClassList();
 
-                SortList(grid);
-            }
+            if (isFavorite)
+                grid.ItemsSource = manager.GetFavoriteStreamClassList();
+            else
+                grid.ItemsSource = manager.GetLiveStreamClassList();
+
+            SortList(grid);
         }
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace Dowsingman2
                         manager = CavetubeManager.GetInstance();
                         break;
                 }
-                if (manager != null && manager.AddFavorite(new StreamClass(Textbox1.Text)))
+                if (manager?.AddFavorite(new StreamClass(Textbox1.Text)) ?? false)
                 {
                     MessageBox.Show(Textbox1.Text + "を追加しました。");
                     //内容を削除
@@ -225,8 +225,10 @@ namespace Dowsingman2
                     grid = logGrid;
                     manager = LogManager.GetInstance();
                     break;
+                default:
+                    return;
             }
-            if (grid != null && manager != null && grid.SelectedIndex != -1)
+            if (grid.SelectedIndex != -1)
             {
                 StreamClass item = grid.SelectedItem as StreamClass;
                 if (MessageBox.Show(item.Owner + "を削除しますか？", string.Empty, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
@@ -378,14 +380,14 @@ namespace Dowsingman2
             //選択されている項目があるか
             if (grid.SelectedIndex >= 0)
             {
-                MyTools.OpenBrowser((grid.SelectedItem as StreamClass).Url);
+                MyUtility.OpenBrowser((grid.SelectedItem as StreamClass).Url);
             }
         }
 
         //音量調整機能をつけるまでの応急処置
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            MyTools.PlaySound(Path.GetFullPath(".\\resource\\favorite.wav"));
+            MyUtility.PlaySound(Path.GetFullPath(".\\resource\\favorite.wav"));
         }
 
         /// <summary>
