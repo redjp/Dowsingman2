@@ -58,7 +58,7 @@ namespace Dowsingman2.LiveService
                                     let owner = channel.Element("name").Value
                                     let title = MyUtility.RemoveCRLF(channel.Element("status").Value)
                                     let start_time = FormatDate(item.Element("created_at").Value)
-                                    let url = "https://www.twitch.tv/" + channel.Element("name") + '/'
+                                    let url = "https://www.twitch.tv/" + channel.Element("name").Value + '/'
                                     let listener = item.Element("viewers").Value
                                     where !result.Exists(x => x.Owner == owner)
                                     select new StreamClass(title, url, owner, start_time)).ToList());
