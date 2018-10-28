@@ -19,10 +19,14 @@ namespace Dowsingman2.LiveService
         }
 
         private string url_;
+        private string dateFormat_;
+        private bool isUniversal_;
 
         private CavetubeManager() : base("Cavetube", "Cavetube.xml")
         {
             url_ = "http://rss.cavelis.net/index_live.xml";
+            dateFormat_ = "ddd MMM d HH:mm:ss 'UTC' yyyy";
+            isUniversal_ = true;
         }
 
         public override async Task<List<StreamClass>> DownloadLiveAsync()
@@ -38,7 +42,7 @@ namespace Dowsingman2.LiveService
                         let owner = entry.Element(ns + "author").Element(ns + "name").Value
                         let title = entry.Element(ns + "title").Value
                         let description = entry.Element(ns + "summary").Value
-                        let start_time = FormatDate(entry.Element(ct + "start_date").Value)
+                        let start_time = MyUtility.FormatDate(entry.Element(ct + "start_date").Value, dateFormat_, isUniversal_, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeUniversal)
                         let url = entry.Element(ns + "id").Value
                         let listener = entry.Element(ct + "listener").Value
                         select new StreamClass(title, url, owner, start_time)).ToList();
@@ -53,17 +57,6 @@ namespace Dowsingman2.LiveService
             }
 
             return result;
-        }
-
-        public DateTime? FormatDate(string dateString)
-        {
-            if (dateString == "")
-            {
-                return null;
-            }
-            DateTime dateTime = DateTime.ParseExact(dateString, "ddd MMM d HH:mm:ss 'UTC' yyyy", DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeUniversal);
-            dateTime = dateTime.ToLocalTime();
-            return dateTime;
         }
     }
 }

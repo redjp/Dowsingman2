@@ -2,6 +2,8 @@
 using System.Media;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Globalization;
+using System.Text;
 
 
 namespace Dowsingman2.UtilityClass
@@ -46,16 +48,17 @@ namespace Dowsingman2.UtilityClass
         /// </summary>
         public static void OpenBrowser(string url)
         {
-            if (url != string.Empty)
-                try
-                {
-                    //規定のブラウザで配信URLを開く
-                    Process.Start(url);
-                }
-                catch (Exception ex)
-                {
-                    MyTraceSource.TraceEvent(TraceEventType.Error, ex);
-                }
+            if (String.IsNullOrEmpty(url)) return;
+
+            try
+            {
+                //規定のブラウザで配信URLを開く
+                Process.Start(url);
+            }
+            catch (Exception ex)
+            {
+                MyTraceSource.TraceEvent(TraceEventType.Error, ex);
+            }
         }
 
         /// <summary>
@@ -66,6 +69,58 @@ namespace Dowsingman2.UtilityClass
             using (var player = new SoundPlayer(path))
             {
                 player.Play();
+            }
+        }
+
+        /// <summary>
+        /// 日時をstringからDateTimeへ変換
+        /// </summary>
+        public static DateTime? FormatDate(string dateString, string dateFormat, bool isUniversal)
+        {
+            if (String.IsNullOrEmpty(dateString)) return null;
+
+            try
+            {
+                DateTime dateTime = DateTime.ParseExact(dateString, dateFormat, null);
+                return isUniversal ? dateTime.ToLocalTime() : dateTime;
+            }
+            catch (FormatException)
+            {
+#if DEBUG
+                MyTraceSource.TraceEvent(TraceEventType.Error, new StringBuilder(40).Append("[").Append(dateString).Append("] is not [").Append(dateFormat).Append("]").ToString());
+#endif
+                return null;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// 日時をstringからDateTimeへ変換
+        /// </summary>
+        public static DateTime? FormatDate(string dateString, string dateFormat, bool isUniversal, DateTimeFormatInfo formatInfo, DateTimeStyles styles)
+        {
+            if (String.IsNullOrEmpty(dateString)) return null;
+
+            try
+            {
+                DateTime dateTime = DateTime.ParseExact(dateString, dateFormat, formatInfo, styles);
+                return isUniversal ? dateTime.ToLocalTime() : dateTime;
+            }
+            catch (FormatException)
+            {
+#if DEBUG
+                MyTraceSource.TraceEvent(TraceEventType.Error, new StringBuilder(40).Append("[").Append(dateString).Append("] is not [").Append(dateFormat).Append("]").ToString());
+#endif
+                return null;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
     }

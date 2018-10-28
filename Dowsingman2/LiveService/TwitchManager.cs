@@ -1,6 +1,5 @@
 ﻿using Dowsingman2.BaseClass;
 using Dowsingman2.UtilityClass;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization.Json;
@@ -24,6 +23,8 @@ namespace Dowsingman2.LiveService
 
         private string url_;
         private Dictionary<string, string> param_;
+        private string dateFormat_;
+        private bool isUniversal_;
 
         private TwitchManager() : base("Twitch", "twitch.xml")
         {
@@ -35,6 +36,8 @@ namespace Dowsingman2.LiveService
                 { "client_id", "snk7w6raevojktexzkvf2ixy66gxtn" },
                 { "offset", string.Empty }
             };
+            dateFormat_ = "yyyy-MM-ddTHH:mm:ssZ";
+            isUniversal_ = true;
         }
 
         public override async Task<List<StreamClass>> DownloadLiveAsync()
@@ -57,7 +60,7 @@ namespace Dowsingman2.LiveService
                                     let channel = item.Element("channel")
                                     let owner = channel.Element("name").Value
                                     let title = MyUtility.RemoveCRLF(channel.Element("status").Value)
-                                    let start_time = FormatDate(item.Element("created_at").Value)
+                                    let start_time = MyUtility.FormatDate(item.Element("created_at").Value, dateFormat_, isUniversal_)
                                     let url = "https://www.twitch.tv/" + channel.Element("name").Value + '/'
                                     let listener = item.Element("viewers").Value
                                     where !result.Exists(x => x.Owner == owner)
@@ -69,17 +72,6 @@ namespace Dowsingman2.LiveService
             }
 
             return result;
-        }
-
-        public DateTime? FormatDate(string dateString)
-        {
-            if (dateString == "")
-            {
-                return null;
-            }
-            DateTime dateTime = DateTime.ParseExact(dateString, "yyyy-MM-ddTHH:mm:ssZ", null);
-            dateTime = dateTime.ToLocalTime();
-            return dateTime;
         }
     }
 }
