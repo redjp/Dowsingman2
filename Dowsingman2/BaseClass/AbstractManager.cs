@@ -12,7 +12,7 @@ namespace Dowsingman2.BaseClass
 {
     public abstract class AbstractManager
     {
-        protected object lockobject = new object();
+        protected object lockobject_ = new object();
         protected List<StreamClass> liveStreamClassList_;
         protected List<StreamClass> favoriteStreamClassList_;
 
@@ -34,13 +34,13 @@ namespace Dowsingman2.BaseClass
 
         public virtual ReadOnlyCollection<StreamClass> GetLiveStreamClassList()
         {
-            lock (lockobject)
+            lock (lockobject_)
                 return liveStreamClassList_.AsReadOnly();
         }
 
         public virtual ReadOnlyCollection<StreamClass> GetFavoriteStreamClassList()
         {
-            lock (lockobject)
+            lock (lockobject_)
                 return favoriteStreamClassList_.AsReadOnly();
         }
 
@@ -49,13 +49,14 @@ namespace Dowsingman2.BaseClass
         /// </summary>
         public virtual ReadOnlyCollection<StreamClass> GetFavoriteLiveOnly()
         {
-            lock (lockobject)
-                return favoriteStreamClassList_.Where(x => x.StreamStatus).ToList().AsReadOnly();
+            lock (lockobject_)
+                return favoriteStreamClassList_.Where(x => x.StreamStatus).Select(x =>
+                new StreamClass(x.Title, x.Url, "(" + Name[0] +") "+ x.Owner, x.Start_Time)).ToList().AsReadOnly();
         }
 
         public virtual bool AddFavorite(StreamClass newFavorite)
         {
-            lock (lockobject)
+            lock (lockobject_)
             {
                 if (!favoriteStreamClassList_.Exists(x => x.Owner == newFavorite.Owner))
                 {
@@ -70,7 +71,7 @@ namespace Dowsingman2.BaseClass
         }
         public virtual bool RemoveFavorite(StreamClass target)
         {
-            lock (lockobject)
+            lock (lockobject_)
             {
                 if (favoriteStreamClassList_.Exists(x => x == target))
                 {
@@ -101,7 +102,7 @@ namespace Dowsingman2.BaseClass
             try
             {
                 List<StreamClass> list = await DownloadLiveAsync();
-                lock (lockobject)
+                lock (lockobject_)
                     liveStreamClassList_ = list;
                 return true;
             }
@@ -130,7 +131,7 @@ namespace Dowsingman2.BaseClass
 #if DEBUG
             MyTraceSource.TraceEvent(TraceEventType.Information, new StringBuilder(40).Append("[").Append(Name).Append("] お気に入りチェック開始").ToString());
 #endif
-            lock (lockobject)
+            lock (lockobject_)
             {
                 if (liveStreamClassList_.Count > 0 && favoriteStreamClassList_.Count > 0)
                 {
@@ -178,7 +179,7 @@ namespace Dowsingman2.BaseClass
             try
             {
                 List<string> list = MySerializer.Deserialize<List<string>>(FilePath);
-                lock (lockobject)
+                lock (lockobject_)
                     favoriteStreamClassList_ = list.Select(x => new StreamClass(x)).ToList();
             }
             catch (DirectoryNotFoundException)
@@ -243,7 +244,7 @@ namespace Dowsingman2.BaseClass
 
         protected virtual void InitStreamClassList()
         {
-            lock (lockobject)
+            lock (lockobject_)
                 favoriteStreamClassList_ = new List<StreamClass>();
         }
     }

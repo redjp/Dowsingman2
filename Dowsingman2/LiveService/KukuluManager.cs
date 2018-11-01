@@ -12,10 +12,7 @@ namespace Dowsingman2.LiveService
     class KukuluManager : AbstractManager
     {
         private static KukuluManager instance_ = new KukuluManager();
-        public static KukuluManager GetInstance()
-        {
-            return instance_;
-        }
+        public static KukuluManager GetInstance() { return instance_; }
 
         private string url_;
         private string dateFormat_;

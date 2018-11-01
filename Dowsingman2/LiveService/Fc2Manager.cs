@@ -14,10 +14,7 @@ namespace Dowsingman2.LiveService
     class Fc2Manager : AbstractManager
     {
         private static Fc2Manager instance_ = new Fc2Manager();
-        public static Fc2Manager GetInstance()
-        {
-            return instance_;
-        }
+        public static Fc2Manager GetInstance() { return instance_; }
 
         private string url_;
         private string dateFormat_;
@@ -32,7 +29,7 @@ namespace Dowsingman2.LiveService
 
         public override async Task<List<StreamClass>> DownloadLiveAsync()
         {
-            List<StreamClass> result = new List<StreamClass>();
+            var result = new List<StreamClass>();
 
             string json = MyUtility.RemoveSpecialChars(await new MyHttpClient().GetStringAsync(url_, null));
             using (XmlDictionaryReader reader = JsonReaderWriterFactory.CreateJsonReader(Encoding.UTF8.GetBytes(json), XmlDictionaryReaderQuotas.Max))

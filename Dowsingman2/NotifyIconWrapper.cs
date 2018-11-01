@@ -1,12 +1,11 @@
 ﻿using Dowsingman2.BaseClass;
 using Dowsingman2.LiveService;
-using Dowsingman2.UtilityClass;
 using Dowsingman2.SubManager;
+using Dowsingman2.UtilityClass;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,13 +25,9 @@ namespace Dowsingman2
         public static event EventHandler RefreshStarting;
         public static event EventHandler RefreshCompleted;
 
-        private object lockobject = new object();
-
-        private List<AbstractManager> managers_ = new List<AbstractManager>();
-        //配信通知スタック
-        private List<StreamClass> balloonStacks_ = new List<StreamClass>();
-        //コンテキストメニュー用
-        private List<StreamClass> contextMenuItems_ = new List<StreamClass>();
+        public List<AbstractManager> EnableManagers { get; } = new List<AbstractManager>();
+        public BalloonManager BalloonManager { get; }
+        public ContextMenuManager ContextMenuManager { get; }
 
         private string balloonClickUrl_ = string.Empty;
 
@@ -59,10 +54,13 @@ namespace Dowsingman2
             SystemEvents.SessionEnding += new SessionEndingEventHandler(SystemEvents_SessionEnding);
             SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
 
-            managers_.Add(KukuluManager.GetInstance());
-            managers_.Add(CavetubeManager.GetInstance());
-            managers_.Add(Fc2Manager.GetInstance());
-            managers_.Add(TwitchManager.GetInstance());
+            EnableManagers.Add(KukuluManager.GetInstance());
+            EnableManagers.Add(CavetubeManager.GetInstance());
+            EnableManagers.Add(Fc2Manager.GetInstance());
+            EnableManagers.Add(TwitchManager.GetInstance());
+
+            BalloonManager = new BalloonManager(myNotifyIcon);
+            ContextMenuManager = new ContextMenuManager(myContextMenuStrip);
 
             SoundFilePath = Path.GetFullPath(SOUND_LOCAL_PATH);
             IconPFilePath = Path.GetFullPath(ICON_P_LOCAL_PATH);
@@ -95,7 +93,7 @@ namespace Dowsingman2
         /// </summary>
         /// <param name="sender">呼び出し元オブジェクト</param>
         /// <param name="e">イベントデータ</param>
-        private void notifyIcon1_MouseDoubleClick(object sender, System.Windows.Forms.MouseEventArgs e)
+        private void myNotifyIcon_MouseDoubleClick(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             openMainWindow();
         }
@@ -116,6 +114,8 @@ namespace Dowsingman2
             {
                 // MainWindow を生成、表示
                 var wnd = new MainWindow();
+                // ウィンドウのサイズを復元
+                SettingManager.GetInstance().RecoverWindowBounds(wnd);
                 wnd.Show();
                 wnd.Activate();
                 wnd.UpdateDispList();
@@ -129,11 +129,12 @@ namespace Dowsingman2
         /// <summary>
         /// Windowsがログオフ、シャットダウンしたときに呼び出されます。
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">呼び出し元オブジェクト</param>
+        /// <param name="e">イベントデータ</param>
         private void SystemEvents_SessionEnding(object sender, SessionEndingEventArgs e)
         {
             LogManager.GetInstance().Save();
+            SettingManager.GetInstance().Save();
             Application.Current.Shutdown();
         }
 
@@ -145,17 +146,16 @@ namespace Dowsingman2
         private void toolStripMenuItem_Exit_Click(object sender, EventArgs e)
         {
             LogManager.GetInstance().Save();
+            SettingManager.GetInstance().Save();
             Application.Current.Shutdown();
         }
-
-
 
         /// <summary>
         /// 一定時間起きにタイマーイベントで一覧取得（非同期）
         /// </summary>
         /// <param name="sender">呼び出し元オブジェクト</param>
         /// <param name="e">イベントデータ</param>
-        private async void timer1_Tick(object sender, EventArgs e)
+        private async void refreshTimer_Tick(object sender, EventArgs e)
         {
             await RefreshNotifyIconAsync();
         }
@@ -168,29 +168,25 @@ namespace Dowsingman2
             OnRefreshStarting();
 
             var tasks = new List<Task>();
-            var lockObject = new Object();
 
-            foreach (AbstractManager manager in managers_)
+            foreach (AbstractManager manager in EnableManagers)
             {
                 //サイトごとにタスクを作り、配信一覧からお気に入りの更新まで済ませる
                 tasks.Add(manager.RefreshLiveAsync().ContinueWith(task =>
                 {
                     if (task.Result)
-                        lock (lockObject)
-                            balloonStacks_.AddRange(manager.CheckFavorite());
+                        BalloonManager.AddRange(manager.CheckFavorite());
                 }));
             }
             await Task.WhenAll(tasks);
 
-
-            if (!timer2.Enabled)
+            if (!balloonTimer.Enabled)
             {
                 //通知スタック1つ目を即座に処理
-                MyBalloon.ExcuteBalloonStack(balloonStacks_, notifyIcon1, balloontime, SoundFilePath);
-                timer2.Enabled = balloonStacks_.Count > 0;
+                balloonTimer.Enabled = BalloonManager.ExcuteBalloonQueue(balloontime, SoundFilePath) > 0;
             }
 
-            ContextMenuUpdate();
+            RefreshMenuAndIcon();
 
             OnRefreshCompleted();
         }
@@ -206,14 +202,29 @@ namespace Dowsingman2
         }
 
         /// <summary>
+        /// 1箇所だけ更新があったとき用
+        /// </summary>
+        public void RefreshNotifyIconLite(AbstractManager manager)
+        {
+            BalloonManager.AddRange(manager.CheckFavorite());
+
+            if (!balloonTimer.Enabled)
+            {
+                //通知スタック1つ目を即座に処理
+                balloonTimer.Enabled = BalloonManager.ExcuteBalloonQueue(balloontime, SoundFilePath) > 0;
+            }
+
+            RefreshMenuAndIcon();
+        }
+
+        /// <summary>
         /// タイマーイベントで通知スタックを処理
         /// </summary>
         /// <param name="sender">呼び出し元オブジェクト</param>
         /// <param name="e">イベントデータ</param>
-        private void timer2_Tick(object sender, EventArgs e)
+        private void balloonTimer_Tick(object sender, EventArgs e)
         {
-            MyBalloon.ExcuteBalloonStack(balloonStacks_, notifyIcon1, balloontime, SoundFilePath);
-            timer2.Enabled = balloonStacks_.Count > 0;
+            balloonTimer.Enabled = BalloonManager.ExcuteBalloonQueue(balloontime, SoundFilePath) > 0;
         }
 
         /// <summary>
@@ -221,72 +232,25 @@ namespace Dowsingman2
         /// </summary>
         /// <param name="sender">呼び出し元オブジェクト</param>
         /// <param name="e">イベントデータ</param>
-        private void notifyIcon1_BalloonTipClicked(object sender, EventArgs e)
+        private void myNotifyIcon_BalloonTipClicked(object sender, EventArgs e)
         {
             //規定のブラウザで配信URLを開く
             MyUtility.OpenBrowser(balloonClickUrl_);
         }
 
-
-
         /// <summary>
         /// コンテキストメニューの再描画
         /// </summary>
-        public void ContextMenuUpdate()
+        public void RefreshMenuAndIcon()
         {
-            //コンテキストメニューの配信情報を初期化
-            contextMenuItems_ = new List<StreamClass>();
-            //コンテキストメニューの3項目目以降を削除
-            while (this.contextMenuStrip1.Items.Count > 2)
+            if (ContextMenuManager.RefreshContextMenu(EnableManagers))
             {
-                this.contextMenuStrip1.Items.RemoveAt(0);
-            }
-
-            foreach (AbstractManager manager in managers_)
-            {
-                contextMenuItems_.AddRange(manager.GetFavoriteLiveOnly());
-            }
-
-            //配信が1つ以上あるなら
-            if (contextMenuItems_.Count > 0)
-            {
-                //セパレータを追加
-                this.contextMenuStrip1.Items.Insert(0, new System.Windows.Forms.ToolStripSeparator());
-
-                foreach (StreamClass sc in contextMenuItems_)
-                {
-                    //メニューの先頭に配信を追加
-                    System.Windows.Forms.ToolStripMenuItem tsi = new System.Windows.Forms.ToolStripMenuItem(sc.Owner, null, ContextMenu_Clicked);
-                    this.contextMenuStrip1.Items.Insert(0, tsi);
-                }
-
                 //コンテキストメニューに配信が1つ以上あるならアイコンの色を変える
-                notifyIcon1.Icon = new System.Drawing.Icon(ICON_P_LOCAL_PATH);
+                myNotifyIcon.Icon = new System.Drawing.Icon(ICON_P_LOCAL_PATH);
             }
             else
             {
-                notifyIcon1.Icon = new System.Drawing.Icon(ICON_G_LOCAL_PATH);
-            }
-        }
-
-        /// <summary>
-        /// 追加コンテキストメニューがクリックされたとき処理
-        /// </summary>
-        /// <param name="sender">呼び出し元オブジェクト</param>
-        /// <param name="e">イベントデータ</param>
-        private void ContextMenu_Clicked(object sender, EventArgs e)
-        {
-            System.Windows.Forms.ToolStripMenuItem item = (System.Windows.Forms.ToolStripMenuItem)sender;
-            if (item.Text == "開く" || item.Text == "終了") return;
-            
-            //クリックされた名前と同じ名前をリストから探してURLを開く
-            foreach (StreamClass st in contextMenuItems_)
-            {
-                if (st.Owner == item.Text)
-                {
-                    MyUtility.OpenBrowser(st.Url);
-                    return;
-                }
+                myNotifyIcon.Icon = new System.Drawing.Icon(ICON_G_LOCAL_PATH);
             }
         }
 
@@ -294,16 +258,16 @@ namespace Dowsingman2
         {
             timer3.Enabled = false;
             await RefreshNotifyIconAsync();
-            timer1.Enabled = true;
+            refreshTimer.Enabled = true;
         }
 
         private void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
             if (e.Mode == PowerModes.Resume)
             {
-                timer1.Enabled = false;
+                refreshTimer.Enabled = false;
                 System.Threading.Thread.Sleep(3000);
-                if (!timer1.Enabled && !timer3.Enabled)
+                if (!refreshTimer.Enabled && !timer3.Enabled)
                     timer3.Start();
             }
         }

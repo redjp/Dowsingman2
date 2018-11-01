@@ -13,10 +13,7 @@ namespace Dowsingman2.LiveService
     public class CavetubeManager : AbstractManager
     {
         private static CavetubeManager instance_ = new CavetubeManager();
-        public static CavetubeManager GetInstance()
-        {
-            return instance_;
-        }
+        public static CavetubeManager GetInstance() { return instance_; }
 
         private string url_;
         private string dateFormat_;

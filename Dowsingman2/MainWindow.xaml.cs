@@ -1,10 +1,9 @@
 ﻿using Dowsingman2.BaseClass;
 using Dowsingman2.LiveService;
-using Dowsingman2.Properties;
 using Dowsingman2.SubManager;
 using Dowsingman2.UtilityClass;
-using System.ComponentModel;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -25,16 +24,13 @@ namespace Dowsingman2
         {
             InitializeComponent();
 
-            // ウィンドウのサイズを復元
-            RecoverWindowBounds();
-
             NotifyIconWrapper.RefreshCompleted += NotifyIconWrapper_UpdateCompleted;
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             // ウィンドウのサイズを保存
-            SaveWindowBounds();
+            SettingManager.GetInstance().SaveWindowBounds(this);
             
             NotifyIconWrapper.RefreshCompleted -= NotifyIconWrapper_UpdateCompleted;
         }
@@ -342,7 +338,6 @@ namespace Dowsingman2
         {
             if (manager.AddFavorite(newFavorite))
             {
-                LogManager.GetInstance().AddFavorite(newFavorite);
                 manager.Save();
                 MessageBox.Show(newFavorite.Owner + "を追加しました。");
                 UpdateDispList();
@@ -401,59 +396,6 @@ namespace Dowsingman2
             {
                 LastTabIndex = TabControl1.SelectedIndex;
                 UpdateDispList();
-            }
-        }
-
-        /// <summary>
-        /// ウィンドウの位置・サイズを保存します。
-        /// </summary>
-        void SaveWindowBounds()
-        {
-            var settings = Settings.Default;
-            settings.WindowMaximized = WindowState == WindowState.Maximized;
-            WindowState = WindowState.Normal; // 最大化解除
-            settings.WindowLeft = Left;
-            settings.WindowTop = Top;
-            settings.WindowWidth = Width;
-            settings.WindowHeight = Height;
-            settings.SelectedTabIndex = TabControl1.SelectedIndex;
-            settings.Save();
-        }
-
-        /// <summary>
-        /// ウィンドウの位置・サイズを復元します。
-        /// </summary>
-        private void RecoverWindowBounds()
-        {
-            var settings = Settings.Default;
-            if (settings.WindowLeft >= 0 &&
-                (settings.WindowLeft + settings.WindowWidth) < SystemParameters.VirtualScreenWidth)
-            {
-                Left = settings.WindowLeft;
-            }
-            if (settings.WindowTop >= 0 &&
-                (settings.WindowTop + settings.WindowHeight) < SystemParameters.VirtualScreenHeight)
-            {
-                Top = settings.WindowTop;
-            }
-            if (settings.WindowWidth >= 600 &&
-               settings.WindowWidth <= SystemParameters.WorkArea.Width)
-            {
-                Width = settings.WindowWidth;
-            }
-            if (settings.WindowHeight >= 360 &&
-               settings.WindowHeight <= SystemParameters.WorkArea.Height)
-            {
-                Height = settings.WindowHeight;
-            }
-            if (settings.WindowMaximized)
-            {
-                // ロード後に最大化
-                Loaded += (o, e) => WindowState = WindowState.Maximized;
-            }
-            if (settings.SelectedTabIndex >= 0)
-            {
-                TabControl1.SelectedIndex = settings.SelectedTabIndex;
             }
         }
     }

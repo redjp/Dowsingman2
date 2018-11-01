@@ -13,10 +13,7 @@ namespace Dowsingman2.LiveService
     class TwitchManager : AbstractManager
     {
         private static TwitchManager instance_ = new TwitchManager();
-        public static TwitchManager GetInstance()
-        {
-            return instance_;
-        }
+        public static TwitchManager GetInstance() { return instance_; }
 
         const int OFFSET = 80;
         const int RATE_LIMIT = 25;
@@ -33,7 +30,7 @@ namespace Dowsingman2.LiveService
             {
                 { "limit", "100" },
                 { "broadcaster_language", "ja" },
-                { "client_id", "snk7w6raevojktexzkvf2ixy66gxtn" },
+                { "client_id", Environment.TWITCH_API_KEY },
                 { "offset", string.Empty }
             };
             dateFormat_ = "yyyy-MM-ddTHH:mm:ssZ";
@@ -42,8 +39,7 @@ namespace Dowsingman2.LiveService
 
         public override async Task<List<StreamClass>> DownloadLiveAsync()
         {
-            //戻り値用
-            List<StreamClass> result = new List<StreamClass>();
+            var result = new List<StreamClass>();
 
             for (int i = 0; i < RATE_LIMIT; i++)
             {

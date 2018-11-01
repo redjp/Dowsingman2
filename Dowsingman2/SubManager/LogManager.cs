@@ -2,7 +2,6 @@
 using Dowsingman2.UtilityClass;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -11,13 +10,10 @@ using System.Threading.Tasks;
 
 namespace Dowsingman2.SubManager
 {
-    class LogManager : AbstractManager
+    public class LogManager : AbstractManager
     {
         private static LogManager instance_ = new LogManager();
-        public static LogManager GetInstance()
-        {
-            return instance_;
-        }
+        public static LogManager GetInstance() { return instance_; }
 
         public int maxLogSize { get; private set; }
 
@@ -30,7 +26,7 @@ namespace Dowsingman2.SubManager
 
         public override bool AddFavorite(StreamClass newFavorite)
         {
-            lock (lockobject)
+            lock (lockobject_)
             {
                 if (favoriteStreamClassList_.Exists(x =>
                                 x.Start_Time == newFavorite.Start_Time
@@ -53,7 +49,7 @@ namespace Dowsingman2.SubManager
 
         public override bool RemoveFavorite(StreamClass target)
         {
-            lock (lockobject)
+            lock (lockobject_)
             {
                 if (favoriteStreamClassList_.Exists(x => x == target))
                 {
@@ -80,7 +76,7 @@ namespace Dowsingman2.SubManager
             try
             {
                 List<StreamClass> list = MySerializer.Deserialize<List<StreamClass>>(FilePath);
-                lock(lockobject)
+                lock(lockobject_)
                     favoriteStreamClassList_ = list;
             }
             catch (DirectoryNotFoundException)
@@ -145,7 +141,7 @@ namespace Dowsingman2.SubManager
 
         protected override void InitStreamClassList()
         {
-            lock(lockobject)
+            lock(lockobject_)
                 favoriteStreamClassList_ = new List<StreamClass>();
         }
     }

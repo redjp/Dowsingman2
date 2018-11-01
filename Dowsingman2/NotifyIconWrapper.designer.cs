@@ -30,31 +30,31 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NotifyIconWrapper));
-            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.myNotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.myContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItem_Open = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem_Exit = new System.Windows.Forms.ToolStripMenuItem();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.timer2 = new System.Windows.Forms.Timer(this.components);
+            this.refreshTimer = new System.Windows.Forms.Timer(this.components);
+            this.balloonTimer = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
-            this.contextMenuStrip1.SuspendLayout();
+            this.myContextMenuStrip.SuspendLayout();
             // 
             // notifyIcon1
             // 
-            this.notifyIcon1.ContextMenuStrip = this.contextMenuStrip1;
-            this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
-            this.notifyIcon1.Text = "Dowsingman2";
-            this.notifyIcon1.Visible = true;
-            this.notifyIcon1.BalloonTipClicked += new System.EventHandler(this.notifyIcon1_BalloonTipClicked);
-            this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
+            this.myNotifyIcon.ContextMenuStrip = this.myContextMenuStrip;
+            this.myNotifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
+            this.myNotifyIcon.Text = "Dowsingman2";
+            this.myNotifyIcon.Visible = true;
+            this.myNotifyIcon.BalloonTipClicked += new System.EventHandler(this.myNotifyIcon_BalloonTipClicked);
+            this.myNotifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.myNotifyIcon_MouseDoubleClick);
             // 
             // contextMenuStrip1
             // 
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.myContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem_Open,
             this.toolStripMenuItem_Exit});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(101, 48);
+            this.myContextMenuStrip.Name = "contextMenuStrip1";
+            this.myContextMenuStrip.Size = new System.Drawing.Size(101, 48);
             // 
             // toolStripMenuItem_Open
             // 
@@ -70,31 +70,31 @@
             // 
             // timer1
             // 
-            this.timer1.Interval = 180000;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.refreshTimer.Interval = 180000;
+            this.refreshTimer.Tick += new System.EventHandler(this.refreshTimer_Tick);
             // 
             // timer2
             // 
-            this.timer2.Interval = 3500;
-            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            this.balloonTimer.Interval = 3500;
+            this.balloonTimer.Tick += new System.EventHandler(this.balloonTimer_Tick);
             // 
             // timer3
             // 
             this.timer3.Enabled = true;
             this.timer3.Interval = 200;
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
-            this.contextMenuStrip1.ResumeLayout(false);
+            this.myContextMenuStrip.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.NotifyIcon notifyIcon1;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.NotifyIcon myNotifyIcon;
+        private System.Windows.Forms.ContextMenuStrip myContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_Open;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_Exit;
-        private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.Timer timer2;
+        private System.Windows.Forms.Timer refreshTimer;
+        private System.Windows.Forms.Timer balloonTimer;
         private System.Windows.Forms.Timer timer3;
     }
 }
