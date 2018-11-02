@@ -2,6 +2,7 @@
 using Dowsingman2.UtilityClass;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -22,6 +23,11 @@ namespace Dowsingman2.SubManager
             maxLogSize = 100;
 
             Load();
+        }
+
+        public override ReadOnlyCollection<StreamClass> GetFavoriteStreamClassList()
+        {
+            return favoriteStreamClassList_.OrderByDescending(x => x.Start_Time).ToList().AsReadOnly();
         }
 
         public override bool AddFavorite(StreamClass newFavorite)
@@ -113,9 +119,12 @@ namespace Dowsingman2.SubManager
 #if DEBUG
             MyTraceSource.TraceEvent(TraceEventType.Information, new StringBuilder(40).Append("[").Append(FileName).Append("] ファイル保存開始").ToString());
 #endif
+            List<StreamClass> list;
+            lock (lockobject_)
+                list = GetFavoriteStreamClassList().ToList();
+
             while (true)
             {
-                List<StreamClass> list = GetFavoriteStreamClassList().ToList();
                 try
                 {
                     MySerializer.Serialize<List<StreamClass>>(list, FilePath);

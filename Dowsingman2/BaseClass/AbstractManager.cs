@@ -255,9 +255,12 @@ namespace Dowsingman2.BaseClass
 #if DEBUG
             MyTraceSource.TraceEvent(TraceEventType.Information, new StringBuilder(40).Append("[").Append(FileName).Append("] ファイル保存開始").ToString());
 #endif
+            List<string> list;
+            lock (lockobject_)
+               list = favoriteStreamClassList_.Select(x => x.Owner).ToList();
+
             while (true)
             {
-                List<string> list = GetFavoriteStreamClassList().Select(x => x.Owner).ToList();
                 try
                 {
                     MySerializer.Serialize<List<string>>(list, FilePath);

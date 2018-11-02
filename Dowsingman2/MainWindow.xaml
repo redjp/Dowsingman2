@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:atpr="clr-namespace:DataGridSort"
-        Title="MainWindow" Height="420" Width="640" MinHeight="420" MinWidth="640"
+        Title="Dowsingman2" Height="420" Width="640" MinHeight="420" MinWidth="640"
         Closing="Window_Closing">
     <Window.Resources>
         <base:Listener2StringConverter x:Key="L2SConverter"/>
