@@ -85,13 +85,49 @@ namespace Dowsingman2.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
-        public int SelectedTabIndex {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SelectedLeftMenu {
             get {
-                return ((int)(this["SelectedTabIndex"]));
+                return ((string)(this["SelectedLeftMenu"]));
             }
             set {
-                this["SelectedTabIndex"] = value;
+                this["SelectedLeftMenu"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SelectedTopMenu {
+            get {
+                return ((bool)(this["SelectedTopMenu"]));
+            }
+            set {
+                this["SelectedTopMenu"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsButtonVisible {
+            get {
+                return ((bool)(this["IsButtonVisible"]));
+            }
+            set {
+                this["IsButtonVisible"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        public int Volume {
+            get {
+                return ((int)(this["Volume"]));
+            }
+            set {
+                this["Volume"] = value;
             }
         }
     }

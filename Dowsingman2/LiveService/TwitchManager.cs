@@ -58,9 +58,9 @@ namespace Dowsingman2.LiveService
                                     let title = MyUtility.RemoveCRLF(channel.Element("status").Value)
                                     let start_time = MyUtility.FormatDate(item.Element("created_at").Value, dateFormat_, isUniversal_)
                                     let url = "https://www.twitch.tv/" + channel.Element("name").Value + '/'
-                                    let listener = item.Element("viewers").Value
+                                    let listener = MyUtility.TryParseOrDefault<string, int>(int.TryParse, item.Element("viewers").Value)
                                     where !result.Exists(x => x.Owner == owner)
-                                    select new StreamClass(title, url, owner, start_time)).ToList());
+                                    select new StreamClass(title, url, owner, listener, start_time)).ToList());
                     
                     ////配信がなくなったらループを抜ける
                     if (xDocument.Root.Element("streams").Elements("item").Count() < OFFSET) break;

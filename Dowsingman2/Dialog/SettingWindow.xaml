@@ -1,0 +1,53 @@
+﻿<Window x:Class="Dowsingman2.Dialog.SettingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Dowsingman2.Dialog"
+        mc:Ignorable="d"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="SettingWindow" MaxWidth="280" MaxHeight="360" MinWidth="280" MinHeight="360"
+        Background="{x:Static SystemColors.ControlLightBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Style="{StaticResource MaterialDesignButtonTextBlock}" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="8 8 0 0">
+            通知時の音量
+        </TextBlock>
+            <Slider Minimum="0" Maximum="100" Style="{StaticResource MaterialDesignDiscreteSlider}"
+                    ToolTip="音量" Value="{Binding Volume}" Width="200" Margin="0,8,32,0" VerticalAlignment="Top" />
+        <Button Style="{StaticResource MaterialDesignFloatingActionMiniButton}" HorizontalAlignment="Right"
+                materialDesign:ShadowAssist.ShadowDepth="Depth1" Margin="0,36,16,0" Width="28" Height="28"
+                ToolTip="確認" Command="{Binding SoundTestCommand}">
+            <materialDesign:PackIcon Kind="Play" Height="20" Width="20" />
+        </Button>
+
+        <Border Margin="8 16 8 0" BorderThickness="0 1 0 0" BorderBrush="{DynamicResource MaterialDesignDivider}" Grid.Row="1" />
+
+        <TextBlock Style="{StaticResource MaterialDesignButtonTextBlock}" Grid.Row="2" VerticalAlignment="Top" Margin="8,8,0,0">
+            右下ボタンの表示
+        </TextBlock>
+        <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" Grid.Row="2" VerticalAlignment="Top" Margin="0,16,16,0" HorizontalAlignment="Right"
+                      IsChecked="{Binding IsButtonVisible}"/>
+
+        <Border Margin="8 16 8 0" BorderThickness="0 1 0 0" BorderBrush="{DynamicResource MaterialDesignDivider}" Grid.Row="3" />
+
+        <StackPanel Grid.Row="4" Margin="0 16 0 0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="110"
+                    Command="{Binding CancelCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" >
+                キャンセル
+            </Button>
+            <Button Style="{StaticResource MaterialDesignFlatButton}" Width="110"
+                    Command="{Binding AcceptCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" >
+                確定
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

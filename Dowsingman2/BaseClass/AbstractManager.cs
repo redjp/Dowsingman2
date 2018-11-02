@@ -41,7 +41,7 @@ namespace Dowsingman2.BaseClass
         public virtual ReadOnlyCollection<StreamClass> GetFavoriteStreamClassList()
         {
             lock (lockobject_)
-                return favoriteStreamClassList_.AsReadOnly();
+                return favoriteStreamClassList_.OrderByDescending(x => x.StreamStatus).ToList().AsReadOnly();
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Dowsingman2.BaseClass
         {
             lock (lockobject_)
                 return favoriteStreamClassList_.Where(x => x.StreamStatus).Select(x =>
-                new StreamClass(x.Title, x.Url, "(" + Name[0] +") "+ x.Owner, x.Start_Time)).ToList().AsReadOnly();
+                new StreamClass(x.Title, x.Url, "(" + Name[0] +") "+ x.Owner, x.Listener, x.Start_Time)).ToList().AsReadOnly();
         }
 
         public virtual bool AddFavorite(StreamClass newFavorite)
@@ -69,6 +69,23 @@ namespace Dowsingman2.BaseClass
                 }
             }
         }
+
+        public virtual bool AddFavorite(string newOwner)
+        {
+            lock (lockobject_)
+            {
+                if (!favoriteStreamClassList_.Exists(x => x.Owner == newOwner))
+                {
+                    favoriteStreamClassList_.Add(new StreamClass(newOwner));
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
         public virtual bool RemoveFavorite(StreamClass target)
         {
             lock (lockobject_)
@@ -85,7 +102,28 @@ namespace Dowsingman2.BaseClass
             }
         }
 
+        public virtual bool RemoveFavorite(string target)
+        {
+            lock (lockobject_)
+            {
+                StreamClass sc = favoriteStreamClassList_.FirstOrDefault(x => x.Owner == target);
+                if (sc != null)
+                {
+                    favoriteStreamClassList_.Remove(sc);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
         public abstract Task<List<StreamClass>> DownloadLiveAsync();
+
+        /// <summary>
+        /// 一覧データの更新
+        /// </summary>
         public virtual async Task<bool> RefreshLiveAsync()
         {
             if (IsRequest)
@@ -102,6 +140,7 @@ namespace Dowsingman2.BaseClass
             try
             {
                 List<StreamClass> list = await DownloadLiveAsync();
+                list = list.OrderByDescending(x => x.Listener).ToList();
                 lock (lockobject_)
                     liveStreamClassList_ = list;
                 return true;

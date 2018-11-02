@@ -1,9 +1,11 @@
-﻿using Dowsingman2.Properties;
+﻿using Dowsingman2.BaseClass;
+using Dowsingman2.Properties;
 using System.Windows;
+using Dowsingman2.Dialog;
 
 namespace Dowsingman2.SubManager
 {
-    public class SettingManager
+    internal class SettingManager
     {
         private static SettingManager instance_ = new SettingManager();
         public static SettingManager GetInstance() { return instance_; }
@@ -12,7 +14,86 @@ namespace Dowsingman2.SubManager
 
         private SettingManager()
         {
-            Settings = Settings.Default;
+            Load();
+        }
+
+        public int GetVolume()
+        {
+            return Settings.Volume;
+        }
+
+        public Visibility GetButtonVisibility()
+        {
+            return Settings.IsButtonVisible ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        /// <summary>
+        /// 設定ウィンドウの保存
+        /// </summary>
+        public void SaveSettingWindow(SettingWindowViewModel settingWindow)
+        {
+            Settings.IsButtonVisible = settingWindow.IsButtonVisible;
+            Settings.Volume = settingWindow.Volume;
+        }
+
+        /// <summary>
+        /// 設定ウィンドウの復元
+        /// </summary>
+        public void RecoverSettingWindow(SettingWindowViewModel settingWindow)
+        {
+            settingWindow.IsButtonVisible = Settings.IsButtonVisible;
+            settingWindow.Volume = Settings.Volume;
+        }
+
+        /// <summary>
+        /// メニューの選択状態を保存
+        /// </summary>
+        public void SaveViewModel(MainWindowViewModel viewModel)
+        {
+            Settings.SelectedLeftMenu = viewModel.SelectedLeftMenu.Text;
+            Settings.SelectedTopMenu = viewModel.SelectedTopMenu == TopMenuSelection.All;
+        }
+
+        /// <summary>
+        /// メニューの選択状態を復元
+        /// </summary>
+        public void RecoverViewModel(MainWindowViewModel viewModel)
+        {
+            if (viewModel.LeftMenus == null) return;
+            if (string.IsNullOrEmpty(Settings.SelectedLeftMenu))
+            {
+                viewModel.SelectedLeftMenu = viewModel.LeftMenus[0];
+            }
+            else
+            {
+                foreach (LeftMenu lm in viewModel.LeftMenus)
+                {
+                    if (lm.Text == Settings.SelectedLeftMenu)
+                    {
+                        viewModel.SelectedLeftMenu = lm;
+                        lm.IsSelected = true;
+                    }
+                    else
+                    {
+                        lm.IsSelected = false;
+                    }
+                }
+            }
+
+            if (Settings.SelectedTopMenu)
+            {
+                viewModel.SelectedTopMenu = TopMenuSelection.All;
+                viewModel.TopMenuFavorite = false;
+                viewModel.TopMenuAll = true;
+            }
+            else
+            {
+                viewModel.SelectedTopMenu = TopMenuSelection.Favorite;
+                viewModel.TopMenuFavorite = true;
+                viewModel.TopMenuAll = false;
+            }
+
+            viewModel.ButtonVisibility = Settings.IsButtonVisible ? Visibility.Visible : Visibility.Hidden;
         }
 
         /// <summary>
@@ -26,7 +107,6 @@ namespace Dowsingman2.SubManager
             Settings.WindowTop = window.Top;
             Settings.WindowWidth = window.Width;
             Settings.WindowHeight = window.Height;
-            Settings.SelectedTabIndex = window.TabControl1.SelectedIndex;
         }
 
         /// <summary>
@@ -44,12 +124,12 @@ namespace Dowsingman2.SubManager
             {
                 window.Top = Settings.WindowTop;
             }
-            if (Settings.WindowWidth >= 600 &&
+            if (Settings.WindowWidth >= 640 &&
                Settings.WindowWidth <= SystemParameters.WorkArea.Width)
             {
                 window.Width = Settings.WindowWidth;
             }
-            if (Settings.WindowHeight >= 360 &&
+            if (Settings.WindowHeight >= 420 &&
                Settings.WindowHeight <= SystemParameters.WorkArea.Height)
             {
                 window.Height = Settings.WindowHeight;
@@ -58,10 +138,6 @@ namespace Dowsingman2.SubManager
             {
                 // ロード後に最大化
                 window.Loaded += (o, e) => window.WindowState = WindowState.Maximized;
-            }
-            if (Settings.SelectedTabIndex >= 0)
-            {
-                window.TabControl1.SelectedIndex = Settings.SelectedTabIndex;
             }
         }
 

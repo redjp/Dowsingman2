@@ -36,19 +36,18 @@
             this.toolStripMenuItem_Exit = new System.Windows.Forms.ToolStripMenuItem();
             this.refreshTimer = new System.Windows.Forms.Timer(this.components);
             this.balloonTimer = new System.Windows.Forms.Timer(this.components);
-            this.timer3 = new System.Windows.Forms.Timer(this.components);
             this.myContextMenuStrip.SuspendLayout();
             // 
-            // notifyIcon1
+            // myNotifyIcon
             // 
             this.myNotifyIcon.ContextMenuStrip = this.myContextMenuStrip;
-            this.myNotifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
+            this.myNotifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("myNotifyIcon.Icon")));
             this.myNotifyIcon.Text = "Dowsingman2";
             this.myNotifyIcon.Visible = true;
             this.myNotifyIcon.BalloonTipClicked += new System.EventHandler(this.myNotifyIcon_BalloonTipClicked);
             this.myNotifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.myNotifyIcon_MouseDoubleClick);
             // 
-            // contextMenuStrip1
+            // myContextMenuStrip
             // 
             this.myContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem_Open,
@@ -68,21 +67,16 @@
             this.toolStripMenuItem_Exit.Size = new System.Drawing.Size(100, 22);
             this.toolStripMenuItem_Exit.Text = "終了";
             // 
-            // timer1
+            // refreshTimer
             // 
+            this.refreshTimer.Enabled = true;
             this.refreshTimer.Interval = 180000;
             this.refreshTimer.Tick += new System.EventHandler(this.refreshTimer_Tick);
             // 
-            // timer2
+            // balloonTimer
             // 
             this.balloonTimer.Interval = 3500;
             this.balloonTimer.Tick += new System.EventHandler(this.balloonTimer_Tick);
-            // 
-            // timer3
-            // 
-            this.timer3.Enabled = true;
-            this.timer3.Interval = 200;
-            this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             this.myContextMenuStrip.ResumeLayout(false);
 
         }
@@ -95,6 +89,5 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_Exit;
         private System.Windows.Forms.Timer refreshTimer;
         private System.Windows.Forms.Timer balloonTimer;
-        private System.Windows.Forms.Timer timer3;
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Dowsingman2.BaseClass;
-using Dowsingman2.UtilityClass;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -24,7 +23,8 @@ namespace Dowsingman2.SubManager
             {
                 foreach (StreamClass stream in streams)
                 {
-                    BalloonQueue.Enqueue(stream);
+                    //リスナー数を消す
+                    BalloonQueue.Enqueue(new StreamClass(stream.Title, stream.Url, stream.Owner, stream.Start_Time));
                 }
             }
         }
@@ -32,7 +32,7 @@ namespace Dowsingman2.SubManager
         /// <summary>
         /// 通知スタック処理（残りのキューの数を返す）
         /// </summary>
-        public int ExcuteBalloonQueue(int time, string soundFilePath)
+        public int ExcuteBalloonQueue(int time, string fileName)
         {
             StreamClass streamClass;
             while (BalloonQueue.Count > 0)
@@ -44,7 +44,7 @@ namespace Dowsingman2.SubManager
                 if (!LogManager.GetInstance().AddFavorite(streamClass)) continue;
                 
                 ShowBalloon(streamClass, time);
-                MyUtility.PlaySound(soundFilePath);
+                SoundManager.GetInstance().PlayWaveSound(fileName, SettingManager.GetInstance().GetVolume());
                 break;
             }
             return BalloonQueue.Count;

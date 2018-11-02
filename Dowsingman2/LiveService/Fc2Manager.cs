@@ -41,9 +41,9 @@ namespace Dowsingman2.LiveService
                                  let title = item.Element("title").Value
                                  let start_time = MyUtility.FormatDate(item.Element("start").Value, dateFormat_, isUniversal_, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None)
                                  let url = "http://live.fc2.com/" + item.Element("id").Value + '/'
-                                 let listener = item.Element("count").Value
+                                 let listener = MyUtility.TryParseOrDefault<string, int>(int.TryParse, item.Element("count").Value)
                                  where owner.Trim() != string.Empty && owner != "匿名"
-                                 select new StreamClass(title, url, owner, start_time)).ToList());
+                                 select new StreamClass(title, url, owner, listener, start_time)).ToList());
             }
 
             return result;

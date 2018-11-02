@@ -41,8 +41,8 @@ namespace Dowsingman2.LiveService
                         let description = entry.Element(ns + "summary").Value
                         let start_time = MyUtility.FormatDate(entry.Element(ct + "start_date").Value, dateFormat_, isUniversal_, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeUniversal)
                         let url = entry.Element(ns + "id").Value
-                        let listener = entry.Element(ct + "listener").Value
-                        select new StreamClass(title, url, owner, start_time)).ToList();
+                        let listener = MyUtility.TryParseOrDefault<string, int>(int.TryParse, entry.Element(ct + "listener").Value)
+                        select new StreamClass(title, url, owner, listener, start_time)).ToList();
             }
             catch (HttpClientException innerException)
             {

@@ -33,13 +33,13 @@ namespace Dowsingman2.LiveService
             {
                 XDocument xDocument = XDocument.Parse(MyUtility.RemoveSpecialChars(await new MyHttpClient().GetStringAsync(url_, null)));
                 result = (from array in xDocument.Root.Element("results").Elements("array")
-                        let owner = array.Element("userName").Value
-                        let title = array.Element("title").Value
-                        let description = array.Element("description").Value
-                        let start_time = MyUtility.FormatDate(array.Element("streamStartedAt").Value, dateFormat_, isUniversal_)
-                        let url = array.Element("url").Value
-                        let listener = array.Element("currentNumberOfViewers")
-                        select new StreamClass(title, url, owner, start_time)).ToList();
+                          let owner = array.Element("userName").Value
+                          let title = array.Element("title").Value
+                          let description = array.Element("description").Value
+                          let start_time = MyUtility.FormatDate(array.Element("streamStartedAt").Value, dateFormat_, isUniversal_)
+                          let url = array.Element("url").Value
+                          let listener = MyUtility.TryParseOrDefault<string, int>(int.TryParse, array.Element("currentNumberOfViewers").Value)
+                          select new StreamClass(title, url, owner, listener, start_time)).ToList();
             }
             catch (HttpClientException innerException)
             {

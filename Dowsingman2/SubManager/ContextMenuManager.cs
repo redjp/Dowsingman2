@@ -44,9 +44,9 @@ namespace Dowsingman2.SubManager
 
             foreach (StreamClass sc in ContextMenuList)
             {
-                //メニューの先頭に配信を追加
+                //セパレータの上に配信を追加
                 ToolStripMenuItem tsi = new ToolStripMenuItem(sc.Owner, null, ContextMenu_Clicked);
-                ContextMenuStrip.Items.Insert(0, tsi);
+                ContextMenuStrip.Items.Insert(ContextMenuStrip.Items.Count - 3, tsi);
             }
         
             return true;

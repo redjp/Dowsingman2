@@ -62,17 +62,6 @@ namespace Dowsingman2.UtilityClass
         }
 
         /// <summary>
-        /// 音を鳴らす
-        /// </summary>
-        public static void PlaySound(string path)
-        {
-            using (var player = new SoundPlayer(path))
-            {
-                player.Play();
-            }
-        }
-
-        /// <summary>
         /// 日時をstringからDateTimeへ変換
         /// </summary>
         public static DateTime? FormatDate(string dateString, string dateFormat, bool isUniversal)
@@ -122,6 +111,20 @@ namespace Dowsingman2.UtilityClass
             {
                 throw ex;
             }
+        }
+
+        /// <summary>
+        /// TryParseを1行で書くために用意
+        /// https://qiita.com/Temarin/items/9aac6c1f569fc2113e0d
+        /// </summary>
+        public delegate bool TryParse<T, TValue>(T input, out TValue output);
+
+        public static TValue TryParseOrDefault<T, TValue>(TryParse<T, TValue> tryParse, T input)
+        {
+            if (tryParse == null)
+                throw new ArgumentNullException(nameof(tryParse));
+            TValue outvalue;
+            return tryParse(input, out outvalue) ? outvalue : default(TValue);
         }
     }
 }

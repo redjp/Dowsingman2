@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Dowsingman2.Dialog;
 
 /// <summary>
 /// 参考URL
@@ -54,6 +55,8 @@ namespace Dowsingman2
             SystemEvents.SessionEnding += new SessionEndingEventHandler(SystemEvents_SessionEnding);
             SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
 
+            RefreshBridge.RefreshEvent += RefreshBridge_RefreshEvent;
+
             EnableManagers.Add(KukuluManager.GetInstance());
             EnableManagers.Add(CavetubeManager.GetInstance());
             EnableManagers.Add(Fc2Manager.GetInstance());
@@ -65,6 +68,8 @@ namespace Dowsingman2
             SoundFilePath = Path.GetFullPath(SOUND_LOCAL_PATH);
             IconPFilePath = Path.GetFullPath(ICON_P_LOCAL_PATH);
             IconGFilePath = Path.GetFullPath(ICON_G_LOCAL_PATH);
+
+            var t = RefreshNotifyIconAsync();   //警告を消すために変数に代入
         }
 
         /// <summary>
@@ -107,22 +112,21 @@ namespace Dowsingman2
         private void openMainWindow()
         {
             //現在開いているウィンドウの情報を取得
-            Window temp = Application.Current.Windows.OfType<Window>().FirstOrDefault();
+            Window temp = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
 
             //ウィンドウが2つ以上開かないようにチェック
             if (temp == null)
             {
                 // MainWindow を生成、表示
                 var wnd = new MainWindow();
-                // ウィンドウのサイズを復元
-                SettingManager.GetInstance().RecoverWindowBounds(wnd);
                 wnd.Show();
                 wnd.Activate();
-                wnd.UpdateDispList();
             }
             else
             {
                 temp.Activate();
+                temp = Application.Current.Windows.OfType<SettingWindow>().FirstOrDefault();
+                temp?.Activate();
             }
         }
 
@@ -133,9 +137,7 @@ namespace Dowsingman2
         /// <param name="e">イベントデータ</param>
         private void SystemEvents_SessionEnding(object sender, SessionEndingEventArgs e)
         {
-            LogManager.GetInstance().Save();
-            SettingManager.GetInstance().Save();
-            Application.Current.Shutdown();
+            Shutdown();
         }
 
         /// <summary>
@@ -145,6 +147,17 @@ namespace Dowsingman2
         /// <param name="e">イベントデータ</param>
         private void toolStripMenuItem_Exit_Click(object sender, EventArgs e)
         {
+            Shutdown();
+        }
+
+        /// <summary>
+        /// 保存とシャットダウンを行う
+        /// </summary>
+        private void Shutdown()
+        {
+            Window temp = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+            temp?.Close();
+
             LogManager.GetInstance().Save();
             SettingManager.GetInstance().Save();
             Application.Current.Shutdown();
@@ -201,6 +214,11 @@ namespace Dowsingman2
             RefreshCompleted?.Invoke(this, EventArgs.Empty);
         }
 
+        private void RefreshBridge_RefreshEvent(AbstractManager manager)
+        {
+            RefreshNotifyIconLite(manager);
+        }
+
         /// <summary>
         /// 1箇所だけ更新があったとき用
         /// </summary>
@@ -254,21 +272,15 @@ namespace Dowsingman2
             }
         }
 
-        private async void timer3_Tick(object sender, EventArgs e)
-        {
-            timer3.Enabled = false;
-            await RefreshNotifyIconAsync();
-            refreshTimer.Enabled = true;
-        }
-
-        private void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
+        private async void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
             if (e.Mode == PowerModes.Resume)
             {
                 refreshTimer.Enabled = false;
-                System.Threading.Thread.Sleep(3000);
-                if (!refreshTimer.Enabled && !timer3.Enabled)
-                    timer3.Start();
+                System.Threading.Thread.Sleep(1000);
+
+                await RefreshNotifyIconAsync();
+                refreshTimer.Enabled = true;
             }
         }
     }

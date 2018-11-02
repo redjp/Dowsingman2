@@ -55,6 +55,15 @@
     <StartupObject>Dowsingman2.App</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MaterialDesignColors, Version=1.0.0.14576, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MaterialDesignColors.1.1.1\lib\net45\MaterialDesignColors.dll</HintPath>
+    </Reference>
+    <Reference Include="MaterialDesignThemes.Wpf, Version=2.5.0.1205, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MaterialDesignThemes.2.5.0.1205\lib\net45\MaterialDesignThemes.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudio, Version=1.8.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.1.8.4\lib\net35\NAudio.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -79,6 +88,25 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BaseClass\AbstractManager.cs" />
+    <Compile Include="BaseClass\AnotherCommandImplementation.cs" />
+    <Compile Include="BaseClass\BindableBase.cs" />
+    <Compile Include="BaseClass\DateTime2StringConverter.cs" />
+    <Compile Include="BaseClass\Enum.cs" />
+    <Compile Include="BaseClass\Listener2StringConverter.cs" />
+    <Compile Include="DataGridSort\Attached.cs" />
+    <Compile Include="Dialog\AddButtonDialog.xaml.cs">
+      <DependentUpon>AddButtonDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\DeleteButtonDialog.xaml.cs">
+      <DependentUpon>DeleteButtonDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\NotifyDialog.xaml.cs">
+      <DependentUpon>NotifyDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\SettingWindow.xaml.cs">
+      <DependentUpon>SettingWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\SettingWindowViewModel.cs" />
     <Compile Include="Environment.cs" />
     <Compile Include="Environment_Sample.cs" />
     <Compile Include="Error\ServerErrorException.cs" />
@@ -88,9 +116,16 @@
     <Compile Include="LiveService\Fc2Manager.cs" />
     <Compile Include="LiveService\KukuluManager.cs" />
     <Compile Include="LiveService\TwitchManager.cs" />
+    <Compile Include="BaseClass\LeftMenu.cs" />
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="SubManager\BalloonManager.cs" />
     <Compile Include="SubManager\ContextMenuManager.cs" />
+    <Compile Include="SubManager\RefreshBridge.cs" />
     <Compile Include="SubManager\SettingManager.cs" />
+    <Compile Include="SubManager\SoundManager.cs" />
     <Compile Include="UtilityClass\MyHttpClient.cs" />
     <Compile Include="UtilityClass\MyUtility.cs" />
     <Compile Include="SubManager\LogManager.cs" />
@@ -98,7 +133,19 @@
     <Compile Include="UtilityClass\MyTraceSource.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="BaseClass\StreamClass.cs" />
-    <Page Include="MainWindow.xaml">
+    <Page Include="Dialog\AddButtonDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\DeleteButtonDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\NotifyDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\SettingWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -106,10 +153,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NotifyIconWrapper.cs">
@@ -138,6 +185,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -151,9 +199,7 @@
     <Resource Include="resource\icon_G.ico" />
     <Resource Include="resource\icon_P.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="favorite\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
@@ -171,7 +217,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>xcopy $(ProjectDir)resource $(TargetDir)resource /D/E/C/I/H/Y
-xcopy $(ProjectDir)favorite $(TargetDir)favorite /D/E/C/I/H/Y</PreBuildEvent>
+    <PreBuildEvent>xcopy $(ProjectDir)resource $(TargetDir)resource /D/E/C/I/H/Y</PreBuildEvent>
   </PropertyGroup>
 </Project>
