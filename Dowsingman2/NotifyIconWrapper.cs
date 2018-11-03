@@ -151,8 +151,8 @@ namespace Dowsingman2
             temp = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
             temp?.Close();
 
-            LogManager.GetInstance().Save();
             SettingManager.GetInstance().Save();
+            LogManager.GetInstance().Save();
 
             Application.Current.Shutdown();
         }
