@@ -151,11 +151,6 @@ namespace Dowsingman2
             temp = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
             temp?.Close();
 
-            foreach (AbstractManager manager in EnableManagers)
-            {
-                if (manager.IsChanged) manager.Save();
-            }
-
             LogManager.GetInstance().Save();
             SettingManager.GetInstance().Save();
 

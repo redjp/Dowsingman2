@@ -201,6 +201,8 @@ namespace Dowsingman2
                     return;
                 }
 
+                manager.Save();
+
                 //Gridの更新
                 RefreshBridge.Refresh(manager);
                 RefreshDataGrid();
@@ -238,6 +240,8 @@ namespace Dowsingman2
                 await DialogHost.Show(notify);
                 return;
             }
+
+            manager.Save();
 
             //Gridの更新
             RefreshBridge.Refresh(manager);
