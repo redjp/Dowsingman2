@@ -11,4 +11,4 @@ kukuluLive, FC2Live, Twitch, Cavetube
 MaterialDesignTheme, NAudio
 
 ビルドする際はEnvironment_Sample.csをEnvironment.csにリネームして、<br>
-中のクラス名とAPIキーを有効なものに変更してください。
+中のクラス名をEnvironmentに、APIキーを有効なものに変更してください。
