@@ -20,13 +20,15 @@ namespace Dowsingman2.BaseClass
         public string FileName { get; }
         public string FilePath { get; }
         public bool IsRequest { get; protected set; }
+        public bool IsChanged { get; protected set; }
 
         protected AbstractManager(string name, string fileName)
         {
             Name = name;
             FileName = fileName;
-            FilePath = Path.GetFullPath(".\\favorite\\" + FileName);
+            FilePath = "favorite\\" + FileName;
             IsRequest = false;
+            IsChanged = false;
             liveStreamClassList_ = new List<StreamClass>();
 
             Load();
@@ -61,6 +63,7 @@ namespace Dowsingman2.BaseClass
                 if (!favoriteStreamClassList_.Exists(x => x.Owner == newFavorite.Owner))
                 {
                     favoriteStreamClassList_.Add(newFavorite);
+                    IsChanged = true;
                     return true;
                 }
                 else
@@ -77,6 +80,7 @@ namespace Dowsingman2.BaseClass
                 if (!favoriteStreamClassList_.Exists(x => x.Owner == newOwner))
                 {
                     favoriteStreamClassList_.Add(new StreamClass(newOwner));
+                    IsChanged = true;
                     return true;
                 }
                 else
@@ -93,6 +97,7 @@ namespace Dowsingman2.BaseClass
                 if (favoriteStreamClassList_.Exists(x => x == target))
                 {
                     favoriteStreamClassList_.Remove(target);
+                    IsChanged = true;
                     return true;
                 }
                 else
@@ -110,6 +115,7 @@ namespace Dowsingman2.BaseClass
                 if (sc != null)
                 {
                     favoriteStreamClassList_.Remove(sc);
+                    IsChanged = true;
                     return true;
                 }
                 else
@@ -226,7 +232,7 @@ namespace Dowsingman2.BaseClass
 #if DEBUG
                 MyTraceSource.TraceEvent(TraceEventType.Error, new StringBuilder(40).Append("[").Append(FileName).Append("] Favoriteフォルダが見つかりません").ToString());
 #endif
-                Directory.CreateDirectory(".\\favorite");
+                Directory.CreateDirectory("favorite");
                 InitStreamClassList();
             }
             catch (FileNotFoundException)
@@ -264,13 +270,14 @@ namespace Dowsingman2.BaseClass
                 try
                 {
                     MySerializer.Serialize<List<string>>(list, FilePath);
+                    IsChanged = false;
                 }
                 catch (DirectoryNotFoundException)
                 {
 #if DEBUG
                     MyTraceSource.TraceEvent(TraceEventType.Error, new StringBuilder(40).Append("[").Append(FileName).Append("] Favoriteフォルダが見つかりません").ToString());
 #endif
-                    Directory.CreateDirectory(".\\favorite");
+                    Directory.CreateDirectory("favorite");
                     continue;
                 }
                 catch (Exception ex)

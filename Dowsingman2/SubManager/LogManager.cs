@@ -21,8 +21,6 @@ namespace Dowsingman2.SubManager
         private LogManager() : base("Log", "log.xml")
         {
             maxLogSize = 100;
-
-            Load();
         }
 
         public override ReadOnlyCollection<StreamClass> GetFavoriteStreamClassList()
@@ -90,7 +88,7 @@ namespace Dowsingman2.SubManager
 #if DEBUG
                 MyTraceSource.TraceEvent(TraceEventType.Error, new StringBuilder(40).Append("[").Append(FileName).Append("] Favoriteフォルダが見つかりません").ToString());
 #endif
-                Directory.CreateDirectory(".\\favorite");
+                Directory.CreateDirectory("favorite");
                 InitStreamClassList();
             }
             catch (FileNotFoundException)
@@ -134,7 +132,7 @@ namespace Dowsingman2.SubManager
 #if DEBUG
                     MyTraceSource.TraceEvent(TraceEventType.Error, new StringBuilder(40).Append("[").Append(FileName).Append("] Favoriteフォルダが見つかりません").ToString());
 #endif
-                    Directory.CreateDirectory(".\\favorite");
+                    Directory.CreateDirectory("favorite");
                     continue;
                 }
                 catch (Exception ex)

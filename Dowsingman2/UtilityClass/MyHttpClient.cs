@@ -43,8 +43,8 @@ namespace Dowsingman2.UtilityClass
                     httpWebRequest.Method = "GET";
                     httpWebRequest.Proxy = null;
                     httpWebRequest.UserAgent = userAgent_;
-                    httpWebRequest.Timeout = 15000;
-                    httpWebRequest.ReadWriteTimeout = 15000;
+                    httpWebRequest.Timeout = 30000;
+                    httpWebRequest.ReadWriteTimeout = 30000;
                     WebHeaderCollection headers = httpWebRequest.Headers;
                     headers.Add("Accept-Language", "ja,en-us;q=0.7,en;q=0.3");
 #if DEBUG

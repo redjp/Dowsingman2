@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace Dowsingman2.UtilityClass
 {
@@ -18,7 +17,7 @@ namespace Dowsingman2.UtilityClass
             await _semaphore.WaitAsync(); // ロックを取得する
             try
             {
-                var xmlSerializer = new XmlSerializer(typeof(T));
+                var xmlSerializer = CachingXmlSerializerFactory.Create(typeof(T));
                 using (var streamWriter = new StreamWriter(filePath, false, new UTF8Encoding(false)))
                 {
                     await Task.Run(() => xmlSerializer.Serialize(streamWriter, data));
@@ -33,7 +32,7 @@ namespace Dowsingman2.UtilityClass
 
         public static void Serialize<T>(T data, string filePath)
         {
-            var xmlSerializer = new XmlSerializer(typeof(T));
+            var xmlSerializer = CachingXmlSerializerFactory.Create(typeof(T));
             using (var streamWriter = new StreamWriter(filePath, false, new UTF8Encoding(false)))
             {
                 xmlSerializer.Serialize(streamWriter, data);
@@ -46,7 +45,7 @@ namespace Dowsingman2.UtilityClass
             await _semaphore.WaitAsync(); // ロックを取得する
             try
             {
-                var xmlSerializer = new XmlSerializer(typeof(T));
+                var xmlSerializer = CachingXmlSerializerFactory.Create(typeof(T));
                 var xmlSettings = new System.Xml.XmlReaderSettings()
                 {
                     CheckCharacters = false,
@@ -66,7 +65,7 @@ namespace Dowsingman2.UtilityClass
         public static T Deserialize<T>(string filePath)
         {
 
-            var xmlSerializer = new XmlSerializer(typeof(T));
+            var xmlSerializer = CachingXmlSerializerFactory.Create(typeof(T));
             var xmlSettings = new System.Xml.XmlReaderSettings()
             {
                 CheckCharacters = false,

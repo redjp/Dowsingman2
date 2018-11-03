@@ -1,4 +1,5 @@
 ﻿using Dowsingman2.BaseClass;
+using Dowsingman2.Dialog;
 using Dowsingman2.LiveService;
 using Dowsingman2.SubManager;
 using Dowsingman2.UtilityClass;
@@ -6,11 +7,9 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using Dowsingman2.Dialog;
 
 /// <summary>
 /// 参考URL
@@ -32,14 +31,10 @@ namespace Dowsingman2
 
         private string balloonClickUrl_ = string.Empty;
 
-        const string SOUND_LOCAL_PATH = ".\\resource\\favorite.wav";
-        const string ICON_P_LOCAL_PATH = ".\\resource\\icon_P.ico";
-        const string ICON_G_LOCAL_PATH = ".\\resource\\icon_G.ico";
+        const string SOUND_LOCAL_PATH = "resource\\favorite.wav";
+        const string ICON_P_LOCAL_PATH = "resource\\icon_P.ico";
+        const string ICON_G_LOCAL_PATH = "resource\\icon_G.ico";
         const int balloontime = 3200;
-
-        public string SoundFilePath { get; }
-        public string IconPFilePath { get; }
-        public string IconGFilePath { get; }
 
         /// <summary>
         /// NotifyIconWrapper クラス を生成、初期化します。
@@ -64,10 +59,6 @@ namespace Dowsingman2
 
             BalloonManager = new BalloonManager(myNotifyIcon);
             ContextMenuManager = new ContextMenuManager(myContextMenuStrip);
-
-            SoundFilePath = Path.GetFullPath(SOUND_LOCAL_PATH);
-            IconPFilePath = Path.GetFullPath(ICON_P_LOCAL_PATH);
-            IconGFilePath = Path.GetFullPath(ICON_G_LOCAL_PATH);
 
             var t = RefreshNotifyIconAsync();   //警告を消すために変数に代入
         }
@@ -155,11 +146,19 @@ namespace Dowsingman2
         /// </summary>
         private void Shutdown()
         {
-            Window temp = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+            Window temp = Application.Current.Windows.OfType<SettingWindow>().FirstOrDefault();
             temp?.Close();
+            temp = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+            temp?.Close();
+
+            foreach (AbstractManager manager in EnableManagers)
+            {
+                if (manager.IsChanged) manager.Save();
+            }
 
             LogManager.GetInstance().Save();
             SettingManager.GetInstance().Save();
+
             Application.Current.Shutdown();
         }
 
@@ -196,7 +195,7 @@ namespace Dowsingman2
             if (!balloonTimer.Enabled)
             {
                 //通知スタック1つ目を即座に処理
-                balloonTimer.Enabled = BalloonManager.ExcuteBalloonQueue(balloontime, SoundFilePath) > 0;
+                balloonTimer.Enabled = BalloonManager.ExcuteBalloonQueue(balloontime, SOUND_LOCAL_PATH) > 0;
             }
 
             RefreshMenuAndIcon();
@@ -229,7 +228,7 @@ namespace Dowsingman2
             if (!balloonTimer.Enabled)
             {
                 //通知スタック1つ目を即座に処理
-                balloonTimer.Enabled = BalloonManager.ExcuteBalloonQueue(balloontime, SoundFilePath) > 0;
+                balloonTimer.Enabled = BalloonManager.ExcuteBalloonQueue(balloontime, SOUND_LOCAL_PATH) > 0;
             }
 
             RefreshMenuAndIcon();
@@ -242,7 +241,7 @@ namespace Dowsingman2
         /// <param name="e">イベントデータ</param>
         private void balloonTimer_Tick(object sender, EventArgs e)
         {
-            balloonTimer.Enabled = BalloonManager.ExcuteBalloonQueue(balloontime, SoundFilePath) > 0;
+            balloonTimer.Enabled = BalloonManager.ExcuteBalloonQueue(balloontime, SOUND_LOCAL_PATH) > 0;
         }
 
         /// <summary>

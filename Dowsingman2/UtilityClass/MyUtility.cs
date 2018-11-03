@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Media;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 
 
 namespace Dowsingman2.UtilityClass
@@ -17,6 +16,11 @@ namespace Dowsingman2.UtilityClass
         {
             htmlRegex_ = new Regex("<.+?>", RegexOptions.Compiled);
             specialCharsRegex_ = new Regex("[\\00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]", RegexOptions.Compiled);
+        }
+
+        public static string ReplaceUnderScore(string value)
+        {
+            return value.Replace("_", "__");
         }
 
         /// <summary>

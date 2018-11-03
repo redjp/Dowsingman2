@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Windows;
-using Dowsingman2.BaseClass;
+﻿using Dowsingman2.BaseClass;
 using Dowsingman2.SubManager;
+using System.Windows;
+using System.Windows.Input;
 
 namespace Dowsingman2.Dialog
 {
@@ -65,7 +60,7 @@ namespace Dowsingman2.Dialog
         #region --SoundTestCommand
         private void ExcuteSoundTest(object o)
         {
-            var filePath = System.IO.Path.GetFullPath(".\\resource\\favorite.wav");
+            var filePath = "resource\\favorite.wav";
             SoundManager.GetInstance().PlayWaveSound(filePath, Volume);
         }
         #endregion

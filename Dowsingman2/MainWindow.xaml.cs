@@ -1,5 +1,6 @@
 ﻿using Dowsingman2.BaseClass;
 using Dowsingman2.SubManager;
+using Dowsingman2.UtilityClass;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -54,7 +55,7 @@ namespace Dowsingman2
 
                 theMenu.Items.Add(new MenuItem
                 {
-                    Header = viewModel.SelectedData.Owner + "を削除",
+                    Header = MyUtility.ReplaceUnderScore(viewModel.SelectedData.Owner) + "を削除",
                     Command = viewModel.DeleteButtonCommand,
                     CommandParameter = viewModel.SelectedData
                 });
@@ -63,7 +64,7 @@ namespace Dowsingman2
             { 
                 theMenu.Items.Add(new MenuItem
                 {
-                    Header = viewModel.SelectedData.Owner + "を追加",
+                    Header = MyUtility.ReplaceUnderScore(viewModel.SelectedData.Owner) + "を追加",
                     Command = viewModel.AddButtonCommand,
                     CommandParameter = viewModel.SelectedData
                 });

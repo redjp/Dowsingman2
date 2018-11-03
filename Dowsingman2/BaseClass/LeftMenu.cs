@@ -1,6 +1,4 @@
 ﻿using MaterialDesignThemes.Wpf;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows;
 
 namespace Dowsingman2.BaseClass

@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MaterialDesignThemes.Wpf;
-using System.ComponentModel;
-using System.Collections.ObjectModel;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Controls;
-using Dowsingman2.BaseClass;
+﻿using Dowsingman2.BaseClass;
 using Dowsingman2.Dialog;
 using Dowsingman2.LiveService;
 using Dowsingman2.SubManager;
-using System.Windows.Data;
 using Dowsingman2.UtilityClass;
+using MaterialDesignThemes.Wpf;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows;
+using System.Windows.Input;
 
 
 namespace Dowsingman2
@@ -169,6 +163,9 @@ namespace Dowsingman2
             view.AddButtonTextBlock.Text = "追加する名前を入力 (" + SelectedLeftMenu.Text + ")" ;
             if (SelectedTopMenu == TopMenuSelection.All) view.AddButtonTextBox.Text = (param as StreamClass).Owner;
 
+            var manager = SelectedLeftMenu.Manager;
+            bool isTwitch = SelectedLeftMenu.Text == "Twitch";
+
             while (true)
             {
                 var result = await DialogHost.Show(view);
@@ -186,7 +183,7 @@ namespace Dowsingman2
                     continue;
                 }
 
-                if (SelectedLeftMenu.Text == "Twitch" && !s.All(c => char.IsLower(c) || char.IsDigit(c)))
+                if (isTwitch && !s.All(c => char.IsLower(c) || char.IsDigit(c) || c == '_'))
                 {
                     //Twitchは英数小文字で入力してください
                     var notify = new NotifyDialog();
@@ -195,7 +192,7 @@ namespace Dowsingman2
                     continue;
                 }
 
-                if (!SelectedLeftMenu.Manager.AddFavorite(s))
+                if (!manager.AddFavorite(s))
                 {
                     //sはすでに登録されています
                     var notify = new NotifyDialog();
@@ -205,7 +202,7 @@ namespace Dowsingman2
                 }
 
                 //Gridの更新
-                RefreshBridge.Refresh(SelectedLeftMenu.Manager);
+                RefreshBridge.Refresh(manager);
                 RefreshDataGrid();
 
                 break;
@@ -226,12 +223,14 @@ namespace Dowsingman2
             string owner = (param as StreamClass).Owner;
             view.DeleteButtonTextBlock.Text = "\"" + owner + "\"を削除しますか";
 
+            var manager = SelectedLeftMenu.Manager;
+
             var result = await DialogHost.Show(view);
 
             if (!Equals(result, true)) return;
 
             //削除
-            if(!SelectedLeftMenu.Manager.RemoveFavorite(owner))
+            if(!manager.RemoveFavorite(owner))
             {
                 //削除に失敗しました
                 var notify = new NotifyDialog();
@@ -241,7 +240,7 @@ namespace Dowsingman2
             }
 
             //Gridの更新
-            RefreshBridge.Refresh(SelectedLeftMenu.Manager);
+            RefreshBridge.Refresh(manager);
             RefreshDataGrid();
         }
         #endregion
