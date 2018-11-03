@@ -1,8 +1,14 @@
 # Dowsingman2
-check favorite streams in tasktray C# WPF .NET4.7.1
+check favorite streams in tasktray C# WPF .NET4.5.2
 
 配信サイトごとに登録したチャンネルの配信があるかどうかをチェックするアプリケーションです。<br>
 タスクトレイで動きます。
 
-対応サイト<br>
+<b>対応サイト</b><br>
 kukuluLive, FC2Live, Twitch, Cavetube
+
+<b>使用パッケージ</b> (nuget)<br>
+MaterialDesignTheme, NAudio
+
+ビルドする際はEnvironment_Sample.csをEnvironment.csにリネームして、<br>
+中のクラス名をEnvironmentに、APIキーを有効なものに変更してください。
