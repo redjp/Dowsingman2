@@ -12,3 +12,5 @@ MaterialDesignTheme, NAudio
 
 ビルドする際はEnvironment_Sample.csをEnvironment.csにリネームして、<br>
 中のクラス名をEnvironmentに、APIキーを有効なものに変更してください。
+
+![alt](image.gif)
