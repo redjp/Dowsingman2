@@ -34,6 +34,7 @@ namespace Dowsingman2.SubManager
         {
             Settings.IsButtonVisible = settingWindow.IsButtonVisible;
             Settings.Volume = settingWindow.Volume;
+            Settings.IsStartupEnable = settingWindow.IsStartupEnable;
         }
 
         /// <summary>
@@ -43,6 +44,7 @@ namespace Dowsingman2.SubManager
         {
             settingWindow.IsButtonVisible = Settings.IsButtonVisible;
             settingWindow.Volume = Settings.Volume;
+            settingWindow.IsStartupEnable = Settings.IsStartupEnable;
         }
 
         /// <summary>

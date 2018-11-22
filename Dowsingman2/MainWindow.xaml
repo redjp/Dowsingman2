@@ -82,7 +82,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Binding="{Binding Start_Time, Converter={StaticResource D2SConverter}}" Header="配信開始時刻" Width="140" />
+                    <DataGridTextColumn Binding="{Binding Start_Time, Converter={StaticResource D2SConverter}}" Header="配信開始時刻" Width="120" />
                 </DataGrid.Columns>
 
                 <!-- これがないと最初に開かれたコンテキストメニューがキャンセルされる -->

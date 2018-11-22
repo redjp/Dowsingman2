@@ -94,6 +94,33 @@ namespace Dowsingman2.UtilityClass
         /// <summary>
         /// 日時をstringからDateTimeへ変換
         /// </summary>
+        public static DateTime? FormatDate(string dateString, string dateFormat, TimeZoneInfo timeZoneInfo)
+        {
+            if (String.IsNullOrEmpty(dateString)) return null;
+
+            try
+            {
+                DateTime dateTime = DateTime.ParseExact(dateString, dateFormat, null);
+                dateTime = TimeZoneInfo.ConvertTimeToUtc(dateTime, timeZoneInfo);
+                return dateTime.ToLocalTime();
+            }
+            catch (FormatException)
+            {
+#if DEBUG
+                MyTraceSource.TraceEvent(TraceEventType.Error, new StringBuilder(40).Append("[").Append(dateString).Append("] is not [").Append(dateFormat).Append("]").ToString());
+#endif
+                return null;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// 日時をstringからDateTimeへ変換
+        /// </summary>
         public static DateTime? FormatDate(string dateString, string dateFormat, bool isUniversal, DateTimeFormatInfo formatInfo, DateTimeStyles styles)
         {
             if (String.IsNullOrEmpty(dateString)) return null;

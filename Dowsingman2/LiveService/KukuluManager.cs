@@ -16,13 +16,13 @@ namespace Dowsingman2.LiveService
 
         private string url_;
         private string dateFormat_;
-        private bool isUniversal_;
+        private TimeZoneInfo timeZoneInfo_;
 
         private KukuluManager() : base("Kukulu", "kukulu.xml")
         {
             url_ = "http://dwsrod.kuku.lu/xml/stream/popular/search/all?limit=100";
             dateFormat_ = "yyyy-MM-dd HH:mm:ss";
-            isUniversal_ = true;
+            timeZoneInfo_ = TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time");
         }
 
         public override async Task<List<StreamClass>> DownloadLiveAsync()
@@ -36,7 +36,7 @@ namespace Dowsingman2.LiveService
                           let owner = array.Element("userName").Value
                           let title = array.Element("title").Value
                           let description = array.Element("description").Value
-                          let start_time = MyUtility.FormatDate(array.Element("streamStartedAt").Value, dateFormat_, isUniversal_)
+                          let start_time = MyUtility.FormatDate(array.Element("createdAt").Value, dateFormat_, timeZoneInfo_)
                           let url = array.Element("url").Value
                           let listener = MyUtility.TryParseOrDefault<string, int>(int.TryParse, array.Element("currentNumberOfViewers").Value)
                           select new StreamClass(title, url, owner, listener, start_time)).ToList();

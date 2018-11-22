@@ -130,5 +130,17 @@ namespace Dowsingman2.Properties {
                 this["Volume"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsStartupEnable {
+            get {
+                return ((bool)(this["IsStartupEnable"]));
+            }
+            set {
+                this["IsStartupEnable"] = value;
+            }
+        }
     }
 }

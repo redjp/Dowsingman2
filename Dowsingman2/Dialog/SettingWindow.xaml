@@ -39,6 +39,12 @@
 
         <Border Margin="8 16 8 0" BorderThickness="0 1 0 0" BorderBrush="{DynamicResource MaterialDesignDivider}" Grid.Row="3" />
 
+        <TextBlock Style="{StaticResource MaterialDesignButtonTextBlock}" Grid.Row="4" VerticalAlignment="Top" Margin="8,8,0,0">
+            Windows起動時に起動
+        </TextBlock>
+        <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" Grid.Row="4" VerticalAlignment="Top" Margin="0,16,16,0" HorizontalAlignment="Right"
+                      IsChecked="{Binding IsStartupEnable}"/>
+
         <StackPanel Grid.Row="4" Margin="0 16 0 0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
             <Button Style="{StaticResource MaterialDesignFlatButton}" Width="110"
                     Command="{Binding CancelCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" >

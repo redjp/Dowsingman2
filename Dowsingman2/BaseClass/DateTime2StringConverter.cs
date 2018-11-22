@@ -10,7 +10,7 @@ namespace Dowsingman2.BaseClass
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var dateTime = value as DateTime?;
-            return dateTime?.ToString("yyyy/M/d H:mm:ss");
+            return dateTime?.ToString("yyyy/M/d H:mm");
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

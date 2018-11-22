@@ -40,7 +40,17 @@ namespace Dowsingman2
         private ContextMenu BuildMenu()
         {
             ContextMenu theMenu = new ContextMenu();
+            bool isExistsSelectedDate = viewModel.SelectedData != null;
 
+            //if (isExistsSelectedDate)
+            //{
+            //    theMenu.Items.Add(new MenuItem
+            //    {
+            //        Header = "ブラウザで配信を開く",
+            //        Command = viewModel.DoubleClickCommand,
+            //        CommandParameter = viewModel.SelectedData
+            //    });
+            //}
             if (!Equals(viewModel.SelectedLeftMenu.TopMenuVisibility, Visibility.Visible)) return theMenu;
 
             if (Equals(viewModel.SelectedTopMenu, TopMenuSelection.Favorite))
@@ -51,7 +61,7 @@ namespace Dowsingman2
                     Command = viewModel.AddButtonCommand
                 });
 
-                if (viewModel.SelectedData == null) return theMenu;
+                if (!isExistsSelectedDate) return theMenu;
 
                 theMenu.Items.Add(new MenuItem
                 {
@@ -60,7 +70,7 @@ namespace Dowsingman2
                     CommandParameter = viewModel.SelectedData
                 });
             }
-            else if (viewModel.SelectedData != null)
+            else if (isExistsSelectedDate)
             { 
                 theMenu.Items.Add(new MenuItem
                 {
