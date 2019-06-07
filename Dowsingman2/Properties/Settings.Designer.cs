@@ -142,5 +142,29 @@ namespace Dowsingman2.Properties {
                 this["IsStartupEnable"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsDefaultBrowserEnable {
+            get {
+                return ((bool)(this["IsDefaultBrowserEnable"]));
+            }
+            set {
+                this["IsDefaultBrowserEnable"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string BrowserPath {
+            get {
+                return ((string)(this["BrowserPath"]));
+            }
+            set {
+                this["BrowserPath"] = value;
+            }
+        }
     }
 }

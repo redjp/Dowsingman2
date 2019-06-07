@@ -93,6 +93,7 @@
     <Compile Include="BaseClass\BindableBase.cs" />
     <Compile Include="BaseClass\DateTime2StringConverter.cs" />
     <Compile Include="BaseClass\Enum.cs" />
+    <Compile Include="BaseClass\InverseBooleanConverter.cs" />
     <Compile Include="BaseClass\Listener2StringConverter.cs" />
     <Compile Include="DataGridSort\Attached.cs" />
     <Compile Include="Dialog\AddButtonDialog.xaml.cs">

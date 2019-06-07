@@ -22,6 +22,11 @@ namespace Dowsingman2.SubManager
             return Settings.Volume;
         }
 
+        public string GetBrowserPath()
+        {
+            return Settings.IsDefaultBrowserEnable ? string.Empty : Settings.BrowserPath;
+        }
+
         public Visibility GetButtonVisibility()
         {
             return Settings.IsButtonVisible ? Visibility.Visible : Visibility.Hidden;
@@ -35,6 +40,8 @@ namespace Dowsingman2.SubManager
             Settings.IsButtonVisible = settingWindow.IsButtonVisible;
             Settings.Volume = settingWindow.Volume;
             Settings.IsStartupEnable = settingWindow.IsStartupEnable;
+            Settings.IsDefaultBrowserEnable = settingWindow.IsDefaultBrowserEnable;
+            Settings.BrowserPath = settingWindow.BrowserPath;
         }
 
         /// <summary>
@@ -45,6 +52,8 @@ namespace Dowsingman2.SubManager
             settingWindow.IsButtonVisible = Settings.IsButtonVisible;
             settingWindow.Volume = Settings.Volume;
             settingWindow.IsStartupEnable = Settings.IsStartupEnable;
+            settingWindow.IsDefaultBrowserEnable = Settings.IsDefaultBrowserEnable;
+            settingWindow.BrowserPath = Settings.BrowserPath;
         }
 
         /// <summary>

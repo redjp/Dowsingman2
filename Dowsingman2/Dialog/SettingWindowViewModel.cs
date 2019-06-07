@@ -8,14 +8,18 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Forms;
+
 
 namespace Dowsingman2.Dialog
 {
     class SettingWindowViewModel : BindableBase
     {
         private int volume_;
+        private string browserPath_;
         private bool isButtonVisible_;
         private bool isStartupEnable_;
+        private bool isDefaultBrowserEnable_;
 
         #region
         public int Volume
@@ -29,6 +33,16 @@ namespace Dowsingman2.Dialog
             }
         }
 
+        public string BrowserPath
+        {
+            get { return browserPath_; }
+            set
+            {
+                if (browserPath_ == value) return;
+                browserPath_ = value;
+                OnPropertyChanged();
+            }
+        }
         public bool IsButtonVisible
         {
             get { return isButtonVisible_; }
@@ -51,6 +65,17 @@ namespace Dowsingman2.Dialog
             }
         }
 
+        public bool IsDefaultBrowserEnable
+        {
+            get { return isDefaultBrowserEnable_; }
+            set
+            {
+                if (isDefaultBrowserEnable_ == value) return;
+                isDefaultBrowserEnable_ = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool IsStartupChanged { get; private set; }
         public string ShortcutName { get; }
         #endregion
@@ -58,6 +83,7 @@ namespace Dowsingman2.Dialog
         public ICommand AcceptCommand => new AnotherCommandImplementation(ExcuteCloseWindow4Accept);
         public ICommand CancelCommand => new AnotherCommandImplementation(ExcuteCloseWindow4Cancel);
         public ICommand SoundTestCommand => new AnotherCommandImplementation(ExcuteSoundTest);
+        public ICommand OpenBrowserDialogCommand => new AnotherCommandImplementation(ExcuteOpenBrowserDialog);
 
         public SettingWindowViewModel()
         {
@@ -88,6 +114,24 @@ namespace Dowsingman2.Dialog
         {
             var filePath = "resource\\favorite.wav";
             SoundManager.GetInstance().PlayWaveSound(filePath, Volume);
+        }
+        #endregion
+
+        #region --OpenBrowserCommand
+        private void ExcuteOpenBrowserDialog(object o)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.InitialDirectory = BrowserPath;
+                openFileDialog.Filter = "ブラウザ (*.exe)|*.exe|全てのファイル (*.*)|*.*";
+                openFileDialog.FilterIndex = 1;
+                openFileDialog.RestoreDirectory = true;
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    BrowserPath = openFileDialog.FileName;
+                }
+            }
         }
         #endregion
 

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.ComponentModel;
 using System.Text;
 using System.Text.RegularExpressions;
+using Dowsingman2.SubManager;
 
 
 namespace Dowsingman2.UtilityClass
@@ -54,6 +56,21 @@ namespace Dowsingman2.UtilityClass
         {
             if (String.IsNullOrEmpty(url)) return;
 
+            String fileName = SettingManager.GetInstance().GetBrowserPath();
+
+            if (String.IsNullOrEmpty(fileName))
+            {
+                BrowserProcessStart(url);
+            }
+            else
+            {
+                BrowserProcessStart(fileName, url);
+            }
+        }
+
+        #region --BrowserProcessStart
+        private static void BrowserProcessStart(string url)
+        {
             try
             {
                 //規定のブラウザで配信URLを開く
@@ -64,6 +81,28 @@ namespace Dowsingman2.UtilityClass
                 MyTraceSource.TraceEvent(TraceEventType.Error, ex);
             }
         }
+
+        private static void BrowserProcessStart(string fileName, string url)
+        {
+            try
+            {
+                //指定のブラウザで配信URLを開く
+                Process.Start(fileName, url);
+            }
+            //ファイルを開いてるときにエラーが発生
+            catch (Win32Exception ex)
+            {
+                MyTraceSource.TraceEvent(TraceEventType.Error, ex);
+
+                //規定のブラウザで配信URLを開く
+                BrowserProcessStart(url);
+            }
+            catch (Exception ex)
+            {
+                MyTraceSource.TraceEvent(TraceEventType.Error, ex);
+            }
+        }
+        #endregion
 
         /// <summary>
         /// 日時をstringからDateTimeへ変換
